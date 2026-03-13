@@ -11,6 +11,7 @@ interface UseAIChatReturn {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
+  requiresLogin: boolean;
   sendMessage: (content: string) => Promise<void>;
   clearMessages: () => void;
 }
@@ -25,6 +26,7 @@ export function useAIChat(patientContext?: { name?: string; age?: number }): Use
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requiresLogin, setRequiresLogin] = useState(false);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -41,10 +43,7 @@ export function useAIChat(patientContext?: { name?: string; age?: number }): Use
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error('You must be logged in to use the AI assistant');
-      }
+      const isAuthenticated = !!session;
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -58,16 +57,22 @@ export function useAIChat(patientContext?: { name?: string; age?: number }): Use
           content: msg.content,
         }));
 
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'apikey': supabaseAnonKey,
+      };
+
+      if (session) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-          'apikey': supabaseAnonKey,
-        },
+        headers,
         body: JSON.stringify({
           messages: [...conversationHistory, { role: 'user', content: content.trim() }],
           patientContext,
+          isAuthenticated,
         }),
       });
 
@@ -77,6 +82,12 @@ export function useAIChat(patientContext?: { name?: string; age?: number }): Use
       }
 
       const data = await response.json();
+
+      if (data.requiresLogin) {
+        setRequiresLogin(true);
+      } else {
+        setRequiresLogin(false);
+      }
 
       const assistantMessage: Message = {
         role: 'assistant',
@@ -115,6 +126,7 @@ export function useAIChat(patientContext?: { name?: string; age?: number }): Use
     messages,
     isLoading,
     error,
+    requiresLogin,
     sendMessage,
     clearMessages,
   };

@@ -1,16 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Bot, User } from 'lucide-react';
+import { Send, Loader2, Bot, User, LogIn } from 'lucide-react';
 import { useAIChat } from '../hooks/useAIChat';
 import { useUserProfile } from '../contexts/UserProfileContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-export function AIChat() {
+interface AIChatProps {
+  onLoginClick?: () => void;
+}
+
+export function AIChat({ onLoginClick }: AIChatProps) {
   const { profile } = useUserProfile();
   const { isDarkMode } = useTheme();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, isLoading, sendMessage } = useAIChat({
+  const { messages, isLoading, requiresLogin, sendMessage } = useAIChat({
     name: profile.full_name,
   });
 
@@ -207,6 +211,53 @@ export function AIChat() {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Login Prompt Banner */}
+      {requiresLogin && onLoginClick && (
+        <div
+          style={{
+            padding: '16px 24px',
+            background: isDarkMode
+              ? 'linear-gradient(135deg, rgba(13, 115, 119, 0.2) 0%, rgba(20, 255, 236, 0.2) 100%)'
+              : 'linear-gradient(135deg, rgba(13, 115, 119, 0.1) 0%, rgba(20, 255, 236, 0.1) 100%)',
+            borderTop: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+          }}
+        >
+          <p
+            style={{
+              fontSize: 14,
+              color: isDarkMode ? '#E2E8F0' : '#1A1A2E',
+              margin: 0,
+            }}
+          >
+            To view doctor recommendations and book appointments, please log in
+          </p>
+          <button
+            onClick={onLoginClick}
+            style={{
+              padding: '8px 16px',
+              background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+              border: 'none',
+              borderRadius: 8,
+              color: 'white',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <LogIn size={16} />
+            Login
+          </button>
+        </div>
+      )}
 
       {/* Input */}
       <form
