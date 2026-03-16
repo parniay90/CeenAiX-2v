@@ -1073,7 +1073,7 @@ END:VCALENDAR`;
                                 e.currentTarget.style.background = 'transparent';
                               }}
                             >
-                              Apple Calendar / Outlook
+                              Google / iPhone Calendar
                             </button>
                           </div>
                         )}

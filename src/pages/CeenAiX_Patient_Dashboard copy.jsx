@@ -1648,14 +1648,14 @@ export default function PatientDashboard({ onNavigateHome }) {
                 </button>
 
                 <button
-                  onClick={() => { alert('Opening Apple Calendar...'); setShowCalendarModal(false); }}
+                  onClick={() => { alert('Opening iPhone Calendar...'); setShowCalendarModal(false); }}
                   style={{ padding: "16px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#1A1A2E", cursor: "pointer", background: "white", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 12 }}
                   onMouseEnter={(e) => { e.target.style.borderColor = "#0D7377"; e.target.style.background = "#e6f7f8"; }}
                   onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "white"; }}>
-                  <span style={{ fontSize: 24 }}>🍎</span>
+                  <span style={{ fontSize: 24 }}>📱</span>
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <div style={{ fontWeight: 700 }}>Apple Calendar</div>
-                    <div style={{ fontSize: 12, color: "#64748B" }}>Add reminders to your iPhone/Mac</div>
+                    <div style={{ fontWeight: 700 }}>iPhone Calendar</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>Add reminders to your iPhone</div>
                   </div>
                 </button>
               </div>
