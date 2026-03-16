@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle, CalendarPlus } from 'lucide-react';
+import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle, CalendarPlus, Bell, CreditCard as Edit2, Search } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
@@ -97,11 +97,20 @@ END:VCALENDAR`;
   });
   const [refillNotes, setRefillNotes] = useState('');
 
+  const [showReminderModal, setShowReminderModal] = useState(false);
+  const [reminderTimes, setReminderTimes] = useState<string[]>(['09:00']);
+  const [reminderEndDate, setReminderEndDate] = useState('');
+
+  const [showPharmacyModal, setShowPharmacyModal] = useState(false);
+  const [availablePharmacies, setAvailablePharmacies] = useState<any[]>([]);
+  const [pharmacySearch, setPharmacySearch] = useState('');
+
   useEffect(() => {
     if (user) {
       fetchPrescriptions();
       fetchRefillRequests();
       fetchPreferredPharmacy();
+      fetchAvailablePharmacies();
     }
   }, [user]);
 
@@ -224,10 +233,140 @@ END:VCALENDAR`;
     }
   };
 
+  const fetchAvailablePharmacies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_pharmacies')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('is_preferred', { ascending: false });
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      setAvailablePharmacies(data || []);
+    } catch (error) {
+      console.error('Error fetching pharmacies:', error);
+    }
+  };
+
+  const handleSelectPharmacy = async (pharmacy: any) => {
+    try {
+      await supabase
+        .from('user_pharmacies')
+        .update({ is_preferred: false })
+        .eq('user_id', user?.id);
+
+      await supabase
+        .from('user_pharmacies')
+        .update({ is_preferred: true })
+        .eq('id', pharmacy.id);
+
+      setSelectedPharmacy({
+        name: pharmacy.pharmacy_name,
+        address: pharmacy.pharmacy_address,
+        phone: pharmacy.pharmacy_phone || '+971 4 XXX XXXX',
+      });
+
+      setShowPharmacyModal(false);
+      await fetchAvailablePharmacies();
+    } catch (error) {
+      console.error('Error updating preferred pharmacy:', error);
+      alert('Failed to update pharmacy preference');
+    }
+  };
+
+  const handleAddPharmacy = async (name: string, address: string, phone: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_pharmacies')
+        .insert({
+          user_id: user?.id,
+          pharmacy_name: name,
+          pharmacy_address: address,
+          pharmacy_phone: phone,
+          is_preferred: availablePharmacies.length === 0,
+        });
+
+      if (error) throw error;
+
+      await fetchAvailablePharmacies();
+      if (availablePharmacies.length === 0) {
+        await fetchPreferredPharmacy();
+      }
+    } catch (error) {
+      console.error('Error adding pharmacy:', error);
+      alert('Failed to add pharmacy');
+    }
+  };
+
   const handleRequestRefill = (prescription: Prescription) => {
     setSelectedPrescription(prescription);
     setRefillQuantity(prescription.quantity);
     setShowRefillModal(true);
+  };
+
+  const handleSetReminder = (prescription: Prescription) => {
+    setSelectedPrescription(prescription);
+    setReminderTimes(['09:00']);
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    setReminderEndDate(thirtyDaysFromNow.toISOString().split('T')[0]);
+    setShowReminderModal(true);
+  };
+
+  const handleSaveReminder = async () => {
+    if (!selectedPrescription || !user) return;
+
+    try {
+      const { data: patientData } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!patientData) return;
+
+      const prescriptionId = selectedPrescription.id.split('-')[0];
+
+      const { error } = await supabase
+        .from('medication_reminders')
+        .insert({
+          patient_id: patientData.id,
+          prescription_id: prescriptionId,
+          medication_name: selectedPrescription.medicationName,
+          dosage: selectedPrescription.dosage,
+          reminder_times: reminderTimes,
+          frequency: selectedPrescription.frequency,
+          start_date: new Date().toISOString().split('T')[0],
+          end_date: reminderEndDate || null,
+          is_active: true,
+          notification_enabled: true,
+        });
+
+      if (error) throw error;
+
+      setShowReminderModal(false);
+      alert('Reminder set successfully! You will receive notifications at the scheduled times.');
+    } catch (error) {
+      console.error('Error saving reminder:', error);
+      alert('Failed to set reminder. Please try again.');
+    }
+  };
+
+  const addReminderTime = () => {
+    setReminderTimes([...reminderTimes, '09:00']);
+  };
+
+  const updateReminderTime = (index: number, time: string) => {
+    const newTimes = [...reminderTimes];
+    newTimes[index] = time;
+    setReminderTimes(newTimes);
+  };
+
+  const removeReminderTime = (index: number) => {
+    if (reminderTimes.length > 1) {
+      setReminderTimes(reminderTimes.filter((_, i) => i !== index));
+    }
   };
 
   const handleSubmitRefill = async () => {
@@ -333,6 +472,72 @@ END:VCALENDAR`;
             <p style={{ fontSize: 15, color: '#64748B' }}>
               Manage your prescriptions and request refills
             </p>
+          </div>
+
+          {/* Preferred Pharmacy Section */}
+          <div
+            style={{
+              background: isDarkMode ? '#16213E' : 'white',
+              borderRadius: 16,
+              padding: 24,
+              border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              marginBottom: 24,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                }}
+              >
+                Preferred Pharmacy
+              </h2>
+              <button
+                onClick={() => setShowPharmacyModal(true)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: 'white',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Edit2 size={14} />
+                Change
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'start', gap: 12 }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <MapPin size={24} color="white" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E', marginBottom: 4 }}>
+                  {selectedPharmacy.name}
+                </div>
+                <div style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>{selectedPharmacy.address}</div>
+                <div style={{ fontSize: 13, color: '#64748B' }}>{selectedPharmacy.phone}</div>
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'grid', gap: 24 }}>
@@ -516,6 +721,25 @@ END:VCALENDAR`;
                           <Send size={16} />
                           {prescription.refillsRemaining === 0 ? 'No Refills Available' : 'Request Refill'}
                         </button>
+                        <button
+                          onClick={() => handleSetReminder(prescription)}
+                          style={{
+                            padding: '12px 16px',
+                            background: isDarkMode ? '#1A1A2E' : 'white',
+                            border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                            borderRadius: 10,
+                            color: isDarkMode ? '#CBD5E1' : '#475569',
+                            fontSize: 14,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                          }}
+                        >
+                          <Bell size={16} />
+                          Set Reminder
+                        </button>
                         <div style={{ position: 'relative' }}>
                           <button
                             onClick={() => setShowCalendarOptions(showCalendarOptions === prescription.id ? null : prescription.id)}
@@ -534,7 +758,7 @@ END:VCALENDAR`;
                             }}
                           >
                             <CalendarPlus size={16} />
-                            Reminder
+                            Export
                           </button>
                           {showCalendarOptions === prescription.id && (
                             <div
@@ -888,6 +1112,357 @@ END:VCALENDAR`;
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-App Reminder Modal */}
+      {showReminderModal && selectedPrescription && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => setShowReminderModal(false)}
+        >
+          <div
+            style={{
+              background: isDarkMode ? '#16213E' : 'white',
+              borderRadius: 16,
+              padding: 32,
+              maxWidth: 500,
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E', marginBottom: 8 }}>
+              Set Medication Reminder
+            </h3>
+            <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>
+              Get in-app notifications to remind you to take your medication
+            </p>
+
+            <div style={{ display: 'grid', gap: 20 }}>
+              <div>
+                <label style={{ fontSize: 14, fontWeight: 600, color: isDarkMode ? '#CBD5E1' : '#475569', display: 'block', marginBottom: 8 }}>
+                  Medication
+                </label>
+                <div
+                  style={{
+                    padding: 12,
+                    background: isDarkMode ? '#1A1A2E' : '#F8FAFC',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                    fontWeight: 600,
+                  }}
+                >
+                  {selectedPrescription.medicationName}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 14, fontWeight: 600, color: isDarkMode ? '#CBD5E1' : '#475569', display: 'block', marginBottom: 8 }}>
+                  Reminder Times
+                </label>
+                {reminderTimes.map((time, index) => (
+                  <div key={index} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => updateReminderTime(index, e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: '12px 14px',
+                        border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                        borderRadius: 10,
+                        fontSize: 14,
+                        color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                        background: isDarkMode ? '#1A1A2E' : 'white',
+                        outline: 'none',
+                      }}
+                    />
+                    {reminderTimes.length > 1 && (
+                      <button
+                        onClick={() => removeReminderTime(index)}
+                        style={{
+                          padding: '12px 16px',
+                          background: '#FEE2E2',
+                          border: 'none',
+                          borderRadius: 10,
+                          color: '#DC2626',
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={addReminderTime}
+                  style={{
+                    padding: '10px 16px',
+                    background: isDarkMode ? '#1A1A2E' : '#F8FAFC',
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    borderRadius: 10,
+                    color: '#0D7377',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    width: '100%',
+                  }}
+                >
+                  + Add Another Time
+                </button>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 14, fontWeight: 600, color: isDarkMode ? '#CBD5E1' : '#475569', display: 'block', marginBottom: 8 }}>
+                  End Date (Optional)
+                </label>
+                <input
+                  type="date"
+                  value={reminderEndDate}
+                  onChange={(e) => setReminderEndDate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                    background: isDarkMode ? '#1A1A2E' : 'white',
+                    outline: 'none',
+                  }}
+                />
+                <p style={{ fontSize: 11, color: '#64748B', marginTop: 6 }}>
+                  Leave empty for ongoing reminders
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                <button
+                  onClick={() => setShowReminderModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: isDarkMode ? '#1A1A2E' : 'white',
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    borderRadius: 10,
+                    color: isDarkMode ? '#CBD5E1' : '#475569',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveReminder}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                    border: 'none',
+                    borderRadius: 10,
+                    color: 'white',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <Bell size={16} />
+                  Set Reminder
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pharmacy Selection Modal */}
+      {showPharmacyModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => setShowPharmacyModal(false)}
+        >
+          <div
+            style={{
+              background: isDarkMode ? '#16213E' : 'white',
+              borderRadius: 16,
+              padding: 32,
+              maxWidth: 600,
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ fontSize: 20, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E', marginBottom: 8 }}>
+              Select Preferred Pharmacy
+            </h3>
+            <p style={{ fontSize: 13, color: '#64748B', marginBottom: 20 }}>
+              Choose where you'd like to pick up your prescriptions
+            </p>
+
+            <div style={{ position: 'relative', marginBottom: 20 }}>
+              <Search
+                size={18}
+                style={{
+                  position: 'absolute',
+                  left: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#64748B',
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Search pharmacies..."
+                value={pharmacySearch}
+                onChange={(e) => setPharmacySearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px 12px 44px',
+                  border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                  background: isDarkMode ? '#1A1A2E' : 'white',
+                  outline: 'none',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gap: 12, maxHeight: 400, overflowY: 'auto' }}>
+              {availablePharmacies.length === 0 ? (
+                <div
+                  style={{
+                    padding: 32,
+                    textAlign: 'center',
+                    color: '#64748B',
+                    background: isDarkMode ? '#1A1A2E' : '#F8FAFC',
+                    borderRadius: 12,
+                  }}
+                >
+                  <p style={{ marginBottom: 8 }}>No pharmacies added yet</p>
+                  <p style={{ fontSize: 12 }}>Add pharmacies from Settings</p>
+                </div>
+              ) : (
+                availablePharmacies
+                  .filter((p) =>
+                    p.pharmacy_name.toLowerCase().includes(pharmacySearch.toLowerCase()) ||
+                    p.pharmacy_address.toLowerCase().includes(pharmacySearch.toLowerCase())
+                  )
+                  .map((pharmacy) => (
+                    <div
+                      key={pharmacy.id}
+                      onClick={() => handleSelectPharmacy(pharmacy)}
+                      style={{
+                        padding: 16,
+                        background: pharmacy.is_preferred
+                          ? isDarkMode
+                            ? '#0D737715'
+                            : '#E0F2F1'
+                          : isDarkMode
+                          ? '#1A1A2E'
+                          : 'white',
+                        border: pharmacy.is_preferred
+                          ? '2px solid #0D7377'
+                          : isDarkMode
+                          ? '1px solid #2D3748'
+                          : '1px solid #E2E8F0',
+                        borderRadius: 12,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!pharmacy.is_preferred) {
+                          e.currentTarget.style.borderColor = '#0D7377';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!pharmacy.is_preferred) {
+                          e.currentTarget.style.borderColor = isDarkMode ? '#2D3748' : '#E2E8F0';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'start', gap: 12 }}>
+                        <MapPin size={20} color="#0D7377" style={{ marginTop: 2, flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                              {pharmacy.pharmacy_name}
+                            </div>
+                            {pharmacy.is_preferred && (
+                              <div
+                                style={{
+                                  padding: '2px 8px',
+                                  background: '#0D7377',
+                                  borderRadius: 12,
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                  color: 'white',
+                                }}
+                              >
+                                PREFERRED
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>
+                            {pharmacy.pharmacy_address}
+                          </div>
+                          {pharmacy.pharmacy_phone && (
+                            <div style={{ fontSize: 13, color: '#64748B' }}>{pharmacy.pharmacy_phone}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowPharmacyModal(false)}
+              style={{
+                width: '100%',
+                padding: '12px 20px',
+                background: isDarkMode ? '#1A1A2E' : 'white',
+                border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                borderRadius: 10,
+                color: isDarkMode ? '#CBD5E1' : '#475569',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: 16,
+              }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
