@@ -453,169 +453,307 @@ END:VCALENDAR`;
       <div
         style={{
           minHeight: '100%',
-          background: isDarkMode ? 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)' : 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)',
+          background: isDarkMode ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' : 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
           padding: '32px 24px',
         }}
       >
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+          {/* Header Section */}
           <div style={{ marginBottom: 32 }}>
-            <h1
-              style={{
-                fontSize: 32,
-                fontWeight: 800,
-                color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
-                marginBottom: 8,
-              }}
-            >
-              My Prescriptions
-            </h1>
-            <p style={{ fontSize: 15, color: '#64748B' }}>
-              Manage your prescriptions and request refills
-            </p>
-          </div>
-
-          {/* Preferred Pharmacy Section */}
-          <div
-            style={{
-              background: isDarkMode ? '#16213E' : 'white',
-              borderRadius: 16,
-              padding: 24,
-              border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
-                }}
-              >
-                Preferred Pharmacy
-              </h2>
-              <button
-                onClick={() => setShowPharmacyModal(true)}
-                style={{
-                  padding: '8px 16px',
-                  background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
-                  border: 'none',
-                  borderRadius: 8,
-                  color: 'white',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <Edit2 size={14} />
-                Change
-              </button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'start', gap: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h1
+                  style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: isDarkMode ? '#F8FAFC' : '#0F172A',
+                    marginBottom: 8,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  Prescriptions & Refills
+                </h1>
+                <p style={{ fontSize: 16, color: '#64748B' }}>
+                  Manage medications, request refills, and set reminders
+                </p>
+              </div>
               <div
                 style={{
-                  width: 48,
-                  height: 48,
-                  background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
-                  borderRadius: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
+                  padding: '16px 24px',
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)'
+                    : 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)',
+                  borderRadius: 16,
+                  boxShadow: '0 8px 24px rgba(6, 182, 212, 0.3)',
                 }}
               >
-                <MapPin size={24} color="white" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E', marginBottom: 4 }}>
-                  {selectedPharmacy.name}
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', marginBottom: 4 }}>
+                  Active Prescriptions
                 </div>
-                <div style={{ fontSize: 13, color: '#64748B', marginBottom: 2 }}>{selectedPharmacy.address}</div>
-                <div style={{ fontSize: 13, color: '#64748B' }}>{selectedPharmacy.phone}</div>
+                <div style={{ fontSize: 32, fontWeight: 800, color: 'white' }}>
+                  {prescriptions.filter((p) => p.status === 'active').length}
+                </div>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gap: 24 }}>
-            {/* Active Prescriptions */}
-            <div>
-              <h2
+          {/* Quick Actions & Pharmacy Card */}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 32 }}>
+            {/* Preferred Pharmacy Card */}
+            <div
+              style={{
+                background: isDarkMode
+                  ? 'linear-gradient(135deg, #1E293B 0%, #334155 100%)'
+                  : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+                borderRadius: 20,
+                padding: 28,
+                border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
+                boxShadow: isDarkMode
+                  ? '0 10px 40px rgba(0,0,0,0.3)'
+                  : '0 10px 40px rgba(0,0,0,0.06)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <div
                 style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
-                  marginBottom: 16,
+                  position: 'absolute',
+                  top: -50,
+                  right: -50,
+                  width: 200,
+                  height: 200,
+                  background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)',
+                  borderRadius: '50%',
                 }}
-              >
-                Active Prescriptions
-              </h2>
-              {loading ? (
-                <div
-                  style={{
-                    background: isDarkMode ? '#16213E' : 'white',
-                    borderRadius: 16,
-                    padding: 48,
-                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                    textAlign: 'center',
-                    color: '#64748B',
-                  }}
-                >
-                  Loading prescriptions...
-                </div>
-              ) : prescriptions.filter((p) => p.status === 'active').length === 0 ? (
-                <div
-                  style={{
-                    background: isDarkMode ? '#16213E' : 'white',
-                    borderRadius: 16,
-                    padding: 48,
-                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                    textAlign: 'center',
-                    color: '#64748B',
-                  }}
-                >
-                  No active prescriptions
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gap: 16 }}>
-                  {prescriptions
-                    .filter((p) => p.status === 'active')
-                    .map((prescription) => (
-                    <div
-                      key={prescription.id}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      background: 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)',
+                      borderRadius: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 8px 20px rgba(6, 182, 212, 0.4)',
+                    }}
+                  >
+                    <MapPin size={28} color="white" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, color: '#64748B', marginBottom: 4, fontWeight: 600 }}>
+                      PREFERRED PHARMACY
+                    </div>
+                    <h2
                       style={{
-                        background: isDarkMode ? '#16213E' : 'white',
-                        borderRadius: 16,
-                        padding: 24,
-                        border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: isDarkMode ? '#F8FAFC' : '#0F172A',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                      {selectedPharmacy.name}
+                    </h2>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPharmacyModal(true)}
+                  style={{
+                    padding: '10px 18px',
+                    background: isDarkMode ? '#334155' : 'white',
+                    border: isDarkMode ? '1px solid #475569' : '1px solid #CBD5E1',
+                    borderRadius: 12,
+                    color: isDarkMode ? '#F8FAFC' : '#334155',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)';
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.borderColor = 'transparent';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = isDarkMode ? '#334155' : 'white';
+                    e.currentTarget.style.color = isDarkMode ? '#F8FAFC' : '#334155';
+                    e.currentTarget.style.borderColor = isDarkMode ? '#475569' : '#CBD5E1';
+                  }}
+                >
+                  <Edit2 size={16} />
+                  Change
+                </button>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontSize: 15, color: '#64748B', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <MapPin size={16} />
+                  {selectedPharmacy.address}
+                </div>
+                <div style={{ fontSize: 15, color: '#64748B', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FileText size={16} />
+                  {selectedPharmacy.phone}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div
+                style={{
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, #059669 0%, #10B981 100%)'
+                    : 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+                  borderRadius: 16,
+                  padding: 20,
+                  boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+                }}
+              >
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', marginBottom: 8, fontWeight: 600 }}>
+                  REFILLS AVAILABLE
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: 'white' }}>
+                  {prescriptions.reduce((sum, p) => sum + p.refillsRemaining, 0)}
+                </div>
+              </div>
+              <div
+                style={{
+                  background: isDarkMode
+                    ? 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'
+                    : 'linear-gradient(135deg, #FBBF24 0%, #FCD34D 100%)',
+                  borderRadius: 16,
+                  padding: 20,
+                  boxShadow: '0 8px 20px rgba(251, 191, 36, 0.3)',
+                }}
+              >
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', marginBottom: 8, fontWeight: 600 }}>
+                  PENDING REFILLS
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: 'white' }}>
+                  {refillRequests.filter((r) => r.status === 'pending').length}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Prescriptions */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2
+                style={{
+                  fontSize: 24,
+                  fontWeight: 800,
+                  color: isDarkMode ? '#F8FAFC' : '#0F172A',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Active Medications
+              </h2>
+            </div>
+            {loading ? (
+              <div
+                style={{
+                  background: isDarkMode ? '#1E293B' : 'white',
+                  borderRadius: 20,
+                  padding: 64,
+                  textAlign: 'center',
+                  color: '#64748B',
+                  boxShadow: isDarkMode ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 40px rgba(0,0,0,0.06)',
+                }}
+              >
+                Loading prescriptions...
+              </div>
+            ) : prescriptions.filter((p) => p.status === 'active').length === 0 ? (
+              <div
+                style={{
+                  background: isDarkMode ? '#1E293B' : 'white',
+                  borderRadius: 20,
+                  padding: 64,
+                  textAlign: 'center',
+                  color: '#64748B',
+                  boxShadow: isDarkMode ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 40px rgba(0,0,0,0.06)',
+                }}
+              >
+                No active prescriptions
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: 20 }}>
+                {prescriptions
+                  .filter((p) => p.status === 'active')
+                  .map((prescription) => (
+                  <div
+                    key={prescription.id}
+                    style={{
+                      background: isDarkMode
+                        ? 'linear-gradient(135deg, #1E293B 0%, #334155 100%)'
+                        : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+                      borderRadius: 20,
+                      padding: 28,
+                      border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
+                      boxShadow: isDarkMode
+                        ? '0 10px 40px rgba(0,0,0,0.3)'
+                        : '0 10px 40px rgba(0,0,0,0.06)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      transition: 'all 0.3s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = isDarkMode
+                        ? '0 20px 60px rgba(0,0,0,0.4)'
+                        : '0 20px 60px rgba(0,0,0,0.12)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = isDarkMode
+                        ? '0 10px 40px rgba(0,0,0,0.3)'
+                        : '0 10px 40px rgba(0,0,0,0.06)';
+                    }}
+                  >
+                      {/* Decorative gradient blob */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: -60,
+                          right: -60,
+                          width: 180,
+                          height: 180,
+                          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.12) 0%, transparent 70%)',
+                          borderRadius: '50%',
+                        }}
+                      />
+
+                      {/* Header */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, position: 'relative' }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                          <div style={{ display: 'flex', alignItems: 'start', gap: 16, marginBottom: 12 }}>
                             <div
                               style={{
-                                width: 40,
-                                height: 40,
-                                background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
-                                borderRadius: 10,
+                                width: 56,
+                                height: 56,
+                                background: 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)',
+                                borderRadius: 16,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                boxShadow: '0 8px 20px rgba(6, 182, 212, 0.4)',
+                                flexShrink: 0,
                               }}
                             >
-                              <Pill size={20} color="white" />
+                              <Pill size={28} color="white" />
                             </div>
-                            <div>
-                              <h3 style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                            <div style={{ flex: 1 }}>
+                              <h3 style={{ fontSize: 20, fontWeight: 800, color: isDarkMode ? '#F8FAFC' : '#0F172A', marginBottom: 6, letterSpacing: '-0.01em' }}>
                                 {prescription.medicationName}
                               </h3>
-                              <p style={{ fontSize: 13, color: '#64748B' }}>
-                                {prescription.dosage} - {prescription.frequency}
+                              <p style={{ fontSize: 15, color: '#64748B', marginBottom: 4 }}>
+                                {prescription.dosage} • {prescription.frequency}
+                              </p>
+                              <p style={{ fontSize: 13, color: '#94A3B8' }}>
+                                Prescribed for {prescription.prescribedFor}
                               </p>
                             </div>
                           </div>
@@ -624,137 +762,223 @@ END:VCALENDAR`;
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 6,
-                            padding: '6px 12px',
-                            background: `${getStatusColor(prescription.status)}15`,
-                            borderRadius: 20,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: getStatusColor(prescription.status),
+                            gap: 8,
+                            padding: '10px 18px',
+                            background: prescription.refillsRemaining > 0
+                              ? 'linear-gradient(135deg, #10B981 0%, #34D399 100%)'
+                              : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+                            borderRadius: 12,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: 'white',
+                            boxShadow: prescription.refillsRemaining > 0
+                              ? '0 4px 12px rgba(16, 185, 129, 0.3)'
+                              : '0 4px 12px rgba(239, 68, 68, 0.3)',
                           }}
                         >
-                          {prescription.refillsRemaining} refills remaining
+                          <Check size={16} />
+                          {prescription.refillsRemaining} {prescription.refillsRemaining === 1 ? 'Refill' : 'Refills'}
                         </div>
                       </div>
 
+                      {/* Details Grid */}
                       <div
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          gap: 16,
-                          padding: 16,
-                          background: isDarkMode ? '#1A1A2E' : '#F8FAFC',
-                          borderRadius: 12,
-                          marginBottom: 16,
+                          gridTemplateColumns: 'repeat(4, 1fr)',
+                          gap: 20,
+                          padding: 20,
+                          background: isDarkMode
+                            ? 'rgba(15, 23, 42, 0.6)'
+                            : 'rgba(241, 245, 249, 0.8)',
+                          borderRadius: 16,
+                          marginBottom: 20,
+                          border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Prescribed For</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
-                            {prescription.prescribedFor}
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Doctor
                           </div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Doctor</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <User size={14} color="#06B6D4" />
                             {prescription.doctorName}
                           </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Prescribed Date</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Quantity
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A' }}>
+                            {prescription.quantity} tablets
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Prescribed
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Calendar size={14} color="#06B6D4" />
                             {prescription.prescribedDate}
                           </div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Expires</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Expires
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Clock size={14} color="#F59E0B" />
                             {prescription.expiresDate}
                           </div>
                         </div>
                       </div>
 
+                      {/* Instructions Banner */}
                       <div
                         style={{
-                          padding: 12,
-                          background: '#FEF3C7',
-                          border: '1px solid #FDE68A',
-                          borderRadius: 10,
-                          marginBottom: 16,
+                          padding: 16,
+                          background: isDarkMode
+                            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
+                            : 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                          border: isDarkMode ? '1px solid rgba(251, 191, 36, 0.3)' : '1px solid #FDE68A',
+                          borderRadius: 12,
+                          marginBottom: 20,
                         }}
                       >
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <AlertCircle size={16} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 2 }}>
-                              Instructions
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              background: '#F59E0B',
+                              borderRadius: 8,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <AlertCircle size={18} color="white" />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: isDarkMode ? '#FCD34D' : '#92400E', marginBottom: 4 }}>
+                              Dosage Instructions
                             </div>
-                            <div style={{ fontSize: 12, color: '#78350F' }}>{prescription.instructions}</div>
+                            <div style={{ fontSize: 14, color: isDarkMode ? '#FDE68A' : '#78350F', lineHeight: 1.5 }}>
+                              {prescription.instructions}
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', gap: 12 }}>
+                      {/* Action Buttons */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 12 }}>
                         <button
                           onClick={() => handleRequestRefill(prescription)}
                           disabled={prescription.refillsRemaining === 0}
                           style={{
-                            flex: 1,
-                            padding: '12px 20px',
+                            padding: '14px 24px',
                             background:
                               prescription.refillsRemaining === 0
-                                ? '#E2E8F0'
-                                : 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                                ? isDarkMode ? '#334155' : '#E2E8F0'
+                                : 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)',
                             border: 'none',
-                            borderRadius: 10,
+                            borderRadius: 12,
                             color: 'white',
-                            fontSize: 14,
-                            fontWeight: 600,
+                            fontSize: 15,
+                            fontWeight: 700,
                             cursor: prescription.refillsRemaining === 0 ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: 8,
+                            gap: 10,
                             opacity: prescription.refillsRemaining === 0 ? 0.5 : 1,
+                            boxShadow: prescription.refillsRemaining > 0 ? '0 4px 16px rgba(6, 182, 212, 0.4)' : 'none',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (prescription.refillsRemaining > 0) {
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                              e.currentTarget.style.boxShadow = '0 6px 24px rgba(6, 182, 212, 0.5)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (prescription.refillsRemaining > 0) {
+                              e.currentTarget.style.transform = 'translateY(0)';
+                              e.currentTarget.style.boxShadow = '0 4px 16px rgba(6, 182, 212, 0.4)';
+                            }
                           }}
                         >
-                          <Send size={16} />
-                          {prescription.refillsRemaining === 0 ? 'No Refills Available' : 'Request Refill'}
+                          <Send size={18} />
+                          {prescription.refillsRemaining === 0 ? 'No Refills' : 'Request Refill'}
                         </button>
                         <button
                           onClick={() => handleSetReminder(prescription)}
                           style={{
-                            padding: '12px 16px',
-                            background: isDarkMode ? '#1A1A2E' : 'white',
-                            border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                            borderRadius: 10,
-                            color: isDarkMode ? '#CBD5E1' : '#475569',
+                            padding: '14px 20px',
+                            background: isDarkMode
+                              ? 'rgba(51, 65, 85, 0.6)'
+                              : 'white',
+                            border: isDarkMode ? '1px solid #475569' : '1px solid #CBD5E1',
+                            borderRadius: 12,
+                            color: isDarkMode ? '#F8FAFC' : '#334155',
                             fontSize: 14,
                             fontWeight: 600,
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: 8,
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)';
+                            e.currentTarget.style.color = 'white';
+                            e.currentTarget.style.borderColor = 'transparent';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = isDarkMode ? 'rgba(51, 65, 85, 0.6)' : 'white';
+                            e.currentTarget.style.color = isDarkMode ? '#F8FAFC' : '#334155';
+                            e.currentTarget.style.borderColor = isDarkMode ? '#475569' : '#CBD5E1';
+                            e.currentTarget.style.transform = 'translateY(0)';
                           }}
                         >
                           <Bell size={16} />
-                          Set Reminder
+                          Remind
                         </button>
                         <div style={{ position: 'relative' }}>
                           <button
                             onClick={() => setShowCalendarOptions(showCalendarOptions === prescription.id ? null : prescription.id)}
                             style={{
-                              padding: '12px 16px',
-                              background: isDarkMode ? '#1A1A2E' : 'white',
-                              border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                              borderRadius: 10,
-                              color: isDarkMode ? '#CBD5E1' : '#475569',
+                              width: '100%',
+                              padding: '14px 20px',
+                              background: isDarkMode
+                                ? 'rgba(51, 65, 85, 0.6)'
+                                : 'white',
+                              border: isDarkMode ? '1px solid #475569' : '1px solid #CBD5E1',
+                              borderRadius: 12,
+                              color: isDarkMode ? '#F8FAFC' : '#334155',
                               fontSize: 14,
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
+                              justifyContent: 'center',
                               gap: 8,
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'linear-gradient(135deg, #10B981 0%, #34D399 100%)';
+                              e.currentTarget.style.color = 'white';
+                              e.currentTarget.style.borderColor = 'transparent';
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = isDarkMode ? 'rgba(51, 65, 85, 0.6)' : 'white';
+                              e.currentTarget.style.color = isDarkMode ? '#F8FAFC' : '#334155';
+                              e.currentTarget.style.borderColor = isDarkMode ? '#475569' : '#CBD5E1';
+                              e.currentTarget.style.transform = 'translateY(0)';
                             }}
                           >
                             <CalendarPlus size={16} />
@@ -764,13 +988,17 @@ END:VCALENDAR`;
                             <div
                               style={{
                                 position: 'absolute',
-                                top: 'calc(100% + 8px)',
+                                top: 'calc(100% + 12px)',
                                 right: 0,
-                                background: isDarkMode ? '#16213E' : 'white',
-                                border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                                borderRadius: 12,
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                                minWidth: 220,
+                                background: isDarkMode
+                                  ? 'linear-gradient(135deg, #1E293B 0%, #334155 100%)'
+                                  : 'white',
+                                border: isDarkMode ? '1px solid #475569' : '1px solid #CBD5E1',
+                                borderRadius: 16,
+                                boxShadow: isDarkMode
+                                  ? '0 20px 60px rgba(0,0,0,0.5)'
+                                  : '0 20px 60px rgba(0,0,0,0.15)',
+                                minWidth: 240,
                                 zIndex: 100,
                                 overflow: 'hidden',
                               }}
@@ -782,23 +1010,38 @@ END:VCALENDAR`;
                                 }}
                                 style={{
                                   width: '100%',
-                                  padding: '12px 16px',
+                                  padding: '14px 18px',
                                   background: 'transparent',
                                   border: 'none',
                                   textAlign: 'left',
                                   cursor: 'pointer',
-                                  fontSize: 13,
-                                  color: isDarkMode ? '#CBD5E1' : '#475569',
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  color: isDarkMode ? '#F8FAFC' : '#334155',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: 10,
+                                  gap: 12,
+                                  transition: 'all 0.2s',
                                 }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = isDarkMode ? '#2D3748' : '#F8FAFC')}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.color = isDarkMode ? '#F8FAFC' : '#334155';
+                                }}
                               >
-                                <span style={{ fontSize: 16 }}>📅</span>
-                                Add to Google Calendar
+                                <Calendar size={18} />
+                                Google Calendar
                               </button>
+                              <div
+                                style={{
+                                  height: 1,
+                                  background: isDarkMode ? '#334155' : '#E2E8F0',
+                                  margin: '4px 0',
+                                }}
+                              />
                               <button
                                 onClick={() => {
                                   generateICSFile(prescription);
@@ -806,22 +1049,30 @@ END:VCALENDAR`;
                                 }}
                                 style={{
                                   width: '100%',
-                                  padding: '12px 16px',
+                                  padding: '14px 18px',
                                   background: 'transparent',
                                   border: 'none',
                                   textAlign: 'left',
                                   cursor: 'pointer',
-                                  fontSize: 13,
-                                  color: isDarkMode ? '#CBD5E1' : '#475569',
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  color: isDarkMode ? '#F8FAFC' : '#334155',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: 10,
+                                  gap: 12,
+                                  transition: 'all 0.2s',
                                 }}
-                                onMouseEnter={(e) => (e.currentTarget.style.background = isDarkMode ? '#2D3748' : '#F8FAFC')}
-                                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.color = isDarkMode ? '#F8FAFC' : '#334155';
+                                }}
                               >
-                                <span style={{ fontSize: 16 }}>🍎</span>
-                                Download for Apple Calendar
+                                <Calendar size={18} />
+                                Apple Calendar (.ics)
                               </button>
                             </div>
                           )}
@@ -833,62 +1084,102 @@ END:VCALENDAR`;
               )}
             </div>
 
-            {/* Refill Requests */}
+            {/* Refill Requests Section */}
             <div>
               <h2
                 style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: isDarkMode ? '#F8FAFC' : '#1A1A2E',
-                  marginBottom: 16,
+                  fontSize: 24,
+                  fontWeight: 800,
+                  color: isDarkMode ? '#F8FAFC' : '#0F172A',
+                  marginBottom: 20,
+                  letterSpacing: '-0.01em',
                 }}
               >
-                Refill Requests
+                Refill Request History
               </h2>
-              <div style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'grid', gap: 20 }}>
                 {refillRequests.length === 0 ? (
                   <div
                     style={{
-                      background: isDarkMode ? '#16213E' : 'white',
-                      borderRadius: 16,
-                      padding: 48,
-                      border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                      background: isDarkMode ? '#1E293B' : 'white',
+                      borderRadius: 20,
+                      padding: 64,
                       textAlign: 'center',
                       color: '#64748B',
+                      boxShadow: isDarkMode ? '0 10px 40px rgba(0,0,0,0.3)' : '0 10px 40px rgba(0,0,0,0.06)',
                     }}
                   >
-                    No refill requests yet
+                    <div
+                      style={{
+                        width: 64,
+                        height: 64,
+                        background: 'linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)',
+                        borderRadius: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 16px',
+                        opacity: 0.5,
+                      }}
+                    >
+                      <Send size={32} color="white" />
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 600 }}>No refill requests yet</div>
                   </div>
                 ) : (
                   refillRequests.map((request) => (
                     <div
                       key={request.id}
                       style={{
-                        background: isDarkMode ? '#16213E' : 'white',
-                        borderRadius: 16,
-                        padding: 24,
-                        border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                        background: isDarkMode
+                          ? 'linear-gradient(135deg, #1E293B 0%, #334155 100%)'
+                          : 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)',
+                        borderRadius: 20,
+                        padding: 28,
+                        border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
+                        boxShadow: isDarkMode
+                          ? '0 10px 40px rgba(0,0,0,0.3)'
+                          : '0 10px 40px rgba(0,0,0,0.06)',
+                        position: 'relative',
+                        overflow: 'hidden',
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                        <div>
-                          <h3 style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E', marginBottom: 4 }}>
+                      {/* Decorative gradient */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: -60,
+                          right: -60,
+                          width: 180,
+                          height: 180,
+                          background: `radial-gradient(circle, ${getStatusColor(request.status)}20 0%, transparent 70%)`,
+                          borderRadius: '50%',
+                        }}
+                      />
+
+                      {/* Header */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, position: 'relative' }}>
+                        <div style={{ flex: 1 }}>
+                          <h3 style={{ fontSize: 20, fontWeight: 800, color: isDarkMode ? '#F8FAFC' : '#0F172A', marginBottom: 6, letterSpacing: '-0.01em' }}>
                             {request.medicationName}
                           </h3>
-                          <p style={{ fontSize: 13, color: '#64748B' }}>Requested on {request.requestDate}</p>
+                          <p style={{ fontSize: 14, color: '#64748B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Calendar size={14} />
+                            Requested on {request.requestDate}
+                          </p>
                         </div>
                         <div
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 6,
-                            padding: '6px 12px',
-                            background: `${getStatusColor(request.status)}15`,
-                            borderRadius: 20,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: getStatusColor(request.status),
+                            gap: 8,
+                            padding: '10px 18px',
+                            background: `${getStatusColor(request.status)}`,
+                            borderRadius: 12,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: 'white',
+                            boxShadow: `0 4px 12px ${getStatusColor(request.status)}40`,
                           }}
                         >
                           {getStatusIcon(request.status)}
@@ -896,46 +1187,95 @@ END:VCALENDAR`;
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
-                        <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Quantity</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                      {/* Details Grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
+                        <div
+                          style={{
+                            padding: 16,
+                            background: isDarkMode ? 'rgba(15, 23, 42, 0.6)' : 'rgba(241, 245, 249, 0.8)',
+                            borderRadius: 12,
+                            border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
+                          }}
+                        >
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Quantity
+                          </div>
+                          <div style={{ fontSize: 16, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A' }}>
                             {request.requestedQuantity} tablets
                           </div>
                         </div>
-                        <div>
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Pharmacy</div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                        <div
+                          style={{
+                            padding: 16,
+                            background: isDarkMode ? 'rgba(15, 23, 42, 0.6)' : 'rgba(241, 245, 249, 0.8)',
+                            borderRadius: 12,
+                            border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
+                            gridColumn: 'span 2',
+                          }}
+                        >
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Pharmacy
+                          </div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <MapPin size={16} color="#06B6D4" />
                             {request.pharmacyName}
                           </div>
+                          <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>{request.pharmacyAddress}</div>
                         </div>
                       </div>
 
                       {request.requestNotes && (
                         <div
                           style={{
-                            padding: 12,
-                            background: isDarkMode ? '#1A1A2E' : '#F8FAFC',
-                            borderRadius: 8,
+                            padding: 16,
+                            background: isDarkMode
+                              ? 'rgba(148, 163, 184, 0.1)'
+                              : 'rgba(241, 245, 249, 1)',
+                            borderRadius: 12,
                             marginBottom: 12,
+                            border: isDarkMode ? '1px solid #334155' : '1px solid #E2E8F0',
                           }}
                         >
-                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Notes</div>
-                          <div style={{ fontSize: 13, color: isDarkMode ? '#CBD5E1' : '#475569' }}>{request.requestNotes}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Your Notes
+                          </div>
+                          <div style={{ fontSize: 14, color: isDarkMode ? '#CBD5E1' : '#475569', lineHeight: 1.5 }}>{request.requestNotes}</div>
                         </div>
                       )}
 
                       {request.doctorNotes && (
                         <div
                           style={{
-                            padding: 12,
-                            background: '#F0F9FF',
-                            border: '1px solid #BAE6FD',
-                            borderRadius: 8,
+                            padding: 16,
+                            background: isDarkMode
+                              ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)'
+                              : 'linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)',
+                            border: isDarkMode ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid #7DD3FC',
+                            borderRadius: 12,
                           }}
                         >
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#0369A1', marginBottom: 4 }}>Doctor's Notes</div>
-                          <div style={{ fontSize: 13, color: '#075985' }}>{request.doctorNotes}</div>
+                          <div style={{ display: 'flex', gap: 12 }}>
+                            <div
+                              style={{
+                                width: 32,
+                                height: 32,
+                                background: '#0EA5E9',
+                                borderRadius: 8,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                              }}
+                            >
+                              <User size={18} color="white" />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: isDarkMode ? '#7DD3FC' : '#0369A1', marginBottom: 4 }}>
+                                Doctor's Response
+                              </div>
+                              <div style={{ fontSize: 14, color: isDarkMode ? '#BAE6FD' : '#075985', lineHeight: 1.5 }}>{request.doctorNotes}</div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -945,7 +1285,6 @@ END:VCALENDAR`;
             </div>
           </div>
         </div>
-      </div>
 
       {/* Refill Request Modal */}
       {showRefillModal && selectedPrescription && (
