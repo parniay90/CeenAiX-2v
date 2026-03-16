@@ -76,6 +76,7 @@ export default function PatientDashboard({ onNavigateHome }) {
     type: 'In-Clinic',
     reason: ''
   });
+  const [availableSlots, setAvailableSlots] = useState([]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -131,6 +132,38 @@ export default function PatientDashboard({ onNavigateHome }) {
     ]);
     setAiInput("");
   };
+
+  const generateTimeSlots = (date) => {
+    if (!date) return [];
+
+    const bookedTimes = ["09:00", "10:30", "14:00", "15:30"];
+    const slots = [];
+    const startHour = 9;
+    const endHour = 17;
+
+    for (let hour = startHour; hour < endHour; hour++) {
+      for (let min = 0; min < 60; min += 45) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+        const isBooked = bookedTimes.includes(timeStr);
+
+        if (min === 0) {
+          slots.push({ time: timeStr, available: !isBooked });
+        } else if (min === 45) {
+          if (hour + 1 < endHour) {
+            slots.push({ time: timeStr, available: !isBooked });
+          }
+        }
+      }
+    }
+
+    return slots;
+  };
+
+  useEffect(() => {
+    if (bookingForm.date) {
+      setAvailableSlots(generateTimeSlots(bookingForm.date));
+    }
+  }, [bookingForm.date]);
 
   const filteredAppts = APPOINTMENTS.filter(a =>
     apptTab === "upcoming" ? a.status === "upcoming" : a.status === "completed"
@@ -1010,27 +1043,52 @@ export default function PatientDashboard({ onNavigateHome }) {
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Date *</label>
-                  <input
-                    type="date"
-                    value={bookingForm.date}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, date: e.target.value }))}
-                    min={new Date().toISOString().split('T')[0]}
-                    style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Time *</label>
-                  <input
-                    type="time"
-                    value={bookingForm.time}
-                    onChange={(e) => setBookingForm(prev => ({ ...prev, time: e.target.value }))}
-                    style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
-                  />
-                </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Date *</label>
+                <input
+                  type="date"
+                  value={bookingForm.date}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, date: e.target.value, time: '' }))}
+                  min={new Date().toISOString().split('T')[0]}
+                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
+                />
               </div>
+
+              {bookingForm.date && (
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Available Time Slots (45 min each) *</label>
+                  {availableSlots.length > 0 ? (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, maxHeight: 200, overflowY: "auto", padding: 2 }}>
+                      {availableSlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          onClick={() => slot.available && setBookingForm(prev => ({ ...prev, time: slot.time }))}
+                          disabled={!slot.available}
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: 6,
+                            fontSize: 12.5,
+                            fontWeight: 600,
+                            fontFamily: "inherit",
+                            cursor: slot.available ? "pointer" : "not-allowed",
+                            border: bookingForm.time === slot.time ? "2px solid #0D7377" : "1.5px solid #E2E8F0",
+                            background: !slot.available ? "#F8FAFC" : bookingForm.time === slot.time ? "#E6F4F4" : "white",
+                            color: !slot.available ? "#CBD5E1" : bookingForm.time === slot.time ? "#0D7377" : "#1A1A2E",
+                            transition: "all 0.15s"
+                          }}
+                        >
+                          {slot.time}
+                          {!slot.available && <div style={{ fontSize: 9, marginTop: 2, color: "#94A3B8" }}>Booked</div>}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ padding: 20, textAlign: "center", color: "#94A3B8", fontSize: 13 }}>
+                      Select a date to see available time slots
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Appointment Type *</label>
@@ -1074,6 +1132,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                       alert('Appointment booked successfully!');
                       setShowBookingModal(false);
                       setBookingForm({ specialty: '', doctor: '', date: '', time: '', type: 'In-Clinic', reason: '' });
+                      setAvailableSlots([]);
                     } else {
                       alert('Please fill in all required fields');
                     }
