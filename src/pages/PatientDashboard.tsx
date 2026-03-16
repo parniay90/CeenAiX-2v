@@ -178,6 +178,7 @@ export default function PatientDashboard() {
   const [activeTab, setActiveTab] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [apptFilter, setApptFilter] = useState('upcoming');
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [aiMessages, setAiMessages] = useState([
     { role: 'ai', text: 'Hello! I\'m your CeenAiX AI Health Assistant. How can I help you today?' }
   ]);
@@ -197,9 +198,9 @@ export default function PatientDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <DashboardHome />;
+        return <DashboardHome onBookAppointment={() => setShowBookingModal(true)} />;
       case 'appointments':
-        return <AppointmentsTab filter={apptFilter} setFilter={setApptFilter} appointments={filteredAppointments} />;
+        return <AppointmentsTab filter={apptFilter} setFilter={setApptFilter} appointments={filteredAppointments} onBookAppointment={() => setShowBookingModal(true)} />;
       case 'records':
         return <RecordsTab />;
       case 'prescriptions':
@@ -213,7 +214,7 @@ export default function PatientDashboard() {
       case 'profile':
         return <ProfileTab />;
       default:
-        return <DashboardHome />;
+        return <DashboardHome onBookAppointment={() => setShowBookingModal(true)} />;
     }
   };
 
@@ -292,11 +293,13 @@ export default function PatientDashboard() {
           {renderContent()}
         </main>
       </div>
+
+      {showBookingModal && <BookingModal onClose={() => setShowBookingModal(false)} />}
     </div>
   );
 }
 
-function DashboardHome() {
+function DashboardHome({ onBookAppointment }: { onBookAppointment: () => void }) {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <div>
@@ -381,7 +384,10 @@ function DashboardHome() {
         <div className="bg-gradient-to-br from-teal-600 to-cyan-600 rounded-2xl p-6 shadow-lg text-white">
           <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all">
+            <button
+              onClick={onBookAppointment}
+              className="w-full flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all"
+            >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Book Appointment</span>
             </button>
@@ -440,7 +446,7 @@ function DashboardHome() {
   );
 }
 
-function AppointmentsTab({ filter, setFilter, appointments }: any) {
+function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment }: any) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -448,7 +454,10 @@ function AppointmentsTab({ filter, setFilter, appointments }: any) {
           <h2 className="text-3xl font-bold text-gray-900 mb-2">My Appointments</h2>
           <p className="text-gray-600">Manage your healthcare appointments</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg transition-all">
+        <button
+          onClick={onBookAppointment}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg transition-all"
+        >
           <Plus className="w-5 h-5" />
           Book Appointment
         </button>
@@ -840,6 +849,168 @@ function ProfileTab() {
             Cancel
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BookingModal({ onClose }: { onClose: () => void }) {
+  const [formData, setFormData] = useState({
+    specialty: '',
+    doctor: '',
+    date: '',
+    time: '',
+    type: 'In-Clinic',
+    reason: ''
+  });
+
+  const specialties = ['Cardiology', 'General Practice', 'Dermatology', 'Orthopedics', 'Pediatrics', 'Neurology'];
+  const availableTimes = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900">Book New Appointment</h3>
+            <p className="text-sm text-gray-600 mt-1">Schedule your healthcare visit</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Specialty
+            </label>
+            <select
+              required
+              value={formData.specialty}
+              onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value="">Select a specialty</option>
+              {specialties.map(spec => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Doctor Name (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.doctor}
+              onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
+              placeholder="Leave empty for any available doctor"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Preferred Date
+              </label>
+              <input
+                type="date"
+                required
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Preferred Time
+              </label>
+              <select
+                required
+                value={formData.time}
+                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">Select time</option>
+                {availableTimes.map(time => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Appointment Type
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, type: 'In-Clinic' })}
+                className={`px-4 py-3 rounded-xl font-medium transition-all ${
+                  formData.type === 'In-Clinic'
+                    ? 'bg-teal-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                In-Clinic Visit
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, type: 'Teleconsultation' })}
+                className={`px-4 py-3 rounded-xl font-medium transition-all ${
+                  formData.type === 'Teleconsultation'
+                    ? 'bg-teal-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Teleconsultation
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Reason for Visit
+            </label>
+            <textarea
+              required
+              value={formData.reason}
+              onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+              placeholder="Please describe your symptoms or reason for visit"
+              rows={4}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="submit"
+              className="flex-1 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all"
+            >
+              Book Appointment
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
