@@ -3,7 +3,7 @@ import {
   Home, Calendar, FileText, Pill, FlaskConical, MessageSquare, Sparkles, User,
   Clock, Video, MapPin, Phone, Mail, Bell, Search, Filter, Download, Upload,
   Activity, Heart, TrendingUp, AlertCircle, Check, X, ChevronRight, Plus,
-  Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip
+  Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip, CalendarPlus
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 
@@ -592,53 +592,118 @@ function RecordsTab() {
 function PrescriptionsTab() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Prescriptions</h2>
-        <p className="text-gray-600">Manage your medications</p>
+      <div className="mb-8">
+        <h2 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          My Medications
+        </h2>
+        <p className="text-gray-600 text-lg">Manage your prescriptions, request refills, and track your medications</p>
       </div>
 
-      <div className="grid gap-4">
-        {PRESCRIPTIONS.map(rx => (
-          <div key={rx.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-green-100 rounded-xl">
-                  <Pill className="w-6 h-6 text-green-600" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative">
+            <Pill className="w-8 h-8 text-white/90 mb-3" />
+            <div className="text-sm text-white/80 font-semibold tracking-wide mb-2">ACTIVE MEDICATIONS</div>
+            <div className="text-4xl font-extrabold text-white">
+              {PRESCRIPTIONS.filter(p => p.status === 'Active').length}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-green-600 to-emerald-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative">
+            <Download className="w-8 h-8 text-white/90 mb-3" />
+            <div className="text-sm text-white/80 font-semibold tracking-wide mb-2">REFILLS AVAILABLE</div>
+            <div className="text-4xl font-extrabold text-white">
+              {PRESCRIPTIONS.reduce((sum, p) => sum + p.refills, 0)}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative">
+            <Clock className="w-8 h-8 text-white/90 mb-3" />
+            <div className="text-sm text-white/80 font-semibold tracking-wide mb-2">PENDING REFILLS</div>
+            <div className="text-4xl font-extrabold text-white">0</div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative">
+            <MapPin className="w-8 h-8 text-white/90 mb-3" />
+            <div className="text-sm text-white/80 font-semibold tracking-wide mb-2">PREFERRED PHARMACY</div>
+            <div className="text-base font-bold text-white truncate">Dubai Pharmacy</div>
+            <button className="mt-2 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-semibold text-white transition-all">
+              Change
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-5">Active Prescriptions</h3>
+        <div className="grid gap-5">
+          {PRESCRIPTIONS.filter(rx => rx.status === 'Active').map(rx => (
+            <div key={rx.id} className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <Pill className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{rx.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      {rx.frequency} • {rx.duration}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-4 py-2 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                  {rx.status}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6 mb-6">
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-2">PRESCRIBING DOCTOR</p>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <p className="text-sm font-semibold text-gray-900">{rx.doctor}</p>
+                  </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{rx.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">Prescribed by {rx.doctor}</p>
+                  <p className="text-xs text-gray-500 font-semibold mb-2">PRESCRIBED DATE</p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-600" />
+                    <p className="text-sm font-semibold text-gray-900">{rx.date}</p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-semibold mb-2">REFILLS REMAINING</p>
+                  <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl text-white text-lg font-extrabold shadow-lg shadow-green-500/30">
+                    {rx.refills}
+                  </div>
                 </div>
               </div>
-              <span className={`px-4 py-2 rounded-full text-xs font-bold ${
-                rx.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-              }`}>
-                {rx.status}
-              </span>
-            </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Frequency</p>
-                <p className="text-sm font-semibold text-gray-900">{rx.frequency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Duration</p>
-                <p className="text-sm font-semibold text-gray-900">{rx.duration}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Refills</p>
-                <p className="text-sm font-semibold text-gray-900">{rx.refills} remaining</p>
+              <div className="flex gap-3">
+                <button className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5">
+                  <Send className="w-5 h-5" />
+                  Request Refill
+                </button>
+                <button className="px-5 py-3 border-2 border-gray-200 hover:border-purple-600 text-gray-700 hover:text-purple-700 font-bold rounded-xl transition-all hover:bg-purple-50">
+                  <Bell className="w-5 h-5" />
+                </button>
+                <button className="px-5 py-3 border-2 border-gray-200 hover:border-green-600 text-gray-700 hover:text-green-700 font-bold rounded-xl transition-all hover:bg-green-50">
+                  <CalendarPlus className="w-5 h-5" />
+                </button>
               </div>
             </div>
-
-            {rx.status === 'Active' && (
-              <button className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all">
-                Request Refill
-              </button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
