@@ -24,6 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'records', label: 'Health Records', icon: '🗂' },
   { id: 'prescriptions', label: 'Prescriptions', icon: '💊' },
   { id: 'labs', label: 'Lab Results', icon: '🔬' },
+  { id: 'radiology', label: 'Imaging / Radiology', icon: '🎯' },
   { id: 'messages', label: 'Messages', icon: '💬' },
   { id: 'ai', label: 'AI Assistant', icon: '✦' },
   { id: 'profile', label: 'My Profile', icon: '👤' },
@@ -32,7 +33,7 @@ const NAV_ITEMS: NavItem[] = [
 export function PatientLayout({ children, activeNav = 'home', onNavChange }: PatientLayoutProps) {
   const { profile } = useUserProfile();
   const { signOut } = useAuth();
-  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions } = useNavigation();
+  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology } = useNavigation();
   const { isDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -64,6 +65,8 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
       navigateToPatientPortal();
     } else if (itemId === 'prescriptions') {
       navigateToPrescriptions();
+    } else if (itemId === 'radiology') {
+      navigateToRadiology();
     } else if (onNavChange) {
       onNavChange(itemId);
     }

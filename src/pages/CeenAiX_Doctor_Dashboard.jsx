@@ -8,6 +8,7 @@ const NAV = [
   { id: "patients", label: "Patient Records", icon: "🧑‍⚕️" },
   { id: "prescriptions", label: "Prescriptions", icon: "💊" },
   { id: "referrals", label: "Lab Referrals", icon: "🔬" },
+  { id: "radiology", label: "Imaging / Radiology", icon: "🎯" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "earnings", label: "Earnings", icon: "💰" },
   { id: "profile", label: "My Profile", icon: "👤" },
@@ -659,6 +660,124 @@ export default function DoctorDashboard({ onNavigateHome }) {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── RADIOLOGY / IMAGING ── */}
+          {active === "radiology" && (
+            <div>
+              <div className="section-title">Imaging & Radiology Orders</div>
+              <div className="section-sub">Manage patient imaging requests and review results</div>
+
+              {/* Quick Stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 24 }}>
+                {[
+                  { label: "Pending Orders", value: "8", icon: "⏳", color: "#F59E0B" },
+                  { label: "Awaiting Review", value: "12", icon: "📋", color: "#3B82F6" },
+                  { label: "Completed Today", value: "5", icon: "✅", color: "#10B981" },
+                  { label: "Urgent", value: "2", icon: "⚡", color: "#EF4444" },
+                ].map((stat, i) => (
+                  <div key={i} className="card" style={{ padding: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ fontSize: 28 }}>{stat.icon}</span>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: stat.color }}>{stat.value}</div>
+                    </div>
+                    <div style={{ fontSize: 13, color: "#94A3B8", fontWeight: 600 }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Imaging Modalities Quick Access */}
+              <div className="card" style={{ padding: 0, overflow: "hidden", marginBottom: 20 }}>
+                <div style={{ padding: "20px 24px", background: "linear-gradient(135deg, #1E293B, #0F172A)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "white" }}>Order Imaging Studies</div>
+                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 2 }}>Quick access to common imaging modalities</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 16, padding: 24 }}>
+                  {[
+                    { name: "MRI", icon: "🧲", color: "#8B5CF6" },
+                    { name: "CT Scan", icon: "💿", color: "#3B82F6" },
+                    { name: "X-Ray", icon: "🦴", color: "#06B6D4" },
+                    { name: "Ultrasound", icon: "🔊", color: "#10B981" },
+                    { name: "PET Scan", icon: "⚛️", color: "#F59E0B" },
+                    { name: "Mammography", icon: "🎀", color: "#EC4899" },
+                  ].map((modality, i) => (
+                    <div
+                      key={i}
+                      className="card"
+                      style={{
+                        padding: 16,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        transition: "all 0.2s"
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = modality.color; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "#0A1520"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                    >
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>{modality.icon}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{modality.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent Imaging Orders */}
+              <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ padding: "20px 24px", background: "linear-gradient(135deg, #1E293B, #0F172A)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "white" }}>Recent Imaging Orders</div>
+                  <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 2 }}>Review and manage patient imaging requests</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 1fr", padding: "12px 24px", background: "rgba(15,23,42,0.6)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  {["Patient", "Study Type", "Body Part", "Urgency", "Status", "Action"].map((h, i) => (
+                    <div key={i} style={{ fontSize: 11.5, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{h}</div>
+                  ))}
+                </div>
+                {[
+                  { patient: "Fatima Al Rashid", study: "MRI Brain", part: "Head", urgency: "Routine", status: "Completed", date: "Today" },
+                  { patient: "Mohammed Al Zaabi", study: "CT Chest", part: "Thorax", urgency: "Urgent", status: "In Progress", date: "Today" },
+                  { patient: "Parnia Yazdkhasti", study: "Echocardiogram", part: "Heart", urgency: "Routine", status: "Scheduled", date: "Mar 16" },
+                  { patient: "Aisha Noor", study: "X-Ray Chest", part: "Thorax", urgency: "Stat", status: "Pending", date: "Today" },
+                  { patient: "Rajan Pillai", study: "Ultrasound Abdomen", part: "Abdomen", urgency: "Routine", status: "Completed", date: "Yesterday" },
+                ].map((order, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr 1fr",
+                      padding: "16px 24px",
+                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      cursor: "pointer",
+                      transition: "all 0.15s"
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(13,115,119,0.08)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600, color: "white" }}>{order.patient}</div>
+                      <div style={{ fontSize: 11.5, color: "#64748B", marginTop: 2 }}>{order.date}</div>
+                    </div>
+                    <div style={{ fontSize: 13, color: "#CBD5E1" }}>{order.study}</div>
+                    <div style={{ fontSize: 13, color: "#94A3B8" }}>{order.part}</div>
+                    <span className={`badge ${order.urgency === "Stat" ? "badge-red" : order.urgency === "Urgent" ? "badge-amber" : "badge-teal"}`}>{order.urgency}</span>
+                    <span className={`badge ${order.status === "Completed" ? "badge-green" : order.status === "In Progress" ? "badge-blue" : order.status === "Scheduled" ? "badge-teal" : "badge-amber"}`}>{order.status}</span>
+                    <button
+                      style={{
+                        background: "linear-gradient(135deg, #0D7377, #14BDBD)",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      {order.status === "Completed" ? "View" : "Manage"}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}

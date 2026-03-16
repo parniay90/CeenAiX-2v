@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { id: "records", label: "Health Records", icon: "🗂" },
   { id: "prescriptions", label: "Prescriptions", icon: "💊" },
   { id: "labs", label: "Lab Results", icon: "🔬" },
+  { id: "radiology", label: "Imaging / Radiology", icon: "🎯" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "ai", label: "AI Assistant", icon: "✦" },
   { id: "profile", label: "My Profile", icon: "👤" },
@@ -52,7 +53,7 @@ const AI_RESPONSES = {
 
 export default function PatientDashboard({ onNavigateHome }) {
   const { profile, updateProfile, updateAvatar } = useUserProfile();
-  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome } = useNavigation();
+  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology } = useNavigation();
   const [active, setActive] = useState("home");
   const [apptTab, setApptTab] = useState("upcoming");
   const [aiMessages, setAiMessages] = useState([
@@ -836,6 +837,107 @@ export default function PatientDashboard({ onNavigateHome }) {
                     <span className={`badge ${r.status === "Normal" ? "badge-green" : r.status === "Review" ? "badge-amber" : "badge-teal"}`}>{r.status}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── RADIOLOGY / IMAGING ── */}
+          {active === "radiology" && (
+            <div>
+              <div className="section-title">Imaging & Radiology</div>
+              <div className="section-sub">Schedule imaging appointments and view results</div>
+
+              {/* Quick Access Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
+                <div
+                  className="card"
+                  onClick={() => navigateToRadiology()}
+                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3B82F6"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🎯</div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>View All Imaging</div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Appointments, results & reports</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className="card"
+                  onClick={() => navigateToRadiology()}
+                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px dashed #E2E8F0" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#3B82F6"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>📅</div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>Book Imaging Appointment</div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Find centers & schedule scans</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Available Imaging Services */}
+              <div className="card" style={{ padding: 0, overflow: "hidden", marginBottom: 20 }}>
+                <div style={{ padding: "20px 24px", background: "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#1A1A2E" }}>Available Imaging Services</div>
+                  <div style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>Comprehensive diagnostic imaging</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, padding: 24 }}>
+                  {[
+                    { name: "MRI", icon: "🧲", desc: "Magnetic Resonance Imaging" },
+                    { name: "CT Scan", icon: "💿", desc: "Computed Tomography" },
+                    { name: "X-Ray", icon: "🦴", desc: "Digital Radiography" },
+                    { name: "Ultrasound", icon: "🔊", desc: "Sonography" },
+                    { name: "PET Scan", icon: "⚛️", desc: "Positron Emission Tomography" },
+                    { name: "Mammography", icon: "🎀", desc: "Breast Imaging" },
+                  ].map((service, i) => (
+                    <div
+                      key={i}
+                      className="card"
+                      onClick={() => navigateToRadiology()}
+                      style={{
+                        cursor: "pointer",
+                        padding: 16,
+                        textAlign: "center",
+                        transition: "all 0.2s",
+                        border: "1px solid #E2E8F0"
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = "#F8FAFC"; e.currentTarget.style.borderColor = "#3B82F6"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = "white"; e.currentTarget.style.borderColor = "#E2E8F0"; }}
+                    >
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>{service.icon}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E", marginBottom: 4 }}>{service.name}</div>
+                      <div style={{ fontSize: 11, color: "#64748B" }}>{service.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ textAlign: "center", padding: 20 }}>
+                <button
+                  onClick={() => navigateToRadiology()}
+                  style={{
+                    background: "linear-gradient(135deg, #3B82F6, #8B5CF6)",
+                    color: "white",
+                    border: "none",
+                    padding: "14px 32px",
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(59, 130, 246, 0.4)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.3)"; }}
+                >
+                  Go to Radiology Portal
+                </button>
               </div>
             </div>
           )}

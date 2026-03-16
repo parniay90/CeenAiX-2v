@@ -13,8 +13,9 @@ import PrescriptionsPage from './pages/PrescriptionsPage';
 import DoctorRefillApproval from './pages/DoctorRefillApproval';
 import LabTestsPage from './pages/LabTestsPage';
 import FindLabsPage from './pages/FindLabsPage';
+import RadiologyPage from './pages/RadiologyPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -31,6 +32,7 @@ interface NavigationContextType {
   navigateToDoctorRefills: () => void;
   navigateToLabTests: () => void;
   navigateToFindLabs: () => void;
+  navigateToRadiology: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null);
@@ -61,6 +63,7 @@ export default function Router() {
     navigateToDoctorRefills: () => setCurrentView('doctor-refills'),
     navigateToLabTests: () => setCurrentView('lab-tests'),
     navigateToFindLabs: () => setCurrentView('find-labs'),
+    navigateToRadiology: () => setCurrentView('radiology'),
   };
 
   const renderView = () => {
@@ -104,6 +107,8 @@ export default function Router() {
         return <LabTestsPage />;
       case 'find-labs':
         return <FindLabsPage />;
+      case 'radiology':
+        return <RadiologyPage />;
       default:
         return (
           <LandingPage
