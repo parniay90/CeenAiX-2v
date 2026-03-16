@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle, CalendarPlus } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Prescription {
   id: string;
@@ -33,6 +35,7 @@ interface RefillRequest {
 
 export default function PrescriptionsPage() {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
 
   const generateGoogleCalendarUrl = (prescription: Prescription) => {
     const title = encodeURIComponent(`Take ${prescription.medicationName}`);
@@ -80,51 +83,9 @@ END:VCALENDAR`;
   };
 
   const [showCalendarOptions, setShowCalendarOptions] = useState<string | null>(null);
-
-  const [prescriptions] = useState<Prescription[]>([
-    {
-      id: '1',
-      medicationName: 'Metformin 500mg',
-      dosage: '500mg',
-      frequency: 'Twice daily',
-      quantity: 60,
-      refillsRemaining: 3,
-      prescribedDate: 'Jan 15, 2026',
-      expiresDate: 'Jul 15, 2026',
-      prescribedFor: 'Type 2 Diabetes',
-      doctorName: 'Dr. Layla Al Mansoori',
-      instructions: 'Take with meals. Monitor blood sugar levels regularly.',
-      status: 'active',
-    },
-    {
-      id: '2',
-      medicationName: 'Atorvastatin 20mg',
-      dosage: '20mg',
-      frequency: 'Once daily (evening)',
-      quantity: 30,
-      refillsRemaining: 2,
-      prescribedDate: 'Jan 15, 2026',
-      expiresDate: 'Jul 15, 2026',
-      prescribedFor: 'High cholesterol',
-      doctorName: 'Dr. Layla Al Mansoori',
-      instructions: 'Take in the evening. Avoid grapefruit juice.',
-      status: 'active',
-    },
-  ]);
-
-  const [refillRequests, setRefillRequests] = useState<RefillRequest[]>([
-    {
-      id: '1',
-      prescriptionId: '1',
-      medicationName: 'Metformin 500mg',
-      requestedQuantity: 60,
-      pharmacyName: 'Dubai Pharmacy',
-      pharmacyAddress: 'Dubai Mall, Sheikh Zayed Road',
-      requestNotes: 'Running low on medication',
-      status: 'pending',
-      requestDate: 'Mar 10, 2026',
-    },
-  ]);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [refillRequests, setRefillRequests] = useState<RefillRequest[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [showRefillModal, setShowRefillModal] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
@@ -136,28 +97,184 @@ END:VCALENDAR`;
   });
   const [refillNotes, setRefillNotes] = useState('');
 
+  useEffect(() => {
+    if (user) {
+      fetchPrescriptions();
+      fetchRefillRequests();
+      fetchPreferredPharmacy();
+    }
+  }, [user]);
+
+  const fetchPrescriptions = async () => {
+    try {
+      const { data: patientData } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('id', user?.id)
+        .maybeSingle();
+
+      if (!patientData) return;
+
+      const { data: prescriptionsData, error } = await supabase
+        .from('prescriptions')
+        .select(`
+          id,
+          medications,
+          status,
+          valid_until,
+          created_at,
+          doctor_id,
+          doctors!inner (
+            id,
+            profiles!inner (
+              full_name
+            )
+          )
+        `)
+        .eq('patient_id', patientData.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedPrescriptions: Prescription[] = (prescriptionsData || []).flatMap((prescription) => {
+        const medications = prescription.medications as any[];
+        return medications.map((med: any, index: number) => ({
+          id: `${prescription.id}-${index}`,
+          medicationName: `${med.name} ${med.dosage}`,
+          dosage: med.dosage,
+          frequency: med.frequency,
+          quantity: med.quantity || 30,
+          refillsRemaining: med.refills || 0,
+          prescribedDate: new Date(prescription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          expiresDate: prescription.valid_until
+            ? new Date(prescription.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : 'N/A',
+          prescribedFor: med.prescribed_for || 'General medication',
+          doctorName: prescription.doctors?.profiles?.full_name || 'Unknown Doctor',
+          instructions: med.instructions || 'Follow doctor instructions',
+          status: prescription.status as 'active' | 'expired' | 'discontinued',
+        }));
+      });
+
+      setPrescriptions(formattedPrescriptions);
+    } catch (error) {
+      console.error('Error fetching prescriptions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRefillRequests = async () => {
+    try {
+      const { data: patientData } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('id', user?.id)
+        .maybeSingle();
+
+      if (!patientData) return;
+
+      const { data, error } = await supabase
+        .from('refill_requests')
+        .select('*')
+        .eq('patient_id', patientData.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedRequests: RefillRequest[] = (data || []).map((request) => ({
+        id: request.id,
+        prescriptionId: request.prescription_id,
+        medicationName: request.medication_name,
+        requestedQuantity: request.requested_quantity,
+        pharmacyName: request.pharmacy_name,
+        pharmacyAddress: request.pharmacy_address,
+        requestNotes: request.request_notes || '',
+        status: request.status as 'pending' | 'approved' | 'denied' | 'fulfilled',
+        requestDate: new Date(request.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        doctorNotes: request.doctor_notes,
+      }));
+
+      setRefillRequests(formattedRequests);
+    } catch (error) {
+      console.error('Error fetching refill requests:', error);
+    }
+  };
+
+  const fetchPreferredPharmacy = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_pharmacies')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('is_preferred', true)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setSelectedPharmacy({
+          name: data.pharmacy_name,
+          address: data.pharmacy_address,
+          phone: data.pharmacy_phone || '+971 4 XXX XXXX',
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching preferred pharmacy:', error);
+    }
+  };
+
   const handleRequestRefill = (prescription: Prescription) => {
     setSelectedPrescription(prescription);
     setRefillQuantity(prescription.quantity);
     setShowRefillModal(true);
   };
 
-  const handleSubmitRefill = () => {
-    if (selectedPrescription) {
-      const newRequest: RefillRequest = {
-        id: Date.now().toString(),
-        prescriptionId: selectedPrescription.id,
-        medicationName: selectedPrescription.medicationName,
-        requestedQuantity: refillQuantity,
-        pharmacyName: selectedPharmacy.name,
-        pharmacyAddress: selectedPharmacy.address,
-        requestNotes: refillNotes,
-        status: 'pending',
-        requestDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      };
-      setRefillRequests([newRequest, ...refillRequests]);
+  const handleSubmitRefill = async () => {
+    if (!selectedPrescription || !user) return;
+
+    try {
+      const { data: patientData } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!patientData) return;
+
+      const prescriptionId = selectedPrescription.id.split('-')[0];
+
+      const { data: prescriptionData } = await supabase
+        .from('prescriptions')
+        .select('doctor_id')
+        .eq('id', prescriptionId)
+        .maybeSingle();
+
+      if (!prescriptionData) return;
+
+      const { error } = await supabase
+        .from('refill_requests')
+        .insert({
+          prescription_id: prescriptionId,
+          patient_id: patientData.id,
+          doctor_id: prescriptionData.doctor_id,
+          pharmacy_name: selectedPharmacy.name,
+          pharmacy_address: selectedPharmacy.address,
+          pharmacy_phone: selectedPharmacy.phone,
+          medication_name: selectedPrescription.medicationName,
+          requested_quantity: refillQuantity,
+          request_notes: refillNotes,
+          status: 'pending',
+        });
+
+      if (error) throw error;
+
+      await fetchRefillRequests();
       setShowRefillModal(false);
       setRefillNotes('');
+    } catch (error) {
+      console.error('Error submitting refill request:', error);
+      alert('Failed to submit refill request. Please try again.');
     }
   };
 
@@ -231,10 +348,37 @@ END:VCALENDAR`;
               >
                 Active Prescriptions
               </h2>
-              <div style={{ display: 'grid', gap: 16 }}>
-                {prescriptions
-                  .filter((p) => p.status === 'active')
-                  .map((prescription) => (
+              {loading ? (
+                <div
+                  style={{
+                    background: isDarkMode ? '#16213E' : 'white',
+                    borderRadius: 16,
+                    padding: 48,
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    textAlign: 'center',
+                    color: '#64748B',
+                  }}
+                >
+                  Loading prescriptions...
+                </div>
+              ) : prescriptions.filter((p) => p.status === 'active').length === 0 ? (
+                <div
+                  style={{
+                    background: isDarkMode ? '#16213E' : 'white',
+                    borderRadius: 16,
+                    padding: 48,
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    textAlign: 'center',
+                    color: '#64748B',
+                  }}
+                >
+                  No active prescriptions
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: 16 }}>
+                  {prescriptions
+                    .filter((p) => p.status === 'active')
+                    .map((prescription) => (
                     <div
                       key={prescription.id}
                       style={{
@@ -461,7 +605,8 @@ END:VCALENDAR`;
                       </div>
                     </div>
                   ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Refill Requests */}
