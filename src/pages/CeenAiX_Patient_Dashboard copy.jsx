@@ -67,6 +67,15 @@ export default function PatientDashboard({ onNavigateHome }) {
   const [showPrescriptionsModal, setShowPrescriptionsModal] = useState(false);
   const [showLabResultsModal, setShowLabResultsModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingForm, setBookingForm] = useState({
+    specialty: '',
+    doctor: '',
+    date: '',
+    time: '',
+    type: 'In-Clinic',
+    reason: ''
+  });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -402,8 +411,15 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── APPOINTMENTS ── */}
           {active === "appointments" && (
             <div>
-              <div className="section-title">My Appointments</div>
-              <div className="section-sub">Manage your upcoming and past consultations</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+                <div>
+                  <div className="section-title">My Appointments</div>
+                  <div className="section-sub">Manage your upcoming and past consultations</div>
+                </div>
+                <button className="btn-primary" onClick={() => setShowBookingModal(true)} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 16 }}>+</span> Book New Appointment
+                </button>
+              </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
                 <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({APPOINTMENTS.filter(a => a.status === "upcoming").length})</button>
                 <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({APPOINTMENTS.filter(a => a.status === "completed").length})</button>
@@ -949,6 +965,124 @@ export default function PatientDashboard({ onNavigateHome }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Book Appointment Modal */}
+      {showBookingModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowBookingModal(false)}>
+          <div className="card" style={{ width: "90%", maxWidth: 600, maxHeight: "90vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1A1A2E" }}>Book New Appointment</h3>
+              <button onClick={() => setShowBookingModal(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Specialty *</label>
+                <select
+                  value={bookingForm.specialty}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, specialty: e.target.value }))}
+                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
+                >
+                  <option value="">Select specialty</option>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="General Practice">General Practice</option>
+                  <option value="Dermatology">Dermatology</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                  <option value="Gynecology">Gynecology</option>
+                  <option value="Neurology">Neurology</option>
+                  <option value="Psychiatry">Psychiatry</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Preferred Doctor (Optional)</label>
+                <input
+                  type="text"
+                  value={bookingForm.doctor}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, doctor: e.target.value }))}
+                  placeholder="e.g., Dr. Layla Al Mansoori"
+                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Date *</label>
+                  <input
+                    type="date"
+                    value={bookingForm.date}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, date: e.target.value }))}
+                    min={new Date().toISOString().split('T')[0]}
+                    style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Time *</label>
+                  <input
+                    type="time"
+                    value={bookingForm.time}
+                    onChange={(e) => setBookingForm(prev => ({ ...prev, time: e.target.value }))}
+                    style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit" }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Appointment Type *</label>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <button
+                    onClick={() => setBookingForm(prev => ({ ...prev, type: 'In-Clinic' }))}
+                    className={bookingForm.type === 'In-Clinic' ? 'btn-primary' : 'btn-outline'}
+                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  >
+                    🏥 In-Clinic
+                  </button>
+                  <button
+                    onClick={() => setBookingForm(prev => ({ ...prev, type: 'Teleconsultation' }))}
+                    className={bookingForm.type === 'Teleconsultation' ? 'btn-primary' : 'btn-outline'}
+                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  >
+                    📹 Teleconsultation
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 6 }}>Reason for Visit *</label>
+                <textarea
+                  value={bookingForm.reason}
+                  onChange={(e) => setBookingForm(prev => ({ ...prev, reason: e.target.value }))}
+                  placeholder="Please describe your symptoms or reason for consultation"
+                  rows={4}
+                  style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #E2E8F0", borderRadius: 8, fontSize: 13.5, fontFamily: "inherit", resize: "vertical" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+                <button className="btn-outline" onClick={() => setShowBookingModal(false)} style={{ flex: 1 }}>
+                  Cancel
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    if (bookingForm.specialty && bookingForm.date && bookingForm.time && bookingForm.reason) {
+                      alert('Appointment booked successfully!');
+                      setShowBookingModal(false);
+                      setBookingForm({ specialty: '', doctor: '', date: '', time: '', type: 'In-Clinic', reason: '' });
+                    } else {
+                      alert('Please fill in all required fields');
+                    }
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  Confirm Booking
+                </button>
+              </div>
             </div>
           </div>
         </div>
