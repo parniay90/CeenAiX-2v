@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle } from 'lucide-react';
+import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle, CalendarPlus } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -33,6 +33,53 @@ interface RefillRequest {
 
 export default function PrescriptionsPage() {
   const { isDarkMode } = useTheme();
+
+  const generateGoogleCalendarUrl = (prescription: Prescription) => {
+    const title = encodeURIComponent(`Take ${prescription.medicationName}`);
+    const details = encodeURIComponent(
+      `Medication: ${prescription.medicationName} ${prescription.dosage}\nFrequency: ${prescription.frequency}\nInstructions: ${prescription.instructions}`
+    );
+    const recurrence = prescription.frequency.toLowerCase().includes('twice') ? 'RRULE:FREQ=DAILY;INTERVAL=1' : 'RRULE:FREQ=DAILY;INTERVAL=1';
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&recur=${recurrence}`;
+  };
+
+  const generateICSFile = (prescription: Prescription) => {
+    const now = new Date();
+    const startDate = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const endDate = new Date(now.getTime() + 15 * 60000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const frequency = prescription.frequency.toLowerCase().includes('twice') ? 'FREQ=DAILY;INTERVAL=1;COUNT=365' : 'FREQ=DAILY;INTERVAL=1;COUNT=365';
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CeenAiX//Medication Reminder//EN
+BEGIN:VEVENT
+UID:${prescription.id}@ceenaix.com
+DTSTAMP:${startDate}
+DTSTART:${startDate}
+DTEND:${endDate}
+RRULE:${frequency}
+SUMMARY:Take ${prescription.medicationName}
+DESCRIPTION:Medication: ${prescription.medicationName} ${prescription.dosage}\\nFrequency: ${prescription.frequency}\\nInstructions: ${prescription.instructions}
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Time to take ${prescription.medicationName}
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${prescription.medicationName.replace(/\s+/g, '_')}_reminder.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const [showCalendarOptions, setShowCalendarOptions] = useState<string | null>(null);
 
   const [prescriptions] = useState<Prescription[]>([
     {
@@ -298,32 +345,120 @@ export default function PrescriptionsPage() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => handleRequestRefill(prescription)}
-                        disabled={prescription.refillsRemaining === 0}
-                        style={{
-                          width: '100%',
-                          padding: '12px 20px',
-                          background:
-                            prescription.refillsRemaining === 0
-                              ? '#E2E8F0'
-                              : 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
-                          border: 'none',
-                          borderRadius: 10,
-                          color: 'white',
-                          fontSize: 14,
-                          fontWeight: 600,
-                          cursor: prescription.refillsRemaining === 0 ? 'not-allowed' : 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 8,
-                          opacity: prescription.refillsRemaining === 0 ? 0.5 : 1,
-                        }}
-                      >
-                        <Send size={16} />
-                        {prescription.refillsRemaining === 0 ? 'No Refills Available' : 'Request Refill'}
-                      </button>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <button
+                          onClick={() => handleRequestRefill(prescription)}
+                          disabled={prescription.refillsRemaining === 0}
+                          style={{
+                            flex: 1,
+                            padding: '12px 20px',
+                            background:
+                              prescription.refillsRemaining === 0
+                                ? '#E2E8F0'
+                                : 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                            border: 'none',
+                            borderRadius: 10,
+                            color: 'white',
+                            fontSize: 14,
+                            fontWeight: 600,
+                            cursor: prescription.refillsRemaining === 0 ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8,
+                            opacity: prescription.refillsRemaining === 0 ? 0.5 : 1,
+                          }}
+                        >
+                          <Send size={16} />
+                          {prescription.refillsRemaining === 0 ? 'No Refills Available' : 'Request Refill'}
+                        </button>
+                        <div style={{ position: 'relative' }}>
+                          <button
+                            onClick={() => setShowCalendarOptions(showCalendarOptions === prescription.id ? null : prescription.id)}
+                            style={{
+                              padding: '12px 16px',
+                              background: isDarkMode ? '#1A1A2E' : 'white',
+                              border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                              borderRadius: 10,
+                              color: isDarkMode ? '#CBD5E1' : '#475569',
+                              fontSize: 14,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                            }}
+                          >
+                            <CalendarPlus size={16} />
+                            Reminder
+                          </button>
+                          {showCalendarOptions === prescription.id && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 8px)',
+                                right: 0,
+                                background: isDarkMode ? '#16213E' : 'white',
+                                border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                                borderRadius: 12,
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                                minWidth: 220,
+                                zIndex: 100,
+                                overflow: 'hidden',
+                              }}
+                            >
+                              <button
+                                onClick={() => {
+                                  window.open(generateGoogleCalendarUrl(prescription), '_blank');
+                                  setShowCalendarOptions(null);
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  textAlign: 'left',
+                                  cursor: 'pointer',
+                                  fontSize: 13,
+                                  color: isDarkMode ? '#CBD5E1' : '#475569',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 10,
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = isDarkMode ? '#2D3748' : '#F8FAFC')}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                              >
+                                <span style={{ fontSize: 16 }}>📅</span>
+                                Add to Google Calendar
+                              </button>
+                              <button
+                                onClick={() => {
+                                  generateICSFile(prescription);
+                                  setShowCalendarOptions(null);
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '12px 16px',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  textAlign: 'left',
+                                  cursor: 'pointer',
+                                  fontSize: 13,
+                                  color: isDarkMode ? '#CBD5E1' : '#475569',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 10,
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = isDarkMode ? '#2D3748' : '#F8FAFC')}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                              >
+                                <span style={{ fontSize: 16 }}>🍎</span>
+                                Download for Apple Calendar
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))}
               </div>

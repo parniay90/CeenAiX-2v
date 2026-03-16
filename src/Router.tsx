@@ -9,8 +9,10 @@ import ChangePassword from './pages/ChangePassword';
 import Settings from './pages/Settings';
 import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import PrescriptionsPage from './pages/PrescriptionsPage';
+import DoctorRefillApproval from './pages/DoctorRefillApproval';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -23,6 +25,8 @@ interface NavigationContextType {
   navigateToSettings: () => void;
   navigateToTerms: () => void;
   navigateToPrivacy: () => void;
+  navigateToPrescriptions: () => void;
+  navigateToDoctorRefills: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null);
@@ -49,6 +53,8 @@ export default function Router() {
     navigateToSettings: () => setCurrentView('settings'),
     navigateToTerms: () => setCurrentView('terms'),
     navigateToPrivacy: () => setCurrentView('privacy'),
+    navigateToPrescriptions: () => setCurrentView('prescriptions'),
+    navigateToDoctorRefills: () => setCurrentView('doctor-refills'),
   };
 
   const renderView = () => {
@@ -84,6 +90,10 @@ export default function Router() {
         return <TermsConditions />;
       case 'privacy':
         return <PrivacyPolicy />;
+      case 'prescriptions':
+        return <PrescriptionsPage />;
+      case 'doctor-refills':
+        return <DoctorRefillApproval />;
       default:
         return (
           <LandingPage

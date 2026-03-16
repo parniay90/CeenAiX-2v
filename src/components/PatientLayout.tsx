@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
 export function PatientLayout({ children, activeNav = 'home', onNavChange }: PatientLayoutProps) {
   const { profile } = useUserProfile();
   const { signOut } = useAuth();
-  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome } = useNavigation();
+  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions } = useNavigation();
   const { isDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -62,6 +62,8 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
   const handleNavClick = (itemId: string) => {
     if (itemId === 'home') {
       navigateToPatientPortal();
+    } else if (itemId === 'prescriptions') {
+      navigateToPrescriptions();
     } else if (onNavChange) {
       onNavChange(itemId);
     }
