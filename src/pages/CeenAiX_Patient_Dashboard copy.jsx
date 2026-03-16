@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useUserProfile } from "../contexts/UserProfileContext";
 import { UserAvatar } from "../components/UserAvatar";
+import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
 
 const NAV_ITEMS = [
@@ -238,10 +239,7 @@ export default function PatientDashboard({ onNavigateHome }) {
             <button className="btn-outline" onClick={() => setActive("ai")} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5 }}>
               <span style={{ color: "#6C63FF" }}>✦</span> AI Assistant
             </button>
-            <div style={{ position: "relative" }}>
-              <span style={{ fontSize: 20, cursor: "pointer" }}>🔔</span>
-              <span style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, background: "#EF4444", borderRadius: "50%", border: "2px solid white" }}></span>
-            </div>
+            <NotificationDropdown />
             <div style={{ position: "relative" }} ref={profileMenuRef}>
               <div
                 style={{ cursor: "pointer" }}

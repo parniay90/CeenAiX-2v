@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NotificationDropdown } from "../components/NotificationDropdown";
 
 const NAV = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -271,10 +272,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ fontSize: 12, color: "#475569" }}>Thu, 12 Mar 2026</div>
-            <div style={{ position: "relative" }}>
-              <span style={{ fontSize: 18, cursor: "pointer" }}>🔔</span>
-              <span style={{ position: "absolute", top: -2, right: -2, width: 7, height: 7, background: "#EF4444", borderRadius: "50%", border: "1.5px solid #0A1520" }}></span>
-            </div>
+            <NotificationDropdown />
             <div className="avatar" style={{ width: 34, height: 34, fontSize: 13, cursor: "pointer" }}>L</div>
           </div>
         </div>
