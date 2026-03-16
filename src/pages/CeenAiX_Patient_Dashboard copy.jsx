@@ -78,6 +78,10 @@ export default function PatientDashboard({ onNavigateHome }) {
   });
   const [availableSlots, setAvailableSlots] = useState([]);
   const [appointments, setAppointments] = useState(INITIAL_APPOINTMENTS);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showRecordDetailModal, setShowRecordDetailModal] = useState(false);
+  const [recordAiInput, setRecordAiInput] = useState("");
+  const [recordAiMessages, setRecordAiMessages] = useState([]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -523,14 +527,103 @@ export default function PatientDashboard({ onNavigateHome }) {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 {[
-                  { title: "Chronic Conditions", icon: "🫀", items: ["Type 2 Diabetes (since 2022)", "Hypertension (since 2021)"] },
-                  { title: "Allergies", icon: "⚠️", items: ["Penicillin — Severe", "Shellfish — Moderate"] },
-                  { title: "Current Medications", icon: "💊", items: ["Metformin 500mg — Twice daily", "Atorvastatin 20mg — Once daily"] },
-                  { title: "Past Surgeries", icon: "🏥", items: ["Appendectomy — 2018", "Knee Arthroscopy — 2020"] },
-                  { title: "Vaccinations", icon: "💉", items: ["COVID-19 Booster — Dec 2025", "Flu Shot — Oct 2025", "Hepatitis B — Complete"] },
-                  { title: "Emergency Contact", icon: "🆘", items: ["Tooraj Helmi — Friend", "+971 50 XXX XXXX"] },
+                  {
+                    title: "Chronic Conditions",
+                    icon: "🫀",
+                    items: ["Type 2 Diabetes (since 2022)", "Hypertension (since 2021)"],
+                    details: {
+                      type: "Chronic Conditions",
+                      lastUpdated: "Mar 1, 2026",
+                      updatedBy: "Dr. Layla Al Mansoori",
+                      records: [
+                        { condition: "Type 2 Diabetes", diagnosed: "Jan 2022", severity: "Moderate", treatment: "Metformin 500mg twice daily", notes: "Well controlled with medication and diet" },
+                        { condition: "Hypertension", diagnosed: "Mar 2021", severity: "Mild", treatment: "Lifestyle modifications", notes: "Blood pressure monitoring recommended" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "Allergies",
+                    icon: "⚠️",
+                    items: ["Penicillin — Severe", "Shellfish — Moderate"],
+                    details: {
+                      type: "Allergies",
+                      lastUpdated: "Jan 10, 2026",
+                      updatedBy: "Dr. Rami Khalil",
+                      records: [
+                        { allergen: "Penicillin", severity: "Severe", reaction: "Anaphylaxis", firstOccurrence: "2015", notes: "Avoid all penicillin-based antibiotics" },
+                        { allergen: "Shellfish", severity: "Moderate", reaction: "Hives, difficulty breathing", firstOccurrence: "2019", notes: "Carry EpiPen when dining out" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "Current Medications",
+                    icon: "💊",
+                    items: ["Metformin 500mg — Twice daily", "Atorvastatin 20mg — Once daily"],
+                    details: {
+                      type: "Current Medications",
+                      lastUpdated: "Mar 1, 2026",
+                      updatedBy: "Dr. Layla Al Mansoori",
+                      records: [
+                        { medication: "Metformin 500mg", dosage: "500mg", frequency: "Twice daily", startDate: "Jan 2022", prescribedFor: "Type 2 Diabetes", sideEffects: "None reported", notes: "Take with meals" },
+                        { medication: "Atorvastatin 20mg", dosage: "20mg", frequency: "Once daily (evening)", startDate: "Jan 2022", prescribedFor: "High cholesterol", sideEffects: "None reported", notes: "Avoid grapefruit juice" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "Past Surgeries",
+                    icon: "🏥",
+                    items: ["Appendectomy — 2018", "Knee Arthroscopy — 2020"],
+                    details: {
+                      type: "Past Surgeries",
+                      lastUpdated: "Feb 15, 2026",
+                      updatedBy: "Medical Records",
+                      records: [
+                        { surgery: "Appendectomy", date: "Jun 15, 2018", hospital: "City Medical Center", surgeon: "Dr. Ahmed Farhan", reason: "Acute appendicitis", recovery: "Full recovery", complications: "None", notes: "Laparoscopic procedure" },
+                        { surgery: "Knee Arthroscopy", date: "Sep 10, 2020", hospital: "Sports Medicine Clinic", surgeon: "Dr. Sarah Johnson", reason: "Meniscus tear", recovery: "Full recovery with PT", complications: "None", notes: "6 weeks physical therapy" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "Vaccinations",
+                    icon: "💉",
+                    items: ["COVID-19 Booster — Dec 2025", "Flu Shot — Oct 2025", "Hepatitis B — Complete"],
+                    details: {
+                      type: "Vaccinations",
+                      lastUpdated: "Dec 12, 2025",
+                      updatedBy: "Dubai Health Authority",
+                      records: [
+                        { vaccine: "COVID-19 Booster", date: "Dec 12, 2025", manufacturer: "Pfizer-BioNTech", lotNumber: "FN8795", administeredBy: "HealthFirst Clinic", nextDue: "Dec 2026", notes: "3rd booster dose" },
+                        { vaccine: "Influenza (Flu)", date: "Oct 5, 2025", manufacturer: "Sanofi", lotNumber: "FL2934", administeredBy: "Dubai Heart Center", nextDue: "Oct 2026", notes: "Annual flu vaccine" },
+                        { vaccine: "Hepatitis B (Complete Series)", date: "2010-2011", manufacturer: "GSK", lotNumber: "HB-SERIES", administeredBy: "School Health Program", nextDue: "N/A", notes: "3-dose series completed" }
+                      ]
+                    }
+                  },
+                  {
+                    title: "Emergency Contact",
+                    icon: "🆘",
+                    items: ["Tooraj Helmi — Friend", "+971 50 XXX XXXX"],
+                    details: {
+                      type: "Emergency Contact",
+                      lastUpdated: "Jan 5, 2026",
+                      updatedBy: "Patient",
+                      records: [
+                        { name: "Tooraj Helmi", relationship: "Friend", phone: "+971 50 XXX XXXX", alternatePhone: "+971 4 XXX XXXX", address: "Dubai Marina, Dubai", notes: "Primary emergency contact" }
+                      ]
+                    }
+                  },
                 ].map((section, i) => (
-                  <div key={i} className="card">
+                  <div
+                    key={i}
+                    className="card"
+                    style={{ cursor: section.title !== "Emergency Contact" ? "pointer" : "default" }}
+                    onClick={() => {
+                      if (section.title !== "Emergency Contact") {
+                        setSelectedRecord(section.details);
+                        setShowRecordDetailModal(true);
+                        setRecordAiMessages([{ role: "ai", text: `Hi! I'm here to help you understand your ${section.details.type}. What would you like to know?` }]);
+                      }
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                       <span style={{ fontSize: 20 }}>{section.icon}</span>
                       <span style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>{section.title}</span>
@@ -541,6 +634,11 @@ export default function PatientDashboard({ onNavigateHome }) {
                         {item}
                       </div>
                     ))}
+                    {section.title !== "Emergency Contact" && (
+                      <div style={{ marginTop: 12, fontSize: 12, color: "#0D7377", fontWeight: 600 }}>
+                        Click to view details →
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1024,6 +1122,179 @@ export default function PatientDashboard({ onNavigateHome }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Health Record Detail Modal */}
+      {showRecordDetailModal && selectedRecord && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20 }} onClick={() => setShowRecordDetailModal(false)}>
+          <div className="card" style={{ width: "95%", maxWidth: 1200, maxHeight: "90vh", overflow: "auto", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "2px solid #E2E8F0", position: "sticky", top: 0, background: "white", zIndex: 10 }}>
+              <div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1A1A2E", fontFamily: "Syne, sans-serif" }}>{selectedRecord.type}</h3>
+                <div style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>
+                  Last updated: {selectedRecord.lastUpdated} by {selectedRecord.updatedBy}
+                </div>
+              </div>
+              <button onClick={() => setShowRecordDetailModal(false)} style={{ background: "none", border: "none", fontSize: 28, cursor: "pointer", color: "#64748B", lineHeight: 1 }}>×</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, flex: 1 }}>
+              {/* Left Panel - Record Details */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      window.print();
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}
+                  >
+                    🖨️ Print Report
+                  </button>
+                  <button
+                    className="btn-outline"
+                    onClick={() => {
+                      alert('Share options:\n- Email to doctor\n- Download PDF\n- Share link');
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}
+                  >
+                    📤 Share
+                  </button>
+                  <button
+                    className="btn-outline"
+                    onClick={() => {
+                      const doctors = appointments.filter(a => a.status === "upcoming").map(a => a.doctor);
+                      if (doctors.length > 0) {
+                        alert(`Send to:\n${doctors.join('\n')}`);
+                      } else {
+                        alert('No upcoming appointments. Please book an appointment first.');
+                      }
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}
+                  >
+                    👨‍⚕️ Send to Doctor
+                  </button>
+                </div>
+
+                {/* Record Details */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {selectedRecord.records.map((record, idx) => (
+                    <div key={idx} style={{ background: "#F8FAFC", borderRadius: 12, padding: 20, border: "1px solid #E2E8F0" }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E", marginBottom: 12, fontFamily: "Syne, sans-serif" }}>
+                        {record.condition || record.allergen || record.medication || record.surgery || record.vaccine || record.name || `Record ${idx + 1}`}
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "8px 16px", fontSize: 13 }}>
+                        {Object.entries(record).map(([key, value]) => {
+                          if (key === 'condition' || key === 'allergen' || key === 'medication' || key === 'surgery' || key === 'vaccine' || key === 'name') return null;
+                          return (
+                            <div key={key} style={{ display: "contents" }}>
+                              <div style={{ color: "#64748B", textTransform: "capitalize", fontWeight: 500 }}>
+                                {key.replace(/([A-Z])/g, ' $1').trim()}:
+                              </div>
+                              <div style={{ color: "#1A1A2E", fontWeight: 600 }}>{value}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Panel - AI Assistant */}
+              <div style={{ background: "#F0F4F8", borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", height: "fit-content", maxHeight: "calc(90vh - 200px)", position: "sticky", top: 100 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #E2E8F0" }}>
+                  <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, #6C63FF, #a855f7)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ color: "white", fontWeight: 800, fontSize: 14 }}>✦</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>AI Health Assistant</div>
+                    <div style={{ fontSize: 11, color: "#64748B" }}>Ask about this record</div>
+                  </div>
+                </div>
+
+                {/* AI Messages */}
+                <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 16, maxHeight: 400 }}>
+                  {recordAiMessages.map((msg, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+                      {msg.role === "ai" && (
+                        <div style={{ width: 24, height: 24, background: "linear-gradient(135deg, #6C63FF, #a855f7)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", marginRight: 6, flexShrink: 0, alignSelf: "flex-end" }}>
+                          <span style={{ color: "white", fontSize: 10 }}>✦</span>
+                        </div>
+                      )}
+                      <div className={`ai-bubble ${msg.role}`} style={{ maxWidth: "85%", fontSize: 12.5 }}>{msg.text}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Questions */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                  {[
+                    "What does this mean?",
+                    "Any precautions?",
+                    "Treatment options?"
+                  ].map((q, i) => (
+                    <button
+                      key={i}
+                      className="ai-chip"
+                      onClick={() => {
+                        setRecordAiMessages(prev => [
+                          ...prev,
+                          { role: "user", text: q },
+                          { role: "ai", text: `Based on your ${selectedRecord.type.toLowerCase()}, ${q.toLowerCase()} This is general information. Please consult your doctor for personalized advice.` }
+                        ]);
+                      }}
+                      style={{ fontSize: 11, padding: "5px 10px" }}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+
+                {/* AI Input */}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    value={recordAiInput}
+                    onChange={e => setRecordAiInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && recordAiInput.trim()) {
+                        setRecordAiMessages(prev => [
+                          ...prev,
+                          { role: "user", text: recordAiInput },
+                          { role: "ai", text: `Regarding your question about ${selectedRecord.type.toLowerCase()}: "${recordAiInput}" - I'd recommend discussing this with your healthcare provider for personalized guidance based on your complete medical history.` }
+                        ]);
+                        setRecordAiInput("");
+                      }
+                    }}
+                    placeholder="Ask AI about this record..."
+                    style={{ flex: 1, background: "white", border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "8px 12px", fontSize: 12.5, color: "#1A1A2E", outline: "none" }}
+                  />
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      if (recordAiInput.trim()) {
+                        setRecordAiMessages(prev => [
+                          ...prev,
+                          { role: "user", text: recordAiInput },
+                          { role: "ai", text: `Regarding your question about ${selectedRecord.type.toLowerCase()}: "${recordAiInput}" - I'd recommend discussing this with your healthcare provider for personalized guidance based on your complete medical history.` }
+                        ]);
+                        setRecordAiInput("");
+                      }
+                    }}
+                    style={{ background: "linear-gradient(135deg, #6C63FF, #a855f7)", padding: "8px 14px", fontSize: 12 }}
+                  >
+                    Send
+                  </button>
+                </div>
+
+                <div style={{ marginTop: 10, fontSize: 10, color: "#94A3B8", textAlign: "center", lineHeight: 1.4 }}>
+                  ⚠️ AI provides general information only.<br/>Consult your doctor for medical advice.
+                </div>
+              </div>
             </div>
           </div>
         </div>
