@@ -17,6 +17,9 @@ import {
   AlertCircle,
   Check,
   ArrowLeft,
+  MapPin,
+  Plus,
+  Star,
 } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useNavigation } from '../Router';
@@ -26,12 +29,20 @@ import { useTheme } from '../contexts/ThemeContext';
 type ThemeMode = 'light' | 'dark' | 'system';
 type Language = 'en' | 'ar';
 
+interface Pharmacy {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  isPreferred: boolean;
+}
+
 export default function Settings() {
   const { navigateToPatientPortal } = useNavigation();
   const { profile } = useUserProfile();
   const { isDarkMode, toggleDarkMode } = useTheme();
 
-  const [activeSection, setActiveSection] = useState<'general' | 'notifications' | 'privacy' | 'data'>('general');
+  const [activeSection, setActiveSection] = useState<'general' | 'notifications' | 'privacy' | 'data' | 'pharmacy'>('general');
 
   // General Settings
   const [theme, setTheme] = useState<ThemeMode>(isDarkMode ? 'dark' : 'light');
@@ -55,6 +66,19 @@ export default function Settings() {
 
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Pharmacy Settings
+  const [pharmacies, setPharmacies] = useState<Pharmacy[]>([
+    {
+      id: '1',
+      name: 'Dubai Pharmacy',
+      address: 'Dubai Mall, Sheikh Zayed Road, Dubai',
+      phone: '+971 4 XXX XXXX',
+      isPreferred: true,
+    },
+  ]);
+  const [showAddPharmacy, setShowAddPharmacy] = useState(false);
+  const [newPharmacy, setNewPharmacy] = useState({ name: '', address: '', phone: '' });
+
   const handleSaveSettings = () => {
     if (theme === 'dark' && !isDarkMode) {
       toggleDarkMode();
@@ -67,6 +91,7 @@ export default function Settings() {
 
   const sections = [
     { id: 'general', label: 'General', icon: SettingsIcon },
+    { id: 'pharmacy', label: 'Pharmacy Preferences', icon: MapPin },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Privacy & Security', icon: Shield },
     { id: 'data', label: 'Data Management', icon: Download },
@@ -366,6 +391,254 @@ export default function Settings() {
                     </div>
                   </div>
                 </>
+              )}
+
+              {/* Pharmacy Preferences */}
+              {activeSection === 'pharmacy' && (
+                <div
+                  style={{
+                    background: isDarkMode ? '#16213E' : 'white',
+                    borderRadius: 16,
+                    padding: 32,
+                    border: isDarkMode ? '1px solid #2D3748' : '1px solid #E2E8F0',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: isDarkMode ? '#F8FAFC' : '#1A1A2E' }}>
+                      Preferred Pharmacies
+                    </h3>
+                    <button
+                      onClick={() => setShowAddPharmacy(!showAddPharmacy)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '8px 14px',
+                        background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                        border: 'none',
+                        borderRadius: 8,
+                        color: 'white',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      <Plus size={16} />
+                      Add Pharmacy
+                    </button>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>
+                    Add and manage your preferred pharmacies for prescription refills
+                  </p>
+
+                  {showAddPharmacy && (
+                    <div
+                      style={{
+                        background: '#F8FAFC',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: 12,
+                        padding: 20,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>
+                        Add New Pharmacy
+                      </h4>
+                      <div style={{ display: 'grid', gap: 12 }}>
+                        <input
+                          type="text"
+                          placeholder="Pharmacy Name"
+                          value={newPharmacy.name}
+                          onChange={(e) => setNewPharmacy({ ...newPharmacy, name: e.target.value })}
+                          style={{
+                            padding: '10px 14px',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: 8,
+                            fontSize: 14,
+                            outline: 'none',
+                          }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Address"
+                          value={newPharmacy.address}
+                          onChange={(e) => setNewPharmacy({ ...newPharmacy, address: e.target.value })}
+                          style={{
+                            padding: '10px 14px',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: 8,
+                            fontSize: 14,
+                            outline: 'none',
+                          }}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Phone Number"
+                          value={newPharmacy.phone}
+                          onChange={(e) => setNewPharmacy({ ...newPharmacy, phone: e.target.value })}
+                          style={{
+                            padding: '10px 14px',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: 8,
+                            fontSize: 14,
+                            outline: 'none',
+                          }}
+                        />
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => {
+                              setShowAddPharmacy(false);
+                              setNewPharmacy({ name: '', address: '', phone: '' });
+                            }}
+                            style={{
+                              padding: '8px 16px',
+                              background: 'white',
+                              border: '1px solid #E2E8F0',
+                              borderRadius: 8,
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (newPharmacy.name && newPharmacy.address) {
+                                setPharmacies([
+                                  ...pharmacies,
+                                  {
+                                    id: Date.now().toString(),
+                                    ...newPharmacy,
+                                    isPreferred: pharmacies.length === 0,
+                                  },
+                                ]);
+                                setNewPharmacy({ name: '', address: '', phone: '' });
+                                setShowAddPharmacy(false);
+                              }
+                            }}
+                            style={{
+                              padding: '8px 16px',
+                              background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                              border: 'none',
+                              borderRadius: 8,
+                              color: 'white',
+                              fontSize: 13,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Add Pharmacy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'grid', gap: 12 }}>
+                    {pharmacies.map((pharmacy) => (
+                      <div
+                        key={pharmacy.id}
+                        style={{
+                          padding: 16,
+                          background: pharmacy.isPreferred ? '#F0F9FF' : '#F8FAFC',
+                          border: `1px solid ${pharmacy.isPreferred ? '#0EA5E9' : '#E2E8F0'}`,
+                          borderRadius: 12,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <h4 style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E' }}>
+                              {pharmacy.name}
+                            </h4>
+                            {pharmacy.isPreferred && (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 4,
+                                  padding: '2px 8px',
+                                  background: '#0EA5E9',
+                                  borderRadius: 12,
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: 'white',
+                                }}
+                              >
+                                <Star size={12} fill="white" />
+                                Preferred
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 2 }}>
+                            {pharmacy.address}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#64748B' }}>{pharmacy.phone}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          {!pharmacy.isPreferred && (
+                            <button
+                              onClick={() => {
+                                setPharmacies(
+                                  pharmacies.map((p) => ({
+                                    ...p,
+                                    isPreferred: p.id === pharmacy.id,
+                                  }))
+                                );
+                              }}
+                              style={{
+                                padding: '6px 12px',
+                                background: 'white',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: 8,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: '#0D7377',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Set as Preferred
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setPharmacies(pharmacies.filter((p) => p.id !== pharmacy.id));
+                            }}
+                            style={{
+                              padding: '6px 12px',
+                              background: 'white',
+                              border: '1px solid #FEE2E2',
+                              borderRadius: 8,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: '#DC2626',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {pharmacies.length === 0 && (
+                      <div
+                        style={{
+                          textAlign: 'center',
+                          padding: 40,
+                          color: '#64748B',
+                          fontSize: 14,
+                        }}
+                      >
+                        No pharmacies added yet. Click "Add Pharmacy" to get started.
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
 
               {/* Notifications */}
