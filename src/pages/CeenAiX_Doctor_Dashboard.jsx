@@ -233,7 +233,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
             src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png"
             alt="CeenAiX"
             style={{
-              height: sidebarOpen ? 32 : 36,
+              height: sidebarOpen ? 48 : 44,
               width: "auto",
               objectFit: "contain",
               transition: "all 0.25s ease"
