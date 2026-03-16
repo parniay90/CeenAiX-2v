@@ -648,24 +648,111 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── PRESCRIPTIONS ── */}
           {active === "prescriptions" && (
             <div>
-              <div className="section-title">Prescriptions</div>
-              <div className="section-sub">All your digital prescriptions from CeenAiX doctors</div>
-              {PRESCRIPTIONS.map(rx => (
-                <div key={rx.id} className="rx-card" style={{ cursor: "pointer" }} onClick={() => setShowPrescriptionsModal(true)}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1 }}>
-                    <div style={{ width: 44, height: 44, background: "#F0EDFF", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💊</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14.5, fontWeight: 700, color: "#1A1A2E" }}>{rx.name}</div>
-                      <div style={{ fontSize: 12.5, color: "#64748B", marginTop: 2 }}>{rx.frequency} · {rx.duration}</div>
-                      <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 3 }}>{rx.doctor} · {rx.date}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span className={`badge ${rx.status === "Active" ? "badge-green" : "badge-teal"}`}>{rx.status}</span>
-                    <button className="btn-outline" style={{ fontSize: 12, padding: "6px 12px" }}>Share to Pharmacy</button>
+              <div style={{ marginBottom: 32 }}>
+                <h2 style={{ fontSize: 36, fontWeight: 900, background: "linear-gradient(135deg, #2563eb, #9333ea)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>
+                  My Medications
+                </h2>
+                <p style={{ fontSize: 16, color: "#64748B" }}>Manage your prescriptions, request refills, and track your medications</p>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, marginBottom: 32 }}>
+                <div style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(37,99,235,0.3)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
+                  <div style={{ position: "relative" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>💊</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>ACTIVE MEDICATIONS</div>
+                    <div style={{ fontSize: 36, fontWeight: 900, color: "white" }}>{PRESCRIPTIONS.filter(p => p.status === "Active").length}</div>
                   </div>
                 </div>
-              ))}
+
+                <div style={{ background: "linear-gradient(135deg, #059669, #047857)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(5,150,105,0.3)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
+                  <div style={{ position: "relative" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>📥</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>REFILLS AVAILABLE</div>
+                    <div style={{ fontSize: 36, fontWeight: 900, color: "white" }}>2</div>
+                  </div>
+                </div>
+
+                <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(245,158,11,0.3)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
+                  <div style={{ position: "relative" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>⏱️</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>PENDING REFILLS</div>
+                    <div style={{ fontSize: 36, fontWeight: 900, color: "white" }}>0</div>
+                  </div>
+                </div>
+
+                <div style={{ background: "linear-gradient(135deg, #9333ea, #7e22ce)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(147,51,234,0.3)", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
+                  <div style={{ position: "relative" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>📍</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>PREFERRED PHARMACY</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Dubai Pharmacy</div>
+                    <button style={{ padding: "6px 12px", background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, color: "white", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => e.target.style.background = "rgba(255,255,255,0.3)"} onMouseLeave={(e) => e.target.style.background = "rgba(255,255,255,0.2)"}>
+                      Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1A1A2E", marginBottom: 20 }}>Active Prescriptions</h3>
+                <div style={{ display: "grid", gap: 20 }}>
+                  {PRESCRIPTIONS.filter(rx => rx.status === "Active").map(rx => (
+                    <div key={rx.id} style={{ background: "white", borderRadius: 16, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid #f1f5f9", cursor: "pointer", transition: "all 0.3s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.12)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)"; }} onClick={() => setShowPrescriptionsModal(true)}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                          <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #2563eb, #9333ea)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(37,99,235,0.3)" }}>
+                            <span style={{ fontSize: 28 }}>💊</span>
+                          </div>
+                          <div>
+                            <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1A1A2E", marginBottom: 4 }}>{rx.name}</h3>
+                            <p style={{ fontSize: 14, color: "#64748B" }}>{rx.frequency} • {rx.duration}</p>
+                          </div>
+                        </div>
+                        <span style={{ padding: "8px 16px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "#d1fae5", color: "#065f46" }}>{rx.status}</span>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 24 }}>
+                        <div>
+                          <p style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, marginBottom: 8 }}>PRESCRIBING DOCTOR</p>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 16 }}>👨‍⚕️</span>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: "#1A1A2E" }}>{rx.doctor}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, marginBottom: 8 }}>PRESCRIBED DATE</p>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 16 }}>📅</span>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: "#1A1A2E" }}>{rx.date}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, marginBottom: 8 }}>REFILLS REMAINING</p>
+                          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "linear-gradient(135deg, #059669, #047857)", borderRadius: 12, fontSize: 18, fontWeight: 900, color: "white", boxShadow: "0 4px 12px rgba(5,150,105,0.3)" }}>
+                            2
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: 12 }}>
+                        <button style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 20px", background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "white", cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.3)", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = "0 8px 20px rgba(37,99,235,0.4)"; }} onMouseLeave={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "0 4px 12px rgba(37,99,235,0.3)"; }}>
+                          <span style={{ fontSize: 16 }}>📨</span>
+                          Request Refill
+                        </button>
+                        <button style={{ padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.borderColor = "#9333ea"; e.target.style.color = "#9333ea"; e.target.style.background = "#faf5ff"; }} onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; }}>
+                          <span style={{ fontSize: 16 }}>🔔</span>
+                        </button>
+                        <button style={{ padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.borderColor = "#059669"; e.target.style.color = "#059669"; e.target.style.background = "#ecfdf5"; }} onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; }}>
+                          <span style={{ fontSize: 16 }}>📅</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
