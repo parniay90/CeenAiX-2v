@@ -82,6 +82,8 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [msgInput, setMsgInput] = useState("");
   const [msgThreads, setMsgThreads] = useState({ 0: [{ from: "patient", text: "I've been having chest pains since yesterday evening, should I be worried?" }], 1: [], 2: [] });
   const [earningsTab, setEarningsTab] = useState("overview");
+  const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
+  const [showPatientsModal, setShowPatientsModal] = useState(false);
 
   const handleSignOut = () => {
     if (onNavigateHome) {
@@ -301,12 +303,12 @@ export default function DoctorDashboard({ onNavigateHome }) {
               {/* Stats row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
                 {[
-                  { label: "Today's Appointments", value: "8", sub: "3 remaining", color: "#14BDBD", icon: "📋" },
-                  { label: "Pending Messages", value: "3", sub: "2 urgent", color: "#F87171", icon: "💬" },
-                  { label: "Lab Results In", value: "2", sub: "New today", color: "#34D399", icon: "🔬" },
-                  { label: "Earnings This Month", value: "AED 28,400", sub: "+12% vs last month", color: "#FCD34D", icon: "💰" },
+                  { label: "Today's Appointments", value: "8", sub: "3 remaining", color: "#14BDBD", icon: "📋", onClick: () => setActive("today") },
+                  { label: "Pending Messages", value: "3", sub: "2 urgent", color: "#F87171", icon: "💬", onClick: () => setActive("messages") },
+                  { label: "Lab Results In", value: "2", sub: "New today", color: "#34D399", icon: "🔬", onClick: () => setActive("referrals") },
+                  { label: "Earnings This Month", value: "AED 28,400", sub: "+12% vs last month", color: "#FCD34D", icon: "💰", onClick: () => setActive("earnings") },
                 ].map((s, i) => (
-                  <div key={i} className="stat-card">
+                  <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 20, marginBottom: 10 }}>{s.icon}</div>
                     <div style={{ fontFamily: "Playfair Display, serif", fontSize: i === 3 ? 20 : 30, fontWeight: 800, color: s.color }}>{s.value}</div>
                     <div style={{ fontSize: 11.5, color: "#334155", marginTop: 2, fontWeight: 600 }}>{s.label}</div>
@@ -320,7 +322,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 <div className="glass-card">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#E2E8F0" }}>Today's Schedule</div>
-                    <button className="btn-ghost" onClick={() => setActive("today")}>View All</button>
+                    <button className="btn-ghost" onClick={() => setShowAppointmentsModal(true)}>View All</button>
                   </div>
                   {TODAY_APPTS.slice(0, 5).map(a => (
                     <div key={a.id} className={`appt-row ${a.status === "active" ? "active-appt" : ""}`} onClick={() => { if (a.status === "active") setConsultOpen(true); }}>
@@ -822,6 +824,72 @@ export default function DoctorDashboard({ onNavigateHome }) {
 
         </div>
       </div>
+
+      {/* Appointments Modal */}
+      {showAppointmentsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowAppointmentsModal(false)}>
+          <div className="glass-card" style={{ width: "90%", maxWidth: 900, maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0" }}>Today's Appointments</h3>
+              <button onClick={() => setShowAppointmentsModal(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#94A3B8" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {TODAY_APPTS.map(a => (
+                <div key={a.id} className={`appt-row ${a.status === "active" ? "active-appt" : ""}`} style={{ background: "rgba(255,255,255,0.02)", padding: "16px 20px", borderRadius: 12, cursor: "pointer" }} onClick={() => { if (a.status === "active") { setConsultOpen(true); setShowAppointmentsModal(false); } }}>
+                  <div style={{ width: 60, textAlign: "center", flexShrink: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: a.status === "active" ? "#14BDBD" : "#94A3B8" }}>{a.time}</div>
+                  </div>
+                  <div style={{ width: 1, background: a.status === "active" ? "rgba(20,189,189,0.4)" : "rgba(255,255,255,0.06)", alignSelf: "stretch" }}></div>
+                  <div className="avatar" style={{ width: 40, height: 40, fontSize: 14 }}>{a.avatar}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{a.patient}</div>
+                    <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{a.condition}</div>
+                    <div style={{ fontSize: 11, color: "#64748B", marginTop: 4 }}>Age: {a.age}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    {a.status === "active" && <span className="badge badge-active">● Active Now</span>}
+                    {a.status === "completed" && <span className="badge badge-green">✓ Completed</span>}
+                    {a.status === "upcoming" && (
+                      <>
+                        <span className={`badge ${a.type === "Teleconsultation" ? "badge-blue" : "badge-teal"}`}>{a.type === "Teleconsultation" ? "📹 Teleconsult" : "🏥 In-Clinic"}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Patients Modal */}
+      {showPatientsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowPatientsModal(false)}>
+          <div className="glass-card" style={{ width: "90%", maxWidth: 900, maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#E2E8F0" }}>All Patients</h3>
+              <button onClick={() => setShowPatientsModal(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#94A3B8" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {PATIENTS.map(p => (
+                <div key={p.id} className="glass-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", background: "rgba(255,255,255,0.02)", cursor: "pointer" }} onClick={() => { setSelectedPatient(p); setShowPatientsModal(false); }}>
+                  <div className="avatar" style={{ width: 44, height: 44, fontSize: 16 }}>{p.avatar}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{p.condition}</div>
+                    <div style={{ fontSize: 11, color: "#64748B", marginTop: 4 }}>Age: {p.age} • {p.insurance}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 11, color: "#94A3B8" }}>Last visit</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#14BDBD", marginTop: 2 }}>{p.lastVisit}</div>
+                    <div style={{ fontSize: 11, color: "#64748B", marginTop: 4 }}>{p.visits} total visits</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -63,6 +63,10 @@ export default function PatientDashboard({ onNavigateHome }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
+  const [showPrescriptionsModal, setShowPrescriptionsModal] = useState(false);
+  const [showLabResultsModal, setShowLabResultsModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -322,12 +326,12 @@ export default function PatientDashboard({ onNavigateHome }) {
               {/* Stats */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
                 {[
-                  { label: "Upcoming Appointments", value: "3", icon: "📅", color: "#0D7377" },
-                  { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF" },
-                  { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C" },
-                  { label: "Unread Messages", value: "1", icon: "💬", color: "#E67E22" },
+                  { label: "Upcoming Appointments", value: "3", icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
+                  { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
+                  { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => setActive("labs") },
+                  { label: "Unread Messages", value: "1", icon: "💬", color: "#E67E22", onClick: () => setActive("messages") },
                 ].map((s, i) => (
-                  <div key={i} className="stat-card">
+                  <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
                     <div style={{ fontFamily: "Syne, sans-serif", fontSize: 28, fontWeight: 800, color: s.color }}>{s.value}</div>
                     <div style={{ fontSize: 12.5, color: "#64748B", marginTop: 2 }}>{s.label}</div>
@@ -358,10 +362,10 @@ export default function PatientDashboard({ onNavigateHome }) {
                 <div className="card">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>Upcoming Appointments</div>
-                    <button className="btn-outline" style={{ padding: "5px 12px", fontSize: 12 }} onClick={() => setActive("appointments")}>View All</button>
+                    <button className="btn-outline" style={{ padding: "5px 12px", fontSize: 12 }} onClick={() => setShowAppointmentsModal(true)}>View All</button>
                   </div>
                   {APPOINTMENTS.filter(a => a.status === "upcoming").map(a => (
-                    <div key={a.id} className="appt-card" style={{ marginBottom: 10 }}>
+                    <div key={a.id} className="appt-card" style={{ marginBottom: 10, cursor: "pointer" }} onClick={() => { setSelectedAppointment(a); setShowAppointmentsModal(true); }}>
                       <div className="avatar">{a.avatar}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1A1A2E" }}>{a.doctor}</div>
@@ -474,7 +478,7 @@ export default function PatientDashboard({ onNavigateHome }) {
               <div className="section-title">Prescriptions</div>
               <div className="section-sub">All your digital prescriptions from CeenAiX doctors</div>
               {PRESCRIPTIONS.map(rx => (
-                <div key={rx.id} className="rx-card">
+                <div key={rx.id} className="rx-card" style={{ cursor: "pointer" }} onClick={() => setShowPrescriptionsModal(true)}>
                   <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1 }}>
                     <div style={{ width: 44, height: 44, background: "#F0EDFF", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>💊</div>
                     <div style={{ flex: 1 }}>
@@ -504,7 +508,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   ))}
                 </div>
                 {LAB_RESULTS.map((r, i) => (
-                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none" }}>
+                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => setShowLabResultsModal(true)}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1A1A2E" }}>{r.test}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.lab}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.date}</div>
@@ -834,6 +838,121 @@ export default function PatientDashboard({ onNavigateHome }) {
 
         </div>
       </div>
+
+      {/* Appointments Modal */}
+      {showAppointmentsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => { setShowAppointmentsModal(false); setSelectedAppointment(null); }}>
+          <div className="card" style={{ width: "90%", maxWidth: 800, maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1A1A2E" }}>All Appointments</h3>
+              <button onClick={() => { setShowAppointmentsModal(false); setSelectedAppointment(null); }} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+              <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({APPOINTMENTS.filter(a => a.status === "upcoming").length})</button>
+              <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({APPOINTMENTS.filter(a => a.status === "completed").length})</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {(apptTab === "upcoming" ? APPOINTMENTS.filter(a => a.status === "upcoming") : APPOINTMENTS.filter(a => a.status === "completed")).map(a => (
+                <div key={a.id} className="card" style={{ display: "flex", alignItems: "center", gap: 20, padding: "20px 24px", background: "#F8FAFC" }}>
+                  <div className="avatar" style={{ width: 48, height: 48, fontSize: 18 }}>{a.avatar}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>{a.doctor}</div>
+                    <div style={{ fontSize: 13, color: "#64748B" }}>{a.specialty} · {a.clinic}</div>
+                    <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                      <span style={{ fontSize: 12.5, color: "#0D7377", fontWeight: 600 }}>📅 {a.date} at {a.time}</span>
+                      <span className={`badge ${a.type === "Teleconsultation" ? "badge-purple" : "badge-teal"}`}>{a.type}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {a.status === "upcoming" ? (
+                      <>
+                        {a.type === "Teleconsultation" && <button className="btn-primary" style={{ fontSize: 12 }}>Join Call</button>}
+                        <button className="btn-outline" style={{ fontSize: 12 }}>Reschedule</button>
+                      </>
+                    ) : (
+                      <span className="badge badge-green">✓ Completed</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Prescriptions Modal */}
+      {showPrescriptionsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowPrescriptionsModal(false)}>
+          <div className="card" style={{ width: "90%", maxWidth: 700, maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1A1A2E" }}>All Prescriptions</h3>
+              <button onClick={() => setShowPrescriptionsModal(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {PRESCRIPTIONS.map(p => (
+                <div key={p.id} className="card" style={{ padding: "18px 20px", background: "#F8FAFC" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>{p.name}</div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>Prescribed by {p.doctor}</div>
+                    </div>
+                    <span className={`badge ${p.status === "Active" ? "badge-green" : "badge-amber"}`}>{p.status}</span>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 4 }}>Frequency</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#1A1A2E" }}>{p.frequency}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 4 }}>Duration</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#1A1A2E" }}>{p.duration}</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #E2E8F0", fontSize: 11, color: "#64748B" }}>
+                    Issued: {p.date}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lab Results Modal */}
+      {showLabResultsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowLabResultsModal(false)}>
+          <div className="card" style={{ width: "90%", maxWidth: 700, maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1A1A2E" }}>Lab Results</h3>
+              <button onClick={() => setShowLabResultsModal(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {[
+                { test: "HbA1c (Glucose Control)", value: "6.8%", range: "Normal: <7.0%", status: "Good", date: "Mar 1, 2026" },
+                { test: "Lipid Panel", value: "LDL: 95 mg/dL", range: "Target: <100 mg/dL", status: "Good", date: "Mar 1, 2026" },
+                { test: "Complete Blood Count", value: "All parameters normal", range: "-", status: "Normal", date: "Feb 15, 2026" },
+                { test: "Kidney Function", value: "eGFR: 92 mL/min", range: "Normal: >60", status: "Normal", date: "Feb 15, 2026" },
+              ].map((lab, i) => (
+                <div key={i} className="card" style={{ padding: "18px 20px", background: "#F8FAFC" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>{lab.test}</div>
+                      <div style={{ fontSize: 13, color: "#0D7377", marginTop: 4, fontWeight: 600 }}>{lab.value}</div>
+                    </div>
+                    <span className="badge badge-green">{lab.status}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#64748B", marginTop: 8 }}>
+                    Reference: {lab.range}
+                  </div>
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #E2E8F0", fontSize: 11, color: "#64748B" }}>
+                    Test Date: {lab.date}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
