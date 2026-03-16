@@ -784,7 +784,43 @@ export default function PatientDashboard({ onNavigateHome }) {
           {active === "labs" && (
             <div>
               <div className="section-title">Lab Results</div>
-              <div className="section-sub">Results from your CeenAiX lab referrals</div>
+              <div className="section-sub">View your test results, doctor recommendations, and find lab facilities</div>
+
+              {/* Quick Actions */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
+                <div
+                  className="card"
+                  onClick={() => window.location.href = '/lab-tests'}
+                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#E0F7F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🔬</div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>View All Test Results</div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>See results, doctor notes & ask questions</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className="card"
+                  onClick={() => window.location.href = '/find-labs'}
+                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#E0F7F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🏥</div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>Find Lab Facilities</div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Search labs by test type & location</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="card" style={{ padding: 0, overflow: "hidden" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "12px 24px", background: "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
                   {["Test", "Lab", "Date", "Result", "Status"].map((h, i) => (
@@ -792,7 +828,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   ))}
                 </div>
                 {LAB_RESULTS.map((r, i) => (
-                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => setShowLabResultsModal(true)}>
+                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => window.location.href = '/lab-tests'}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1A1A2E" }}>{r.test}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.lab}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.date}</div>

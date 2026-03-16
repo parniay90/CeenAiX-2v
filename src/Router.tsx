@@ -11,8 +11,10 @@ import TermsConditions from './pages/TermsConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import PrescriptionsPage from './pages/PrescriptionsPage';
 import DoctorRefillApproval from './pages/DoctorRefillApproval';
+import LabTestsPage from './pages/LabTestsPage';
+import FindLabsPage from './pages/FindLabsPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -27,6 +29,8 @@ interface NavigationContextType {
   navigateToPrivacy: () => void;
   navigateToPrescriptions: () => void;
   navigateToDoctorRefills: () => void;
+  navigateToLabTests: () => void;
+  navigateToFindLabs: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null);
@@ -55,6 +59,8 @@ export default function Router() {
     navigateToPrivacy: () => setCurrentView('privacy'),
     navigateToPrescriptions: () => setCurrentView('prescriptions'),
     navigateToDoctorRefills: () => setCurrentView('doctor-refills'),
+    navigateToLabTests: () => setCurrentView('lab-tests'),
+    navigateToFindLabs: () => setCurrentView('find-labs'),
   };
 
   const renderView = () => {
@@ -94,6 +100,10 @@ export default function Router() {
         return <PrescriptionsPage />;
       case 'doctor-refills':
         return <DoctorRefillApproval />;
+      case 'lab-tests':
+        return <LabTestsPage />;
+      case 'find-labs':
+        return <FindLabsPage />;
       default:
         return (
           <LandingPage
