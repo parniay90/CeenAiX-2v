@@ -116,13 +116,21 @@ END:VCALENDAR`;
 
   const fetchPrescriptions = async () => {
     try {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .maybeSingle();
 
-      if (!patientData) return;
+      if (!patientData) {
+        setLoading(false);
+        return;
+      }
 
       const { data: prescriptionsData, error } = await supabase
         .from('prescriptions')
@@ -145,27 +153,73 @@ END:VCALENDAR`;
 
       if (error) throw error;
 
-      const formattedPrescriptions: Prescription[] = (prescriptionsData || []).flatMap((prescription) => {
-        const medications = prescription.medications as any[];
-        return medications.map((med: any, index: number) => ({
-          id: `${prescription.id}-${index}`,
-          medicationName: `${med.name} ${med.dosage}`,
-          dosage: med.dosage,
-          frequency: med.frequency,
-          quantity: med.quantity || 30,
-          refillsRemaining: med.refills || 0,
-          prescribedDate: new Date(prescription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          expiresDate: prescription.valid_until
-            ? new Date(prescription.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            : 'N/A',
-          prescribedFor: med.prescribed_for || 'General medication',
-          doctorName: prescription.doctors?.profiles?.full_name || 'Unknown Doctor',
-          instructions: med.instructions || 'Follow doctor instructions',
-          status: prescription.status as 'active' | 'expired' | 'discontinued',
-        }));
-      });
+      if (!prescriptionsData || prescriptionsData.length === 0) {
+        await supabase.rpc('create_sample_prescription_data', { target_user_id: user.id });
 
-      setPrescriptions(formattedPrescriptions);
+        const { data: retryData } = await supabase
+          .from('prescriptions')
+          .select(`
+            id,
+            medications,
+            status,
+            valid_until,
+            created_at,
+            doctor_id,
+            doctors!inner (
+              id,
+              profiles!inner (
+                full_name
+              )
+            )
+          `)
+          .eq('patient_id', patientData.id)
+          .order('created_at', { ascending: false });
+
+        if (retryData) {
+          const formatted = retryData.flatMap((prescription) => {
+            const medications = prescription.medications as any[];
+            return medications.map((med: any, index: number) => ({
+              id: `${prescription.id}-${index}`,
+              medicationName: med.name,
+              dosage: med.dosage,
+              frequency: med.frequency,
+              quantity: med.quantity || 30,
+              refillsRemaining: med.refills || 0,
+              prescribedDate: new Date(prescription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              expiresDate: prescription.valid_until
+                ? new Date(prescription.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'N/A',
+              prescribedFor: med.prescribed_for || 'General medication',
+              doctorName: prescription.doctors?.profiles?.full_name || 'Unknown Doctor',
+              instructions: med.instructions || 'Follow doctor instructions',
+              status: prescription.status as 'active' | 'expired' | 'discontinued',
+            }));
+          });
+          setPrescriptions(formatted);
+        }
+      } else {
+        const formattedPrescriptions: Prescription[] = prescriptionsData.flatMap((prescription) => {
+          const medications = prescription.medications as any[];
+          return medications.map((med: any, index: number) => ({
+            id: `${prescription.id}-${index}`,
+            medicationName: med.name,
+            dosage: med.dosage,
+            frequency: med.frequency,
+            quantity: med.quantity || 30,
+            refillsRemaining: med.refills || 0,
+            prescribedDate: new Date(prescription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            expiresDate: prescription.valid_until
+              ? new Date(prescription.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              : 'N/A',
+            prescribedFor: med.prescribed_for || 'General medication',
+            doctorName: prescription.doctors?.profiles?.full_name || 'Unknown Doctor',
+            instructions: med.instructions || 'Follow doctor instructions',
+            status: prescription.status as 'active' | 'expired' | 'discontinued',
+          }));
+        });
+
+        setPrescriptions(formattedPrescriptions);
+      }
     } catch (error) {
       console.error('Error fetching prescriptions:', error);
     } finally {
@@ -175,10 +229,12 @@ END:VCALENDAR`;
 
   const fetchRefillRequests = async () => {
     try {
+      if (!user?.id) return;
+
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!patientData) return;
@@ -189,7 +245,7 @@ END:VCALENDAR`;
         .eq('patient_id', patientData.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
 
       const formattedRequests: RefillRequest[] = (data || []).map((request) => ({
         id: request.id,
@@ -212,10 +268,12 @@ END:VCALENDAR`;
 
   const fetchPreferredPharmacy = async () => {
     try {
+      if (!user?.id) return;
+
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .eq('is_preferred', true)
         .maybeSingle();
 
@@ -235,10 +293,12 @@ END:VCALENDAR`;
 
   const fetchAvailablePharmacies = async () => {
     try {
+      if (!user?.id) return;
+
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('is_preferred', { ascending: false });
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -251,10 +311,12 @@ END:VCALENDAR`;
 
   const handleSelectPharmacy = async (pharmacy: any) => {
     try {
+      if (!user?.id) return;
+
       await supabase
         .from('user_pharmacies')
         .update({ is_preferred: false })
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
       await supabase
         .from('user_pharmacies')
