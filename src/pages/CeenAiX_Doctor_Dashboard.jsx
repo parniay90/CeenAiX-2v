@@ -8,7 +8,7 @@ const NAV = [
   { id: "patients", label: "Patient Records", icon: "🧑‍⚕️" },
   { id: "prescriptions", label: "Prescriptions", icon: "💊" },
   { id: "referrals", label: "Lab Referrals", icon: "🔬" },
-  { id: "radiology", label: "Imaging / Radiology", icon: "🎯" },
+  { id: "radiology", label: "Imaging / Radiology", icon: "🩻" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "earnings", label: "Earnings", icon: "💰" },
   { id: "profile", label: "My Profile", icon: "👤" },

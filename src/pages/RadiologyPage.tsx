@@ -207,7 +207,7 @@ export default function RadiologyPage() {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <Eye className="w-8 h-8 text-blue-600" />
+              <Activity className="w-8 h-8 text-blue-600" />
               <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Imaging & Radiology
               </h1>

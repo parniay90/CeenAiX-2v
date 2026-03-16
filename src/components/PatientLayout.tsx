@@ -24,7 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'records', label: 'Health Records', icon: '🗂' },
   { id: 'prescriptions', label: 'Prescriptions', icon: '💊' },
   { id: 'labs', label: 'Lab Results', icon: '🔬' },
-  { id: 'radiology', label: 'Imaging / Radiology', icon: '🎯' },
+  { id: 'radiology', label: 'Imaging / Radiology', icon: '🩻' },
   { id: 'messages', label: 'Messages', icon: '💬' },
   { id: 'ai', label: 'AI Assistant', icon: '✦' },
   { id: 'profile', label: 'My Profile', icon: '👤' },

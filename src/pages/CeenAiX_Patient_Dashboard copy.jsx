@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { id: "records", label: "Health Records", icon: "🗂" },
   { id: "prescriptions", label: "Prescriptions", icon: "💊" },
   { id: "labs", label: "Lab Results", icon: "🔬" },
-  { id: "radiology", label: "Imaging / Radiology", icon: "🎯" },
+  { id: "radiology", label: "Imaging / Radiology", icon: "🩻" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "ai", label: "AI Assistant", icon: "✦" },
   { id: "profile", label: "My Profile", icon: "👤" },
@@ -857,7 +857,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🎯</div>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🩻</div>
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>View All Imaging</div>
                       <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Appointments, results & reports</div>
