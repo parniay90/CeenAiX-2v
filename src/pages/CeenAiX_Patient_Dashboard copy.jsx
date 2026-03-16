@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { id: "profile", label: "My Profile", icon: "👤" },
 ];
 
-const APPOINTMENTS = [
+const INITIAL_APPOINTMENTS = [
   { id: 1, doctor: "Dr. Layla Al Mansoori", specialty: "Cardiologist", date: "Today", time: "11:00 AM", type: "In-Clinic", clinic: "Dubai Heart Center", status: "upcoming", avatar: "L" },
   { id: 2, doctor: "Dr. Rami Khalil", specialty: "General Practitioner", date: "Mar 15", time: "2:30 PM", type: "Teleconsultation", clinic: "HealthFirst Clinic", status: "upcoming", avatar: "R" },
   { id: 3, doctor: "Dr. Sara Nasser", specialty: "Dermatologist", date: "Mar 20", time: "10:00 AM", type: "In-Clinic", clinic: "Skin & Care Dubai", status: "upcoming", avatar: "S" },
@@ -77,6 +77,7 @@ export default function PatientDashboard({ onNavigateHome }) {
     reason: ''
   });
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [appointments, setAppointments] = useState(INITIAL_APPOINTMENTS);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -165,7 +166,32 @@ export default function PatientDashboard({ onNavigateHome }) {
     }
   }, [bookingForm.date]);
 
-  const filteredAppts = APPOINTMENTS.filter(a =>
+  const handleBookAppointment = () => {
+    if (bookingForm.specialty && bookingForm.date && bookingForm.time && bookingForm.reason) {
+      const newAppointment = {
+        id: Date.now(),
+        doctor: bookingForm.doctor || `Dr. ${bookingForm.specialty} Specialist`,
+        specialty: bookingForm.specialty,
+        date: new Date(bookingForm.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        time: bookingForm.time,
+        type: bookingForm.type,
+        clinic: "CeenAiX Medical Center",
+        status: "upcoming",
+        avatar: bookingForm.specialty.charAt(0)
+      };
+
+      setAppointments(prev => [newAppointment, ...prev]);
+
+      alert('Appointment booked successfully!');
+      setShowBookingModal(false);
+      setBookingForm({ specialty: '', doctor: '', date: '', time: '', type: 'In-Clinic', reason: '' });
+      setAvailableSlots([]);
+    } else {
+      alert('Please fill in all required fields');
+    }
+  };
+
+  const filteredAppts = appointments.filter(a =>
     apptTab === "upcoming" ? a.status === "upcoming" : a.status === "completed"
   );
 
@@ -368,7 +394,7 @@ export default function PatientDashboard({ onNavigateHome }) {
               {/* Stats */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 28 }}>
                 {[
-                  { label: "Upcoming Appointments", value: "3", icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
+                  { label: "Upcoming Appointments", value: appointments.filter(a => a.status === "upcoming").length.toString(), icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
                   { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
                   { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => setActive("labs") },
                   { label: "Unread Messages", value: "1", icon: "💬", color: "#E67E22", onClick: () => setActive("messages") },
@@ -406,7 +432,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>Upcoming Appointments</div>
                     <button className="btn-outline" style={{ padding: "5px 12px", fontSize: 12 }} onClick={() => setShowAppointmentsModal(true)}>View All</button>
                   </div>
-                  {APPOINTMENTS.filter(a => a.status === "upcoming").map(a => (
+                  {appointments.filter(a => a.status === "upcoming").map(a => (
                     <div key={a.id} className="appt-card" style={{ marginBottom: 10, cursor: "pointer" }} onClick={() => { setSelectedAppointment(a); setShowAppointmentsModal(true); }}>
                       <div className="avatar">{a.avatar}</div>
                       <div style={{ flex: 1 }}>
@@ -454,8 +480,8 @@ export default function PatientDashboard({ onNavigateHome }) {
                 </button>
               </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-                <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({APPOINTMENTS.filter(a => a.status === "upcoming").length})</button>
-                <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({APPOINTMENTS.filter(a => a.status === "completed").length})</button>
+                <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({appointments.filter(a => a.status === "upcoming").length})</button>
+                <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({appointments.filter(a => a.status === "completed").length})</button>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {filteredAppts.map(a => (
@@ -576,7 +602,7 @@ export default function PatientDashboard({ onNavigateHome }) {
               <div className="section-sub">Secure messages with your doctors</div>
               <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, height: 500 }}>
                 <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-                  {APPOINTMENTS.filter(a => a.status === "upcoming").map((a, i) => (
+                  {appointments.filter(a => a.status === "upcoming").map((a, i) => (
                     <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderBottom: "1px solid #F8FAFC", cursor: "pointer", background: i === 0 ? "#F0F4F8" : "white" }}>
                       <div className="avatar" style={{ width: 38, height: 38, fontSize: 14 }}>{a.avatar}</div>
                       <div>
@@ -897,11 +923,11 @@ export default function PatientDashboard({ onNavigateHome }) {
               <button onClick={() => { setShowAppointmentsModal(false); setSelectedAppointment(null); }} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-              <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({APPOINTMENTS.filter(a => a.status === "upcoming").length})</button>
-              <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({APPOINTMENTS.filter(a => a.status === "completed").length})</button>
+              <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({appointments.filter(a => a.status === "upcoming").length})</button>
+              <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({appointments.filter(a => a.status === "completed").length})</button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {(apptTab === "upcoming" ? APPOINTMENTS.filter(a => a.status === "upcoming") : APPOINTMENTS.filter(a => a.status === "completed")).map(a => (
+              {(apptTab === "upcoming" ? appointments.filter(a => a.status === "upcoming") : appointments.filter(a => a.status === "completed")).map(a => (
                 <div key={a.id} className="card" style={{ display: "flex", alignItems: "center", gap: 20, padding: "20px 24px", background: "#F8FAFC" }}>
                   <div className="avatar" style={{ width: 48, height: 48, fontSize: 18 }}>{a.avatar}</div>
                   <div style={{ flex: 1 }}>
@@ -1127,16 +1153,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                 </button>
                 <button
                   className="btn-primary"
-                  onClick={() => {
-                    if (bookingForm.specialty && bookingForm.date && bookingForm.time && bookingForm.reason) {
-                      alert('Appointment booked successfully!');
-                      setShowBookingModal(false);
-                      setBookingForm({ specialty: '', doctor: '', date: '', time: '', type: 'In-Clinic', reason: '' });
-                      setAvailableSlots([]);
-                    } else {
-                      alert('Please fill in all required fields');
-                    }
-                  }}
+                  onClick={handleBookAppointment}
                   style={{ flex: 1 }}
                 >
                   Confirm Booking
