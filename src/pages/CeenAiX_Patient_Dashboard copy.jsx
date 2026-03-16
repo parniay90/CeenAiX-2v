@@ -82,6 +82,12 @@ export default function PatientDashboard({ onNavigateHome }) {
   const [showRecordDetailModal, setShowRecordDetailModal] = useState(false);
   const [recordAiInput, setRecordAiInput] = useState("");
   const [recordAiMessages, setRecordAiMessages] = useState([]);
+  const [showRefillModal, setShowRefillModal] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [refillForm, setRefillForm] = useState({ pharmacy: 'Dubai Pharmacy', notes: '' });
+  const [notificationEnabled, setNotificationEnabled] = useState({});
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [calendarPrescription, setCalendarPrescription] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -649,14 +655,14 @@ export default function PatientDashboard({ onNavigateHome }) {
           {active === "prescriptions" && (
             <div>
               <div style={{ marginBottom: 32 }}>
-                <h2 style={{ fontSize: 36, fontWeight: 900, background: "linear-gradient(135deg, #2563eb, #9333ea)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>
+                <h2 style={{ fontSize: 36, fontWeight: 900, background: "linear-gradient(135deg, #0D7377, #14FFEC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>
                   My Medications
                 </h2>
                 <p style={{ fontSize: 16, color: "#64748B" }}>Manage your prescriptions, request refills, and track your medications</p>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, marginBottom: 32 }}>
-                <div style={{ background: "linear-gradient(135deg, #2563eb, #1d4ed8)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(37,99,235,0.3)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #0D7377, #0a5d61)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(13,115,119,0.3)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
                   <div style={{ position: "relative" }}>
                     <div style={{ fontSize: 32, marginBottom: 12 }}>💊</div>
@@ -665,16 +671,16 @@ export default function PatientDashboard({ onNavigateHome }) {
                   </div>
                 </div>
 
-                <div style={{ background: "linear-gradient(135deg, #059669, #047857)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(5,150,105,0.3)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #14FFEC, #0fc9ba)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(20,255,236,0.3)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
                   <div style={{ position: "relative" }}>
                     <div style={{ fontSize: 32, marginBottom: 12 }}>📥</div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>REFILLS AVAILABLE</div>
-                    <div style={{ fontSize: 36, fontWeight: 900, color: "white" }}>2</div>
+                    <div style={{ fontSize: 12, color: "rgba(0,0,0,0.7)", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 8 }}>REFILLS AVAILABLE</div>
+                    <div style={{ fontSize: 36, fontWeight: 900, color: "#1A1A2E" }}>2</div>
                   </div>
                 </div>
 
-                <div style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(245,158,11,0.3)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #323232, #1e1e1e)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(50,50,50,0.3)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
                   <div style={{ position: "relative" }}>
                     <div style={{ fontSize: 32, marginBottom: 12 }}>⏱️</div>
@@ -683,7 +689,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   </div>
                 </div>
 
-                <div style={{ background: "linear-gradient(135deg, #9333ea, #7e22ce)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(147,51,234,0.3)", position: "relative", overflow: "hidden" }}>
+                <div style={{ background: "linear-gradient(135deg, #0D7377, #14FFEC)", borderRadius: 16, padding: 24, boxShadow: "0 10px 30px rgba(13,115,119,0.3)", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: -24, right: -24, width: 128, height: 128, background: "rgba(255,255,255,0.1)", borderRadius: "50%", filter: "blur(40px)" }}></div>
                   <div style={{ position: "relative" }}>
                     <div style={{ fontSize: 32, marginBottom: 12 }}>📍</div>
@@ -700,10 +706,10 @@ export default function PatientDashboard({ onNavigateHome }) {
                 <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1A1A2E", marginBottom: 20 }}>Active Prescriptions</h3>
                 <div style={{ display: "grid", gap: 20 }}>
                   {PRESCRIPTIONS.filter(rx => rx.status === "Active").map(rx => (
-                    <div key={rx.id} style={{ background: "white", borderRadius: 16, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid #f1f5f9", cursor: "pointer", transition: "all 0.3s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.12)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)"; }} onClick={() => setShowPrescriptionsModal(true)}>
+                    <div key={rx.id} style={{ background: "white", borderRadius: 16, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid #f1f5f9", transition: "all 0.3s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.12)"; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)"; }}>
                       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
                         <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                          <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #2563eb, #9333ea)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(37,99,235,0.3)" }}>
+                          <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #0D7377, #14FFEC)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(13,115,119,0.3)" }}>
                             <span style={{ fontSize: 28 }}>💊</span>
                           </div>
                           <div>
@@ -731,21 +737,33 @@ export default function PatientDashboard({ onNavigateHome }) {
                         </div>
                         <div>
                           <p style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, marginBottom: 8 }}>REFILLS REMAINING</p>
-                          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "linear-gradient(135deg, #059669, #047857)", borderRadius: 12, fontSize: 18, fontWeight: 900, color: "white", boxShadow: "0 4px 12px rgba(5,150,105,0.3)" }}>
+                          <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, background: "linear-gradient(135deg, #14FFEC, #0fc9ba)", borderRadius: 12, fontSize: 18, fontWeight: 900, color: "#1A1A2E", boxShadow: "0 4px 12px rgba(20,255,236,0.3)" }}>
                             2
                           </div>
                         </div>
                       </div>
 
                       <div style={{ display: "flex", gap: 12 }}>
-                        <button style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 20px", background: "linear-gradient(135deg, #2563eb, #1d4ed8)", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "white", cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.3)", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = "0 8px 20px rgba(37,99,235,0.4)"; }} onMouseLeave={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "0 4px 12px rgba(37,99,235,0.3)"; }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedPrescription(rx); setShowRefillModal(true); }}
+                          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "12px 20px", background: "linear-gradient(135deg, #0D7377, #0a5d61)", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "white", cursor: "pointer", boxShadow: "0 4px 12px rgba(13,115,119,0.3)", transition: "all 0.2s" }}
+                          onMouseEnter={(e) => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = "0 8px 20px rgba(13,115,119,0.4)"; }}
+                          onMouseLeave={(e) => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "0 4px 12px rgba(13,115,119,0.3)"; }}>
                           <span style={{ fontSize: 16 }}>📨</span>
                           Request Refill
                         </button>
-                        <button style={{ padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.borderColor = "#9333ea"; e.target.style.color = "#9333ea"; e.target.style.background = "#faf5ff"; }} onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; }}>
-                          <span style={{ fontSize: 16 }}>🔔</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setNotificationEnabled(prev => ({ ...prev, [rx.id]: !prev[rx.id] })); }}
+                          style={{ padding: "12px 20px", border: notificationEnabled[rx.id] ? "2px solid #0D7377" : "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: notificationEnabled[rx.id] ? "#0D7377" : "#64748B", cursor: "pointer", background: notificationEnabled[rx.id] ? "#e6f7f8" : "white", transition: "all 0.2s" }}
+                          onMouseEnter={(e) => { if (!notificationEnabled[rx.id]) { e.target.style.borderColor = "#0D7377"; e.target.style.color = "#0D7377"; e.target.style.background = "#e6f7f8"; } }}
+                          onMouseLeave={(e) => { if (!notificationEnabled[rx.id]) { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; } }}>
+                          <span style={{ fontSize: 16 }}>{notificationEnabled[rx.id] ? "🔔" : "🔕"}</span>
                         </button>
-                        <button style={{ padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }} onMouseEnter={(e) => { e.target.style.borderColor = "#059669"; e.target.style.color = "#059669"; e.target.style.background = "#ecfdf5"; }} onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setCalendarPrescription(rx); setShowCalendarModal(true); }}
+                          style={{ padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }}
+                          onMouseEnter={(e) => { e.target.style.borderColor = "#14FFEC"; e.target.style.color = "#0D7377"; e.target.style.background = "#e6f7f8"; }}
+                          onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.color = "#64748B"; e.target.style.background = "white"; }}>
                           <span style={{ fontSize: 16 }}>📅</span>
                         </button>
                       </div>
@@ -1517,6 +1535,130 @@ export default function PatientDashboard({ onNavigateHome }) {
                   Confirm Booking
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRefillModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 20 }}>
+          <div style={{ background: "white", borderRadius: 20, maxWidth: 500, width: "100%", maxHeight: "90vh", overflow: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+            <div style={{ padding: 32 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #0D7377, #14FFEC)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(13,115,119,0.3)" }}>
+                  <span style={{ fontSize: 28 }}>📨</span>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1A1A2E", marginBottom: 4 }}>Request Refill</h3>
+                  <p style={{ fontSize: 14, color: "#64748B" }}>{selectedPrescription?.name}</p>
+                </div>
+              </div>
+
+              <div style={{ padding: 20, background: "#f8fafc", borderRadius: 12, marginBottom: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 16 }}>ℹ️</span>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#1A1A2E" }}>Refill Details</p>
+                </div>
+                <p style={{ fontSize: 12, color: "#64748B", lineHeight: 1.6 }}>
+                  Your refill request will be sent to <strong>{selectedPrescription?.doctor}</strong> for approval. You'll receive a notification once it's approved, and your pharmacy will be notified.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 8 }}>Preferred Pharmacy</label>
+                <select
+                  value={refillForm.pharmacy}
+                  onChange={(e) => setRefillForm(prev => ({ ...prev, pharmacy: e.target.value }))}
+                  style={{ width: "100%", padding: "12px 14px", border: "2px solid #E2E8F0", borderRadius: 12, fontSize: 14, fontFamily: "inherit", cursor: "pointer" }}>
+                  <option value="Dubai Pharmacy">Dubai Pharmacy</option>
+                  <option value="HealthPlus Pharmacy">HealthPlus Pharmacy</option>
+                  <option value="Care Pharmacy">Care Pharmacy</option>
+                  <option value="Express Pharmacy">Express Pharmacy</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#1A1A2E", display: "block", marginBottom: 8 }}>Additional Notes (Optional)</label>
+                <textarea
+                  value={refillForm.notes}
+                  onChange={(e) => setRefillForm(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Any additional information for your doctor..."
+                  rows={3}
+                  style={{ width: "100%", padding: "12px 14px", border: "2px solid #E2E8F0", borderRadius: 12, fontSize: 13, fontFamily: "inherit", resize: "vertical" }}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: 12 }}>
+                <button
+                  onClick={() => { setShowRefillModal(false); setRefillForm({ pharmacy: 'Dubai Pharmacy', notes: '' }); }}
+                  style={{ flex: 1, padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white", transition: "all 0.2s" }}>
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { alert(`Refill request sent to ${selectedPrescription?.doctor}. Status: Pending Approval`); setShowRefillModal(false); setRefillForm({ pharmacy: 'Dubai Pharmacy', notes: '' }); }}
+                  style={{ flex: 1, padding: "12px 20px", background: "linear-gradient(135deg, #0D7377, #0a5d61)", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "white", cursor: "pointer", boxShadow: "0 4px 12px rgba(13,115,119,0.3)", transition: "all 0.2s" }}>
+                  Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCalendarModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: 20 }}>
+          <div style={{ background: "white", borderRadius: 20, maxWidth: 450, width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+            <div style={{ padding: 32 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #14FFEC, #0fc9ba)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 20px rgba(20,255,236,0.3)" }}>
+                  <span style={{ fontSize: 28 }}>📅</span>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1A1A2E", marginBottom: 4 }}>Add to Calendar</h3>
+                  <p style={{ fontSize: 14, color: "#64748B" }}>Medication Reminder</p>
+                </div>
+              </div>
+
+              <div style={{ padding: 20, background: "#f8fafc", borderRadius: 12, marginBottom: 24 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#1A1A2E", marginBottom: 8 }}>{calendarPrescription?.name}</p>
+                <p style={{ fontSize: 12, color: "#64748B" }}>{calendarPrescription?.frequency} • {calendarPrescription?.duration}</p>
+              </div>
+
+              <p style={{ fontSize: 13, color: "#64748B", marginBottom: 24, lineHeight: 1.6 }}>
+                Choose your preferred calendar to set up daily medication reminders:
+              </p>
+
+              <div style={{ display: "grid", gap: 12 }}>
+                <button
+                  onClick={() => { alert('Opening Google Calendar...'); setShowCalendarModal(false); }}
+                  style={{ padding: "16px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#1A1A2E", cursor: "pointer", background: "white", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 12 }}
+                  onMouseEnter={(e) => { e.target.style.borderColor = "#0D7377"; e.target.style.background = "#e6f7f8"; }}
+                  onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "white"; }}>
+                  <span style={{ fontSize: 24 }}>📆</span>
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <div style={{ fontWeight: 700 }}>Google Calendar</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>Add reminders to your Google account</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => { alert('Opening Apple Calendar...'); setShowCalendarModal(false); }}
+                  style={{ padding: "16px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#1A1A2E", cursor: "pointer", background: "white", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 12 }}
+                  onMouseEnter={(e) => { e.target.style.borderColor = "#0D7377"; e.target.style.background = "#e6f7f8"; }}
+                  onMouseLeave={(e) => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "white"; }}>
+                  <span style={{ fontSize: 24 }}>🍎</span>
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <div style={{ fontWeight: 700 }}>Apple Calendar</div>
+                    <div style={{ fontSize: 12, color: "#64748B" }}>Add reminders to your iPhone/Mac</div>
+                  </div>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowCalendarModal(false)}
+                style={{ width: "100%", marginTop: 20, padding: "12px 20px", border: "2px solid #e2e8f0", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#64748B", cursor: "pointer", background: "white" }}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
