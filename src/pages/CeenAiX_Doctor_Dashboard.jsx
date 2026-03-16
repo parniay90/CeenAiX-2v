@@ -229,10 +229,16 @@ export default function DoctorDashboard({ onNavigateHome }) {
         position: "sticky", top: 0, height: "100vh", overflowY: "auto"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px", marginBottom: 32 }}>
-          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #0D7377, #14BDBD)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <span style={{ color: "white", fontWeight: 800, fontSize: 14, fontFamily: "Playfair Display, serif" }}>C</span>
-          </div>
-          {sidebarOpen && <span style={{ fontFamily: "Playfair Display, serif", fontWeight: 800, fontSize: 17, color: "#14BDBD" }}>CeenAiX</span>}
+          <img
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png"
+            alt="CeenAiX"
+            style={{
+              height: sidebarOpen ? 32 : 36,
+              width: "auto",
+              objectFit: "contain",
+              transition: "all 0.25s ease"
+            }}
+          />
         </div>
 
         {sidebarOpen && (
