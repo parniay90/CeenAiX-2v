@@ -5,6 +5,7 @@ import {
   Activity, Heart, TrendingUp, AlertCircle, Check, X, ChevronRight, Plus,
   Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip
 } from 'lucide-react';
+import { NotificationDropdown } from '../components/NotificationDropdown';
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Dashboard', icon: Home },
@@ -239,10 +240,7 @@ export default function PatientDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <NotificationDropdown />
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold">
                 P

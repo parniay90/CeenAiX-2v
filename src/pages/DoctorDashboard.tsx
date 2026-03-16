@@ -3,6 +3,7 @@ import { Home, Calendar, Users, FileText, TestTube, MessageCircle, DollarSign, S
 import { Sidebar } from '../components/Sidebar';
 import { StatCard } from '../components/StatCard';
 import { useLanguage } from '../contexts/LanguageContext';
+import { NotificationDropdown } from '../components/NotificationDropdown';
 
 type Section = 'home' | 'today' | 'schedule' | 'patients' | 'prescriptions' | 'labs' | 'messages' | 'earnings' | 'profile' | 'settings';
 
@@ -42,10 +43,7 @@ export function DoctorDashboard() {
             {language === 'en' ? `Dr. ${userName || 'Doctor'}` : `د. ${userName || 'طبيب'}`}
           </h1>
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <NotificationDropdown />
             <div className="w-10 h-10 bg-[#0D7377] rounded-full flex items-center justify-center text-white font-semibold">
               {userName?.charAt(0) || 'D'}
             </div>
