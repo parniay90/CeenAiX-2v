@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { Search, Sparkles, CheckCircle, Shield, Database, Lock, Globe as GlobeIcon, Zap, FileText } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { DoctorCard } from '../components/DoctorCard';
-import { ClinicCard } from '../components/ClinicCard';
-import { PharmacyCard } from '../components/PharmacyCard';
-import { LabCard } from '../components/LabCard';
-import { InsuranceCard } from '../components/InsuranceCard';
-import { AIChat } from '../components/AIChat';
-
-type Tab = 'doctors' | 'clinics' | 'pharmacies' | 'labs' | 'insurance';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Search,
+  Sparkles,
+  Heart,
+  Shield,
+  Calendar,
+  FileText,
+  Pill,
+  TestTube,
+  ArrowRight,
+  X,
+  Activity,
+  Users,
+  Zap,
+  Globe
+} from 'lucide-react';
 
 interface LandingPageProps {
   onNavigateToFindCare: () => void;
@@ -16,576 +23,389 @@ interface LandingPageProps {
   onNavigateToDoctorPortal: () => void;
 }
 
-export default function LandingPage({ onNavigateToFindCare, onNavigateToPatientPortal, onNavigateToDoctorPortal }: LandingPageProps) {
-  const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<Tab>('doctors');
+export default function LandingPage({
+  onNavigateToPatientPortal,
+  onNavigateToDoctorPortal
+}: LandingPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAIChat, setShowAIChat] = useState(false);
   const [showWaitlist, setShowWaitlist] = useState(false);
 
-  const mockDoctors = [
-    {
-      id: '1',
-      name: 'Dr. Ahmed Al Mansoori',
-      specialty: 'Cardiology',
-      verified: true,
-      languages: ['English', 'Arabic'],
-      clinic: 'Dubai Heart Center',
-      rating: 4.9,
-      nextAvailable: 'Tomorrow 2:00 PM',
-    },
-    {
-      id: '2',
-      name: 'Dr. Sarah Johnson',
-      specialty: 'Pediatrics',
-      verified: true,
-      languages: ['English'],
-      clinic: 'American Hospital Dubai',
-      rating: 4.8,
-      nextAvailable: 'Today 4:30 PM',
-    },
+  const features = [
+    { icon: Calendar, title: 'Smart Scheduling', description: 'Book appointments instantly with real-time availability', color: '#3B82F6' },
+    { icon: FileText, title: 'Digital Records', description: 'Access your complete health history anywhere, anytime', color: '#10B981' },
+    { icon: Pill, title: 'E-Prescriptions', description: 'Get prescriptions digitally and track refills automatically', color: '#8B5CF6' },
+    { icon: TestTube, title: 'Lab Integration', description: 'View lab results instantly in your secure portal', color: '#F59E0B' },
+    { icon: Sparkles, title: 'AI Assistant', description: '24/7 health guidance powered by advanced AI', color: '#EC4899' },
+    { icon: Shield, title: 'Secure & Private', description: 'HIPAA compliant with end-to-end encryption', color: '#6366F1' }
   ];
 
-  const mockClinics = [
-    {
-      id: '1',
-      name: 'Dubai Heart Center',
-      type: 'Specialty Center',
-      location: 'Dubai Healthcare City',
-      specialties: ['Cardiology', 'Cardiac Surgery', 'Vascular Medicine'],
-      verified: true,
-      hours: 'Sun-Thu: 8AM-8PM',
-    },
-    {
-      id: '2',
-      name: 'American Hospital Dubai',
-      type: 'Hospital',
-      location: 'Oud Metha, Dubai',
-      specialties: ['Emergency', 'Pediatrics', 'Surgery', 'Orthopedics'],
-      verified: true,
-      hours: '24/7',
-    },
-  ];
-
-  const mockPharmacies = [
-    {
-      id: '1',
-      name: 'Aster Pharmacy',
-      location: 'Dubai Marina',
-      hours: '8:00 AM - 11:00 PM',
-      homeDelivery: true,
-      open24Hours: false,
-    },
-    {
-      id: '2',
-      name: 'Life Pharmacy',
-      location: 'JBR, Dubai',
-      hours: 'Open 24 Hours',
-      homeDelivery: true,
-      open24Hours: true,
-    },
-  ];
-
-  const mockLabs = [
-    {
-      id: '1',
-      name: 'Al Borg Medical Laboratories',
-      location: 'Multiple locations across Dubai',
-      homeCollection: true,
-      rapidResults: true,
-      turnaround: '24-48 hours',
-    },
-    {
-      id: '2',
-      name: 'NMC Pathology',
-      location: 'Dubai Healthcare City',
-      homeCollection: false,
-      rapidResults: true,
-      turnaround: '12-24 hours',
-    },
-  ];
-
-  const mockInsurance = [
-    {
-      id: '1',
-      name: 'Daman Insurance',
-      planType: 'Enhanced Plan',
-      acceptedClinics: 120,
-      coverageHighlights: [
-        'Inpatient & Outpatient Care',
-        'Emergency Services',
-        'Maternity Coverage',
-      ],
-    },
-    {
-      id: '2',
-      name: 'AXA Gulf',
-      planType: 'Comprehensive Health',
-      acceptedClinics: 95,
-      coverageHighlights: [
-        'Worldwide Coverage',
-        'Dental & Optical',
-        'Chronic Conditions',
-      ],
-    },
+  const stats = [
+    { value: '500K+', label: 'Patients' },
+    { value: '2,000+', label: 'Doctors' },
+    { value: '150+', label: 'Clinics' },
+    { value: '99.9%', label: 'Uptime' }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      <section className="relative bg-gradient-to-r from-[#0D7377] to-[#14BDBD] text-white py-20 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            {language === 'en'
-              ? 'Your Health, Intelligently Managed.'
-              : 'صحتك، تُدار بذكاء.'}
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90">
-            {language === 'en'
-              ? 'Find doctors, book appointments, manage your health records, and access AI-powered care — all in one platform. Built for the UAE. Compliant with DHA.'
-              : 'ابحث عن الأطباء، احجز المواعيد، أدر سجلاتك الصحية، واحصل على رعاية مدعومة بالذكاء الاصطناعي - كل ذلك في منصة واحدة. مبنية لدولة الإمارات. متوافقة مع DHA.'}
-          </p>
-
-          <div className="max-w-3xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={
-                  language === 'en'
-                    ? 'Search doctors, clinics, specialties, symptoms...'
-                    : 'ابحث عن الأطباء، العيادات، التخصصات، الأعراض...'
-                }
-                className="w-full pl-14 pr-4 py-5 text-lg text-gray-900 rounded-2xl shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/30"
-              />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="sticky top-0 z-50 backdrop-blur-lg bg-white/80 border-b border-slate-200"
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl flex items-center justify-center">
+              <Heart className="w-6 h-6 text-white" fill="white" />
             </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
+              CeenAiX
+            </span>
+          </motion.div>
 
-            <div className="flex gap-3 mt-8 justify-center">
-              <button
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</a>
+            <a href="#how-it-works" className="text-slate-600 hover:text-slate-900 transition-colors">How It Works</a>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onNavigateToPatientPortal}
+              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-full font-medium"
+            >
+              Get Started
+            </motion.button>
+          </nav>
+        </div>
+      </motion.header>
+
+      <section className="relative overflow-hidden pt-20 pb-32 px-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/50 to-transparent pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto text-center relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-50 rounded-full mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-cyan-600" />
+              <span className="text-sm font-medium text-cyan-900">AI-Powered Healthcare Platform</span>
+            </motion.div>
+
+            <h1 className="text-6xl md:text-7xl font-bold text-slate-900 mb-6">
+              Your Health,
+              <br />
+              <span className="bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
+                Simplified
+              </span>
+            </h1>
+
+            <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
+              Experience healthcare that works for you. Book appointments, manage records, and get AI-powered health insights—all in one place.
+            </p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="max-w-2xl mx-auto mb-8"
+            >
+              <div className="relative">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search doctors, specialties, symptoms..."
+                  className="w-full pl-14 pr-6 py-5 text-lg bg-white border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-cyan-500 transition-colors shadow-lg"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onNavigateToPatientPortal}
-                className="px-8 py-4 bg-white text-teal-700 font-bold rounded-xl hover:bg-gray-100 shadow-xl transition-all"
+                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-2"
               >
                 Patient Portal
-              </button>
-              <button
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onNavigateToDoctorPortal}
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-xl hover:bg-white/20 border-2 border-white/30 transition-all"
+                className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-900 rounded-xl font-semibold text-lg hover:border-cyan-500 transition-colors"
               >
                 Doctor Portal
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
 
-            <div className="flex flex-wrap gap-3 mt-6 justify-center">
-              {['doctors', 'clinics', 'pharmacies', 'labs', 'insurance'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab as Tab)}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeTab === tab
-                      ? 'bg-white text-[#0D7377] shadow-lg'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  {language === 'en'
-                    ? tab.charAt(0).toUpperCase() + tab.slice(1)
-                    : tab === 'doctors'
-                    ? 'الأطباء'
-                    : tab === 'clinics'
-                    ? 'العيادات'
-                    : tab === 'pharmacies'
-                    ? 'الصيدليات'
-                    : tab === 'labs'
-                    ? 'المختبرات'
-                    : 'التأمين'}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
-              <button className="px-8 py-4 bg-white text-[#0D7377] rounded-xl font-semibold text-lg hover:shadow-2xl transition-shadow">
-                {language === 'en' ? 'Find Care Now' : 'ابحث عن الرعاية الآن'}
-              </button>
-              <button
-                onClick={() => setShowAIChat(true)}
-                className="px-8 py-4 border-2 border-white text-white rounded-xl font-semibold text-lg hover:bg-white hover:text-[#0D7377] transition-all flex items-center justify-center gap-2"
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            {stats.map((stat, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ y: -5 }}
+                className="text-center"
               >
-                <Sparkles className="w-5 h-5" />
-                {language === 'en' ? 'Talk to AI Health Assistant' : 'تحدث إلى المساعد الصحي'}
-              </button>
-            </div>
-          </div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-slate-600">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      <section className="py-4 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-            <Sparkles className="w-5 h-5 text-[#6C63FF]" />
-            <p>
-              {language === 'en'
-                ? "Not sure where to start? Describe your symptoms and our AI will guide you to the right care."
-                : 'لست متأكدًا من أين تبدأ؟ صف أعراضك وسيوجهك الذكاء الاصطناعي إلى الرعاية المناسبة.'}
+      <section id="features" className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+              Everything you need
+            </h2>
+            <p className="text-xl text-slate-600">
+              Powerful features designed to simplify healthcare
             </p>
-            <button
-              onClick={() => setShowAIChat(true)}
-              className="text-[#6C63FF] font-medium hover:underline"
-            >
-              {language === 'en' ? 'Start AI Consultation' : 'ابدأ الاستشارة'}
-            </button>
-          </div>
-        </div>
-      </section>
+          </motion.div>
 
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeTab === 'doctors' &&
-            mockDoctors.map((doctor) => <DoctorCard key={doctor.id} {...doctor} />)}
-          {activeTab === 'clinics' &&
-            mockClinics.map((clinic) => <ClinicCard key={clinic.id} {...clinic} />)}
-          {activeTab === 'pharmacies' &&
-            mockPharmacies.map((pharmacy) => <PharmacyCard key={pharmacy.id} {...pharmacy} />)}
-          {activeTab === 'labs' && mockLabs.map((lab) => <LabCard key={lab.id} {...lab} />)}
-          {activeTab === 'insurance' &&
-            mockInsurance.map((insurance) => <InsuranceCard key={insurance.id} {...insurance} />)}
-        </div>
-      </section>
-
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            {language === 'en' ? 'How It Works' : 'كيف يعمل'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#0D7377] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-[#0D7377]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                {language === 'en' ? 'Search & Discover' : 'ابحث واكتشف'}
-              </h3>
-              <p className="text-gray-600">
-                {language === 'en'
-                  ? 'Find the right doctor, clinic, pharmacy, or lab across the UAE'
-                  : 'ابحث عن الطبيب، العيادة، الصيدلية أو المختبر المناسب في جميع أنحاء الإمارات'}
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#0D7377] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-[#0D7377]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                {language === 'en' ? 'Book & Consult' : 'احجز واستشر'}
-              </h3>
-              <p className="text-gray-600">
-                {language === 'en'
-                  ? 'Book in-clinic or teleconsultation. Consult via messaging or video.'
-                  : 'احجز في العيادة أو الاستشارة عن بعد. استشر عبر الرسائل أو الفيديو.'}
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-[#0D7377] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Database className="w-8 h-8 text-[#0D7377]" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                {language === 'en' ? 'Your Health, Connected' : 'صحتك، متصلة'}
-              </h3>
-              <p className="text-gray-600">
-                {language === 'en'
-                  ? 'Records, prescriptions, lab results, and referrals — all in one place, forever.'
-                  : 'السجلات، الوصفات، نتائج المختبر، والإحالات - كل شيء في مكان واحد، إلى الأبد.'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            {language === 'en' ? 'Platform Features' : 'ميزات المنصة'}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Sparkles,
-                title: language === 'en' ? 'AI Health Assistant' : 'المساعد الصحي الذكي',
-                description:
-                  language === 'en'
-                    ? 'Symptom checker and care navigator powered by AI'
-                    : 'فاحص الأعراض وملاح الرعاية مدعوم بالذكاء الاصطناعي',
-              },
-              {
-                icon: Database,
-                title: language === 'en' ? 'Unified Health Records' : 'سجلات صحية موحدة',
-                description:
-                  language === 'en'
-                    ? 'One complete medical history across all providers'
-                    : 'تاريخ طبي كامل عبر جميع مقدمي الخدمة',
-              },
-              {
-                icon: FileText,
-                title: language === 'en' ? 'E-Prescriptions' : 'وصفات إلكترونية',
-                description:
-                  language === 'en'
-                    ? 'Digital prescriptions sent to you or your pharmacy instantly'
-                    : 'وصفات رقمية ترسل إليك أو إلى صيدليتك فورًا',
-              },
-              {
-                icon: Zap,
-                title: language === 'en' ? 'Lab & Pharmacy Integration' : 'تكامل المختبر والصيدلية',
-                description:
-                  language === 'en'
-                    ? 'Referrals and results in one place'
-                    : 'الإحالات والنتائج في مكان واحد',
-              },
-              {
-                icon: GlobeIcon,
-                title: language === 'en' ? 'Teleconsultation' : 'الاستشارة عن بعد',
-                description:
-                  language === 'en'
-                    ? 'Secure messaging and video with your doctor'
-                    : 'رسائل وفيديو آمنة مع طبيبك',
-              },
-              {
-                icon: Shield,
-                title: language === 'en' ? 'DHA & Nabidh Compliant' : 'متوافق مع DHA و Nabidh',
-                description:
-                  language === 'en'
-                    ? 'Built to UAE regulatory standards'
-                    : 'مبني وفقًا للمعايير التنظيمية لدولة الإمارات',
-              },
-            ].map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <div key={idx} className="bg-white p-6 rounded-xl border border-gray-200">
-                  <Icon className="w-10 h-10 text-[#0D7377] mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-[#0D7377] to-[#14BDBD] text-white p-12 rounded-2xl">
-              <h2 className="text-3xl font-bold mb-6">
-                {language === 'en' ? 'For Patients' : 'للمرضى'}
-              </h2>
-              <ul className="space-y-4 mb-8">
-                {[
-                  language === 'en' ? 'Book with any DHA-licensed doctor' : 'احجز مع أي طبيب مرخص من DHA',
-                  language === 'en' ? 'Access your complete health records' : 'الوصول إلى سجلاتك الصحية الكاملة',
-                  language === 'en' ? 'Receive digital prescriptions' : 'تلقي وصفات رقمية',
-                  language === 'en' ? 'Get lab results in-app' : 'احصل على نتائج المختبر في التطبيق',
-                  language === 'en' ? 'Consult from anywhere via video' : 'استشر من أي مكان عبر الفيديو',
-                  language === 'en' ? 'AI health guidance 24/7' : 'إرشادات صحية ذكية على مدار الساعة',
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={onNavigateToPatientPortal}
-                className="px-8 py-4 bg-white text-[#0D7377] rounded-xl font-semibold hover:shadow-xl transition-shadow"
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                className="p-8 bg-slate-50 rounded-2xl border border-slate-200 transition-all"
               >
-                {language === 'en' ? 'Sign Up as Patient' : 'سجل كمريض'}
-              </button>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#1A1A2E] to-gray-800 text-white p-12 rounded-2xl">
-              <h2 className="text-3xl font-bold mb-6">
-                {language === 'en' ? 'For Doctors' : 'للأطباء'}
-              </h2>
-              <ul className="space-y-4 mb-8">
-                {[
-                  language === 'en' ? 'Full digital workspace' : 'مساحة عمل رقمية كاملة',
-                  language === 'en' ? 'Patient records at a glance' : 'سجلات المرضى في لمحة',
-                  language === 'en' ? 'Write and send e-prescriptions' : 'اكتب وأرسل الوصفات الإلكترونية',
-                  language === 'en' ? 'Refer to labs and pharmacies on platform' : 'إحالة إلى المختبرات والصيدليات على المنصة',
-                  language === 'en' ? 'Conduct secure teleconsultations' : 'إجراء استشارات آمنة عن بعد',
-                  language === 'en' ? 'Track earnings and payments' : 'تتبع الأرباح والمدفوعات',
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 mt-1 flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={onNavigateToDoctorPortal}
-                className="px-8 py-4 bg-white text-gray-900 rounded-xl font-semibold hover:shadow-xl transition-shadow"
-              >
-                {language === 'en' ? 'Register as Doctor' : 'سجل كطبيب'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-white border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-8 items-center">
-            {[
-              { icon: Shield, text: 'DHA Licensed' },
-              { icon: Database, text: 'Nabidh HIE Integrated' },
-              { icon: Lock, text: 'End-to-End Encrypted' },
-              { icon: GlobeIcon, text: 'UAE Data Residency' },
-              { icon: Sparkles, text: 'AI Clinically Validated' },
-            ].map((badge, idx) => {
-              const Icon = badge.icon;
-              return (
-                <div key={idx} className="flex items-center gap-2 text-[#0D7377]">
-                  <Icon className="w-5 h-5" />
-                  <span className="text-sm font-medium">{badge.text}</span>
+                <div
+                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+                  style={{ background: `${feature.color}15` }}
+                >
+                  <feature.icon size={28} color={feature.color} />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
-            {[
-              { value: '500K+', label: language === 'en' ? 'Patients' : 'مريض' },
-              { value: '2,000+', label: language === 'en' ? 'Doctors' : 'طبيب' },
-              { value: '150+', label: language === 'en' ? 'Clinics' : 'عيادة' },
-              { value: '50+', label: language === 'en' ? 'Labs' : 'مختبر' },
-              { value: '30+', label: language === 'en' ? 'Pharmacies' : 'صيدلية' },
-            ].map((stat, idx) => (
-              <div key={idx}>
-                <div className="text-4xl font-bold text-[#0D7377] mb-2">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
-              </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-slate-600">{feature.description}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-[#0D7377] to-[#14BDBD] text-white">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            {language === 'en' ? 'Be Among the First on CeenAiX' : 'كن من بين الأوائل على CeenAiX'}
-          </h2>
-          <p className="text-xl mb-8 text-white/90">
-            {language === 'en' ? 'Launching across Dubai. Join the waitlist.' : 'الإطلاق في جميع أنحاء دبي. انضم إلى قائمة الانتظار.'}
-          </p>
-          <button
-            onClick={() => setShowWaitlist(true)}
-            className="px-8 py-4 bg-white text-[#0D7377] rounded-xl font-semibold text-lg hover:shadow-2xl transition-shadow"
+      <section id="how-it-works" className="py-20 px-6 bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
           >
-            {language === 'en' ? 'Join Waitlist' : 'انضم إلى قائمة الانتظار'}
-          </button>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+              How it works
+            </h2>
+            <p className="text-xl text-slate-600">
+              Get started in minutes
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: '01', title: 'Create Account', description: 'Sign up in seconds with your email or phone number', icon: Users },
+              { step: '02', title: 'Find Care', description: 'Search and book with doctors, clinics, and specialists', icon: Search },
+              { step: '03', title: 'Stay Connected', description: 'Access records, prescriptions, and results anytime', icon: Activity }
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2 }}
+                className="relative"
+              >
+                <div className="text-6xl font-bold text-cyan-100 mb-4">{item.step}</div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-semibold text-slate-900 mb-2">{item.title}</h3>
+                    <p className="text-slate-600">{item.description}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {showAIChat && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-3xl h-[600px] bg-white rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold">
-                {language === 'en' ? 'AI Health Assistant' : 'المساعد الصحي الذكي'}
-              </h2>
-              <button
-                onClick={() => setShowAIChat(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900"
-              >
-                {language === 'en' ? 'Close' : 'إغلاق'}
-              </button>
+      <section className="py-20 px-6 bg-gradient-to-br from-cyan-600 to-teal-600 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to get started?
+            </h2>
+            <p className="text-xl mb-10 text-white/90">
+              Join thousands of patients experiencing better healthcare
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowWaitlist(true)}
+              className="px-10 py-5 bg-white text-cyan-600 rounded-xl font-semibold text-lg shadow-xl hover:shadow-2xl transition-shadow"
+            >
+              Join Waitlist
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      <footer className="py-12 px-6 bg-slate-900 text-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-white" fill="white" />
+                </div>
+                <span className="text-xl font-bold">CeenAiX</span>
+              </div>
+              <p className="text-slate-400 text-sm">
+                Modern healthcare platform designed for the digital age
+              </p>
             </div>
-            <div className="h-[calc(100%-64px)]">
-              <AIChat />
+            <div>
+              <h4 className="font-semibold mb-4">Platform</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-slate-400 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">HIPAA</a></li>
+              </ul>
             </div>
           </div>
+          <div className="pt-8 border-t border-slate-800 text-center text-slate-400 text-sm">
+            © 2026 CeenAiX. All rights reserved.
+          </div>
         </div>
-      )}
+      </footer>
 
-      {showWaitlist && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-8">
-            <h2 className="text-2xl font-bold mb-6 text-center">
-              {language === 'en' ? 'Join the Waitlist' : 'انضم إلى قائمة الانتظار'}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  {language === 'en' ? "I'm a Patient" : 'أنا مريض'}
-                </h3>
-                <form className="space-y-4">
+      <AnimatePresence>
+        {showWaitlist && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowWaitlist(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold text-slate-900">Join Waitlist</h2>
+                <button
+                  onClick={() => setShowWaitlist(false)}
+                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
                   <input
                     type="text"
-                    placeholder={language === 'en' ? 'Full Name' : 'الاسم الكامل'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                    placeholder="John Doe"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                   <input
                     type="email"
-                    placeholder={language === 'en' ? 'Email' : 'البريد الإلكتروني'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                    placeholder="john@example.com"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
                   <input
                     type="tel"
-                    placeholder={language === 'en' ? 'Phone' : 'الهاتف'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors"
+                    placeholder="+971 50 123 4567"
                   />
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]">
-                    <option>{language === 'en' ? 'Select Emirate' : 'اختر الإمارة'}</option>
-                    <option>Dubai</option>
-                    <option>Abu Dhabi</option>
-                    <option>Sharjah</option>
-                  </select>
-                  <button className="w-full px-6 py-3 bg-[#0D7377] text-white rounded-lg font-semibold hover:bg-[#0a5c5f] transition-colors">
-                    {language === 'en' ? 'Join as Patient' : 'انضم كمريض'}
-                  </button>
-                </form>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  {language === 'en' ? "I'm a Doctor / Clinic" : 'أنا طبيب / عيادة'}
-                </h3>
-                <form className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder={language === 'en' ? 'Full Name' : 'الاسم الكامل'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
-                  />
-                  <input
-                    type="email"
-                    placeholder={language === 'en' ? 'Email' : 'البريد الإلكتروني'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
-                  />
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]">
-                    <option>{language === 'en' ? 'Role' : 'الدور'}</option>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">I am a</label>
+                  <select className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors">
+                    <option>Patient</option>
                     <option>Doctor</option>
-                    <option>Clinic Admin</option>
+                    <option>Clinic Administrator</option>
                   </select>
-                  <input
-                    type="text"
-                    placeholder={language === 'en' ? 'Specialty / Clinic Name' : 'التخصص / اسم العيادة'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0D7377]"
-                  />
-                  <button className="w-full px-6 py-3 bg-[#0D7377] text-white rounded-lg font-semibold hover:bg-[#0a5c5f] transition-colors">
-                    {language === 'en' ? 'Join as Provider' : 'انضم كمزود'}
-                  </button>
-                </form>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowWaitlist(false)}
-              className="mt-6 w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
-              {language === 'en' ? 'Close' : 'إغلاق'}
-            </button>
-          </div>
-        </div>
-      )}
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="w-full py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-xl font-semibold text-lg shadow-lg"
+                >
+                  Join Waitlist
+                </motion.button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

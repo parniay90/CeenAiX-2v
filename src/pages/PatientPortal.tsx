@@ -1,4 +1,4 @@
-import CeenAiXPatientDashboard from './CeenAiX_Patient_Dashboard copy';
+import CeenAiXPatientDashboard from './CeenAiX_Patient_Dashboard';
 
 interface PatientPortalProps {
   onNavigateHome?: () => void;
