@@ -196,39 +196,92 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
   const maxDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-auto shadow-2xl">
-        <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Book Appointment</h2>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: 20
+    }}>
+      <div style={{
+        background: 'white',
+        borderRadius: 16,
+        width: '100%',
+        maxWidth: 800,
+        maxHeight: '90vh',
+        overflow: 'auto',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+      }}>
+        <div style={{
+          padding: '20px 28px',
+          borderBottom: '1px solid #E5E7EB',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          background: 'white',
+          zIndex: 10
+        }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1F2937', margin: 0 }}>
+            Book Appointment
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 8
+            }}
           >
-            <X className="w-6 h-6 text-gray-500" />
+            <X size={24} color="#6B7280" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="flex gap-2 mb-8">
+        <div style={{ padding: 28 }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
             {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
-                className={`flex-1 h-1 rounded-full transition-all ${
-                  step >= s ? 'bg-teal-600' : 'bg-gray-200'
-                }`}
+                style={{
+                  flex: 1,
+                  height: 4,
+                  borderRadius: 2,
+                  background: step >= s ? '#0D7377' : '#E5E7EB',
+                  transition: 'background 0.3s'
+                }}
               />
             ))}
           </div>
 
           {step === 1 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Specialty</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1F2937', marginBottom: 16 }}>
+                Select Specialty
+              </h3>
               {specialties.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 mb-2">Loading specialties...</div>
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ color: '#9CA3AF' }}>Loading specialties...</div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: 12,
+                  maxHeight: 400,
+                  overflowY: 'auto'
+                }}>
                   {specialties.map((specialty) => (
                     <button
                       key={specialty}
@@ -236,13 +289,29 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                         setSelectedSpecialty(specialty);
                         setStep(2);
                       }}
-                      className={`p-4 border-2 rounded-xl text-left transition-all ${
-                        selectedSpecialty === specialty
-                          ? 'border-teal-600 bg-teal-50'
-                          : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50'
-                      }`}
+                      style={{
+                        padding: 16,
+                        border: selectedSpecialty === specialty ? '2px solid #0D7377' : '1px solid #E5E7EB',
+                        borderRadius: 12,
+                        background: selectedSpecialty === specialty ? '#F0FDFA' : 'white',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedSpecialty !== specialty) {
+                          e.currentTarget.style.borderColor = '#0D7377';
+                          e.currentTarget.style.background = '#F9FAFB';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedSpecialty !== specialty) {
+                          e.currentTarget.style.borderColor = '#E5E7EB';
+                          e.currentTarget.style.background = 'white';
+                        }
+                      }}
                     >
-                      <div className="font-semibold text-gray-900">{specialty}</div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937' }}>{specialty}</div>
                     </button>
                   ))}
                 </div>
@@ -252,58 +321,102 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
 
           {step === 2 && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Select Doctor</h3>
-                <span className="text-sm text-teal-600 font-medium">{selectedSpecialty}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1F2937', margin: 0 }}>
+                  Select Doctor
+                </h3>
+                <span style={{ fontSize: 14, color: '#0D7377', fontWeight: 500 }}>{selectedSpecialty}</span>
               </div>
               {doctors.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 mb-2">Loading doctors...</div>
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ color: '#9CA3AF' }}>Loading doctors...</div>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 400, overflowY: 'auto' }}>
                   {doctors.map((doctor) => (
-                  <div
-                    key={doctor.id}
-                    onClick={() => setSelectedDoctor(doctor)}
-                    className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                      selectedDoctor?.id === doctor.id
-                        ? 'border-teal-600 bg-teal-50'
-                        : 'border-gray-200 hover:border-teal-300'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                        <User className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">Dr. {doctor.full_name}</div>
-                        <div className="text-sm text-gray-600">{doctor.specialty}</div>
-                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                          <span>{doctor.years_of_experience} yrs exp</span>
-                          <span>AED {doctor.consultation_fee_clinic}</span>
+                    <div
+                      key={doctor.id}
+                      onClick={() => setSelectedDoctor(doctor)}
+                      style={{
+                        padding: 16,
+                        border: selectedDoctor?.id === doctor.id ? '2px solid #0D7377' : '1px solid #E5E7EB',
+                        borderRadius: 12,
+                        background: selectedDoctor?.id === doctor.id ? '#F0FDFA' : 'white',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedDoctor?.id !== doctor.id) {
+                          e.currentTarget.style.borderColor = '#0D7377';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedDoctor?.id !== doctor.id) {
+                          e.currentTarget.style.borderColor = '#E5E7EB';
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'start', gap: 12 }}>
+                        <div style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #0D7377, #14FFEC)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}>
+                          <User size={24} color="white" />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 16, fontWeight: 600, color: '#1F2937' }}>
+                            {doctor.full_name}
+                          </div>
+                          <div style={{ fontSize: 14, color: '#6B7280', marginTop: 2 }}>
+                            {doctor.specialty}
+                          </div>
+                          <div style={{ display: 'flex', gap: 16, fontSize: 13, color: '#6B7280', marginTop: 6 }}>
+                            <span>{doctor.years_of_experience} yrs exp</span>
+                            <span>AED {doctor.consultation_fee_clinic}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
                 </div>
               )}
-              <div className="flex gap-3 mt-6">
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                 <button
                   onClick={() => setStep(1)}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50"
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: 'white',
+                    color: '#6B7280',
+                    border: '2px solid #D1D5DB',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
                 >
                   Back
                 </button>
                 <button
                   onClick={() => setStep(3)}
                   disabled={!selectedDoctor}
-                  className={`flex-1 px-4 py-3 font-semibold rounded-xl ${
-                    selectedDoctor
-                      ? 'bg-teal-600 text-white hover:bg-teal-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: selectedDoctor ? '#0D7377' : '#D1D5DB',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: selectedDoctor ? 'pointer' : 'not-allowed'
+                  }}
                 >
                   Continue
                 </button>
@@ -313,11 +426,13 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
 
           {step === 3 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Date & Time</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1F2937', marginBottom: 16 }}>
+                Select Date & Time
+              </h3>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4 inline mr-2" />
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 500, color: '#374151', marginBottom: 8 }}>
+                  <Calendar size={16} style={{ display: 'inline', marginRight: 8 }} />
                   Appointment Date
                 </label>
                 <input
@@ -326,34 +441,51 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                   onChange={(e) => setSelectedDate(e.target.value)}
                   min={minDate}
                   max={maxDate}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    border: '1px solid #D1D5DB',
+                    borderRadius: 8,
+                    fontSize: 14
+                  }}
                 />
               </div>
 
               {selectedDate && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Clock className="w-4 h-4 inline mr-2" />
-                    Available Time Slots
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 500, color: '#374151', marginBottom: 8 }}>
+                    <Clock size={16} style={{ display: 'inline', marginRight: 8 }} />
+                    Available Time Slots (45 min each)
                   </label>
-                  <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2">
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 8,
+                    maxHeight: 280,
+                    overflowY: 'auto',
+                    padding: 4
+                  }}>
                     {timeSlots.length > 0 ? timeSlots.map((slot) => (
                       <button
                         key={slot.time}
                         onClick={() => slot.available && setSelectedTime(slot.time)}
                         disabled={!slot.available}
-                        className={`p-3 rounded-lg text-sm font-medium transition-all ${
-                          !slot.available
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed line-through'
-                            : selectedTime === slot.time
-                            ? 'bg-teal-600 text-white'
-                            : 'bg-white border-2 border-gray-200 hover:border-teal-300'
-                        }`}
+                        style={{
+                          padding: '10px 12px',
+                          border: selectedTime === slot.time ? '2px solid #0D7377' : '1px solid #E5E7EB',
+                          borderRadius: 8,
+                          background: !slot.available ? '#F3F4F6' : selectedTime === slot.time ? '#F0FDFA' : 'white',
+                          color: !slot.available ? '#9CA3AF' : '#1F2937',
+                          fontSize: 13,
+                          fontWeight: 500,
+                          cursor: slot.available ? 'pointer' : 'not-allowed',
+                          textDecoration: !slot.available ? 'line-through' : 'none'
+                        }}
                       >
                         {formatTime(slot.time)}
                       </button>
                     )) : (
-                      <p className="col-span-3 text-center text-gray-500 py-8">
+                      <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#6B7280', padding: 20 }}>
                         No available slots for this date
                       </p>
                     )}
@@ -361,21 +493,37 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                 </div>
               )}
 
-              <div className="flex gap-3 mt-6">
+              <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                 <button
                   onClick={() => setStep(2)}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50"
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: 'white',
+                    color: '#6B7280',
+                    border: '2px solid #D1D5DB',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
                 >
                   Back
                 </button>
                 <button
                   onClick={() => setStep(4)}
                   disabled={!selectedDate || !selectedTime}
-                  className={`flex-1 px-4 py-3 font-semibold rounded-xl ${
-                    selectedDate && selectedTime
-                      ? 'bg-teal-600 text-white hover:bg-teal-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: (selectedDate && selectedTime) ? '#0D7377' : '#D1D5DB',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: (selectedDate && selectedTime) ? 'pointer' : 'not-allowed'
+                  }}
                 >
                   Continue
                 </button>
@@ -385,54 +533,82 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
 
           {step === 4 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Details</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1F2937', marginBottom: 16 }}>
+                Confirm Details
+              </h3>
 
-              <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200">
-                <div className="mb-3">
-                  <span className="text-xs text-gray-500">Doctor</span>
-                  <div className="font-semibold text-gray-900">Dr. {selectedDoctor?.full_name}</div>
-                  <div className="text-sm text-gray-600">{selectedDoctor?.specialty}</div>
+              <div style={{
+                padding: 16,
+                background: '#F9FAFB',
+                borderRadius: 12,
+                marginBottom: 20,
+                border: '1px solid #E5E7EB'
+              }}>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Doctor</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    {selectedDoctor?.full_name}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                    {selectedDoctor?.specialty}
+                  </div>
                 </div>
-                <div className="mb-3">
-                  <span className="text-xs text-gray-500">Date & Time</span>
-                  <div className="font-semibold text-gray-900">
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Date & Time</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
                     {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                   </div>
-                  <div className="text-sm text-gray-600">{formatTime(selectedTime)} (45 minutes)</div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                    {formatTime(selectedTime)} (45 minutes)
+                  </div>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-500">Location</span>
-                  <div className="font-semibold text-gray-900 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-teal-600" />
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Location</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <MapPin size={16} color="#0D7377" />
                     {selectedDoctor?.location}
                   </div>
-                  <div className="text-sm text-gray-600">{selectedDoctor?.address}</div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                    {selectedDoctor?.address}
+                  </div>
 
                   {!distance && !calculatingDistance && (
                     <button
                       onClick={calculateDistance}
-                      className="mt-2 flex items-center gap-2 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                      style={{
+                        marginTop: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        fontSize: 13,
+                        color: '#0D7377',
+                        fontWeight: 500,
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
                     >
-                      <Navigation className="w-4 h-4" />
+                      <Navigation size={14} />
                       Calculate distance from my location
                     </button>
                   )}
 
                   {calculatingDistance && (
-                    <div className="mt-2 text-sm text-gray-500">Calculating distance...</div>
+                    <div style={{ marginTop: 8, fontSize: 13, color: '#6B7280' }}>Calculating...</div>
                   )}
 
                   {distance && (
-                    <div className="mt-2 flex items-center gap-2 text-sm font-medium text-teal-700">
-                      <Navigation className="w-4 h-4" />
+                    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, color: '#0D7377' }}>
+                      <Navigation size={14} />
                       {distance} km from your location
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 500, color: '#374151', marginBottom: 8 }}>
                   Reason for Visit *
                 </label>
                 <textarea
@@ -440,25 +616,49 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Please describe your symptoms or reason for visit..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  style={{
+                    width: '100%',
+                    padding: 12,
+                    border: '1px solid #D1D5DB',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div style={{ display: 'flex', gap: 12 }}>
                 <button
                   onClick={() => setStep(3)}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50"
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: 'white',
+                    color: '#6B7280',
+                    border: '2px solid #D1D5DB',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleBookAppointment}
                   disabled={!reason || loading}
-                  className={`flex-1 px-4 py-3 font-semibold rounded-xl ${
-                    reason && !loading
-                      ? 'bg-teal-600 text-white hover:bg-teal-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  style={{
+                    flex: 1,
+                    padding: '12px 24px',
+                    background: (reason && !loading) ? '#0D7377' : '#D1D5DB',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: (reason && !loading) ? 'pointer' : 'not-allowed'
+                  }}
                 >
                   {loading ? 'Booking...' : 'Confirm Booking'}
                 </button>
@@ -467,50 +667,96 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
           )}
 
           {step === 5 && (
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-12 h-12 text-white" />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 80,
+                height: 80,
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px'
+              }}>
+                <CheckCircle size={48} color="white" />
               </div>
 
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Appointment Confirmed!</h3>
-              <p className="text-gray-600 mb-6">Your appointment has been successfully booked</p>
+              <h3 style={{ fontSize: 24, fontWeight: 700, color: '#1F2937', marginBottom: 12 }}>
+                Appointment Confirmed!
+              </h3>
+              <p style={{ fontSize: 16, color: '#6B7280', marginBottom: 28 }}>
+                Your appointment has been successfully booked
+              </p>
 
-              <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200 text-left">
-                <div className="mb-3">
-                  <span className="text-xs text-gray-500">Doctor</span>
-                  <div className="font-semibold text-gray-900">Dr. {selectedDoctor?.full_name}</div>
-                  <div className="text-sm text-gray-600">{selectedDoctor?.specialty}</div>
+              <div style={{
+                padding: 20,
+                background: '#F9FAFB',
+                borderRadius: 12,
+                marginBottom: 24,
+                border: '1px solid #E5E7EB',
+                textAlign: 'left'
+              }}>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Doctor</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    {selectedDoctor?.full_name}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                    {selectedDoctor?.specialty}
+                  </div>
                 </div>
-                <div className="mb-3">
-                  <span className="text-xs text-gray-500">Date & Time</span>
-                  <div className="font-semibold text-gray-900">
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Date & Time</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
                     {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                   </div>
-                  <div className="text-sm text-gray-600">{formatTime(selectedTime)}</div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+                    {formatTime(selectedTime)}
+                  </div>
                 </div>
                 <div>
-                  <span className="text-xs text-gray-500">Location</span>
-                  <div className="font-semibold text-gray-900">{selectedDoctor?.location}</div>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Location</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    {selectedDoctor?.location}
+                  </div>
                   {distance && (
-                    <div className="text-sm text-teal-600 mt-1">{distance} km from you</div>
+                    <div style={{ fontSize: 13, color: '#0D7377', marginTop: 4 }}>
+                      {distance} km from you
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="mb-6">
-                <p className="text-sm font-semibold text-gray-700 mb-3">Add to your calendar:</p>
-                <div className="flex gap-3">
+              <div style={{ marginBottom: 24 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
+                  Add to your calendar:
+                </p>
+                <div style={{ display: 'flex', gap: 12 }}>
                   <button
                     onClick={() => {
                       const startDateTime = new Date(`${selectedDate}T${selectedTime}`);
                       const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
                       const formatGoogleDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-                      const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Dr. ${selectedDoctor?.full_name}`)}&dates=${formatGoogleDate(startDateTime)}/${formatGoogleDate(endDateTime)}&details=${encodeURIComponent(`${reason}\n\nLocation: ${selectedDoctor?.address}`)}`;
+                      const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Dr. ${selectedDoctor?.full_name}`)}&dates=${formatGoogleDate(startDateTime)}/${formatGoogleDate(endDateTime)}&details=${encodeURIComponent(reason)}&location=${encodeURIComponent(selectedDoctor?.address || '')}`;
                       window.open(googleCalUrl, '_blank');
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-teal-600 text-teal-700 font-medium rounded-xl hover:bg-teal-50"
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '12px 16px',
+                      background: 'white',
+                      color: '#0D7377',
+                      border: '2px solid #0D7377',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
                   >
-                    <CalendarPlus className="w-4 h-4" />
+                    <CalendarPlus size={16} />
                     Google
                   </button>
                   <button
@@ -519,10 +765,15 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                       const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
                       const formatDateForCal = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                       const icsContent = [
-                        'BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT',
-                        `DTSTART:${formatDateForCal(startDateTime)}`, `DTEND:${formatDateForCal(endDateTime)}`,
-                        `SUMMARY:Dr. ${selectedDoctor?.full_name}`, `LOCATION:${selectedDoctor?.address}`,
-                        'END:VEVENT', 'END:VCALENDAR'
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'BEGIN:VEVENT',
+                        `DTSTART:${formatDateForCal(startDateTime)}`,
+                        `DTEND:${formatDateForCal(endDateTime)}`,
+                        `SUMMARY:Dr. ${selectedDoctor?.full_name}`,
+                        `LOCATION:${selectedDoctor?.address}`,
+                        'END:VEVENT',
+                        'END:VCALENDAR'
                       ].join('\r\n');
                       const blob = new Blob([icsContent], { type: 'text/calendar' });
                       const link = document.createElement('a');
@@ -530,9 +781,23 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                       link.download = 'appointment.ics';
                       link.click();
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-teal-600 text-teal-700 font-medium rounded-xl hover:bg-teal-50"
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '12px 16px',
+                      background: 'white',
+                      color: '#0D7377',
+                      border: '2px solid #0D7377',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
                   >
-                    <Download className="w-4 h-4" />
+                    <Download size={16} />
                     iPhone
                   </button>
                 </div>
@@ -543,7 +808,17 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                   onAppointmentBooked();
                   onClose();
                 }}
-                className="w-full px-4 py-3 bg-teal-600 text-white font-semibold rounded-xl hover:bg-teal-700"
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: '#0D7377',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
               >
                 Done
               </button>
