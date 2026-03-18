@@ -54,14 +54,16 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
   }, [selectedDoctor, selectedDate]);
 
   const fetchSpecialties = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('doctors')
       .select('specialty')
       .order('specialty');
 
-    if (data) {
-      const uniqueSpecialties = [...new Set(data.map(d => d.specialty))];
+    if (data && !error) {
+      const uniqueSpecialties = [...new Set(data.map(d => d.specialty).filter(s => s))];
       setSpecialties(uniqueSpecialties);
+    } else {
+      console.error('Error fetching specialties:', error);
     }
   };
 
@@ -221,24 +223,30 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
           {step === 1 && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Specialty</h3>
-              <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                {specialties.map((specialty) => (
-                  <button
-                    key={specialty}
-                    onClick={() => {
-                      setSelectedSpecialty(specialty);
-                      setStep(2);
-                    }}
-                    className={`p-4 border-2 rounded-xl text-left transition-all ${
-                      selectedSpecialty === specialty
-                        ? 'border-teal-600 bg-teal-50'
-                        : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="font-semibold text-gray-900">{specialty}</div>
-                  </button>
-                ))}
-              </div>
+              {specialties.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-2">Loading specialties...</div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                  {specialties.map((specialty) => (
+                    <button
+                      key={specialty}
+                      onClick={() => {
+                        setSelectedSpecialty(specialty);
+                        setStep(2);
+                      }}
+                      className={`p-4 border-2 rounded-xl text-left transition-all ${
+                        selectedSpecialty === specialty
+                          ? 'border-teal-600 bg-teal-50'
+                          : 'border-gray-200 hover:border-teal-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="font-semibold text-gray-900">{specialty}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -248,8 +256,13 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                 <h3 className="text-lg font-semibold text-gray-900">Select Doctor</h3>
                 <span className="text-sm text-teal-600 font-medium">{selectedSpecialty}</span>
               </div>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {doctors.map((doctor) => (
+              {doctors.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-2">Loading doctors...</div>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {doctors.map((doctor) => (
                   <div
                     key={doctor.id}
                     onClick={() => setSelectedDoctor(doctor)}
@@ -274,7 +287,8 @@ export function EnhancedAppointmentScheduler({ onClose, onAppointmentBooked, pat
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              )}
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setStep(1)}
