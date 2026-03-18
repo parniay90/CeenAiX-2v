@@ -94,7 +94,7 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
           <img
             src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
             alt="CeenAiX Logo"
-            style={{ height: sidebarOpen ? 48 : 32, width: 'auto', transition: 'height 0.3s' }}
+            style={{ height: sidebarOpen ? 80 : 50, width: 'auto', transition: 'height 0.3s' }}
           />
         </div>
 

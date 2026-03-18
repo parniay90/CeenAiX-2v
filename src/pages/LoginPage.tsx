@@ -36,7 +36,7 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
           <img
             src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
             alt="CeenAiX Logo"
-            className="h-56 w-auto"
+            className="h-72 w-auto"
           />
         </div>
 
