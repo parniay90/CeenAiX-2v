@@ -55,12 +55,11 @@ export default function LandingPage({
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl flex items-center justify-center">
-              <Heart className="w-6 h-6 text-white" fill="white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">
-              CeenAiX
-            </span>
+            <img
+              src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
+              alt="CeenAiX Logo"
+              className="h-12 w-auto"
+            />
           </motion.div>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -294,10 +293,11 @@ export default function LandingPage({
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-white" fill="white" />
-                </div>
-                <span className="text-xl font-bold">CeenAiX</span>
+                <img
+                  src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
+                  alt="CeenAiX Logo"
+                  className="h-16 w-auto"
+                />
               </div>
               <p className="text-slate-400 text-sm">
                 Modern healthcare platform designed for the digital age

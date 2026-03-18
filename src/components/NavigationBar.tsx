@@ -41,7 +41,7 @@ export default function NavigationBar({
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <img
-                src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+                src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
                 alt="CeenAiX Logo"
                 className="h-24 w-auto"
               />

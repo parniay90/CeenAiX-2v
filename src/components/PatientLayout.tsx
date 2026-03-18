@@ -91,14 +91,11 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
       >
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-          <div style={{ width: 32, height: 32, background: 'white', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#0D7377', fontSize: 16 }}>
-            C
-          </div>
-          {sidebarOpen && (
-            <span style={{ fontSize: 16, fontWeight: 700, color: 'white', fontFamily: 'Syne, sans-serif' }}>
-              CeenAiX
-            </span>
-          )}
+          <img
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
+            alt="CeenAiX Logo"
+            style={{ height: sidebarOpen ? 48 : 32, width: 'auto', transition: 'height 0.3s' }}
+          />
         </div>
 
         {/* Nav items */}

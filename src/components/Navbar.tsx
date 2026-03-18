@@ -26,7 +26,7 @@ export function Navbar({ onNavigate, currentPage }: NavbarProps) {
         <div className="flex justify-between items-center h-32">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('landing')}>
             <img
-              src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+              src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
               alt="CeenAiX Logo"
               className="h-28 w-auto"
             />

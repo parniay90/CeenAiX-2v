@@ -11,7 +11,7 @@ export function Footer() {
           <div className="col-span-1">
             <div className="mb-4">
               <img
-                src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+                src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy.png"
                 alt="CeenAiX Logo"
                 className="h-32 w-auto"
               />
