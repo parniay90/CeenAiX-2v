@@ -3,7 +3,7 @@ import { useUserProfile } from "../contexts/UserProfileContext";
 import { UserAvatar } from "../components/UserAvatar";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
-import { AppointmentScheduler } from "../components/AppointmentScheduler";
+import { EnhancedAppointmentScheduler } from "../components/EnhancedAppointmentScheduler";
 import { supabase } from "../lib/supabase";
 
 const NAV_ITEMS = [
@@ -267,10 +267,11 @@ export default function PatientDashboard() {
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px", marginBottom: 32 }}>
-          <div style={{ width: 36, height: 36, background: "linear-gradient(135deg, #0D7377, #14BDBD)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <span style={{ color: "white", fontWeight: 800, fontSize: 14, fontFamily: "Syne, sans-serif" }}>C</span>
-          </div>
-          {sidebarOpen && <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: 18, color: "#0D7377" }}>CeenAiX</span>}
+          <img
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy copy copy.png"
+            alt="CeenAiX Logo"
+            style={{ height: sidebarOpen ? 40 : 36, width: "auto", objectFit: "contain" }}
+          />
         </div>
 
         {/* Nav Items */}
@@ -1116,7 +1117,7 @@ export default function PatientDashboard() {
 
       {/* Appointment Scheduler */}
       {showScheduler && (
-        <AppointmentScheduler
+        <EnhancedAppointmentScheduler
           onClose={() => setShowScheduler(false)}
           onAppointmentBooked={handleAppointmentBooked}
           patientId={profile.id}

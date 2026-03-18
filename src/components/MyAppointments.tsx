@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { AppointmentScheduler } from './AppointmentScheduler';
+import { EnhancedAppointmentScheduler } from './EnhancedAppointmentScheduler';
 
 export function MyAppointments() {
   const { user } = useAuth();
@@ -295,7 +295,7 @@ export function MyAppointments() {
       )}
 
       {showScheduler && user && (
-        <AppointmentScheduler
+        <EnhancedAppointmentScheduler
           onClose={() => setShowScheduler(false)}
           onAppointmentBooked={() => {
             setShowScheduler(false);
