@@ -1,56 +1,62 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell, X, CheckCircle, Calendar, FileText, MessageCircle, TestTube } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Notification {
   id: string;
-  type: 'appointment' | 'message' | 'lab' | 'prescription' | 'general';
+  type: string;
   title: string;
   message: string;
-  time: string;
-  read: boolean;
+  created_at: string;
+  is_read: boolean;
+  related_id?: string;
 }
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    type: 'appointment',
-    title: 'Appointment Reminder',
-    message: 'Your appointment with Dr. Layla Al Mansoori is tomorrow at 11:00 AM',
-    time: '2 hours ago',
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'lab',
-    title: 'Lab Results Available',
-    message: 'Your blood test results are now available to view',
-    time: '5 hours ago',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'message',
-    title: 'New Message',
-    message: 'Dr. Rami Khalil sent you a message',
-    time: '1 day ago',
-    read: true,
-  },
-  {
-    id: '4',
-    type: 'prescription',
-    title: 'Prescription Ready',
-    message: 'Your prescription is ready for pickup at HealthFirst Pharmacy',
-    time: '2 days ago',
-    read: true,
-  },
-];
 
 export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+
+      const channel = supabase
+        .channel('notifications')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        }, () => {
+          fetchNotifications();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (data) {
+      setNotifications(data);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -68,35 +74,49 @@ export function NotificationDropdown() {
     };
   }, [isOpen]);
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id);
+
     setNotifications(prev =>
       prev.map(notif =>
-        notif.id === id ? { ...notif, read: true } : notif
+        notif.id === id ? { ...notif, is_read: true } : notif
       )
     );
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
+  const markAllAsRead = async () => {
+    if (!user) return;
+
+    await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+
+    setNotifications(prev => prev.map(notif => ({ ...notif, is_read: true })));
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+    return date.toLocaleDateString();
   };
 
-  const getIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'appointment':
-        return <Calendar className="w-5 h-5" />;
-      case 'lab':
-        return <TestTube className="w-5 h-5" />;
-      case 'message':
-        return <MessageCircle className="w-5 h-5" />;
-      case 'prescription':
-        return <FileText className="w-5 h-5" />;
-      default:
-        return <Bell className="w-5 h-5" />;
-    }
+  const getIcon = (type: string) => {
+    if (type.includes('appointment')) return <Calendar className="w-5 h-5" />;
+    if (type.includes('lab')) return <TestTube className="w-5 h-5" />;
+    if (type.includes('message')) return <MessageCircle className="w-5 h-5" />;
+    if (type.includes('prescription')) return <FileText className="w-5 h-5" />;
+    return <Bell className="w-5 h-5" />;
   };
 
   return (
@@ -138,12 +158,12 @@ export function NotificationDropdown() {
                 <div
                   key={notification.id}
                   className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                    !notification.read ? 'bg-blue-50' : ''
+                    !notification.is_read ? 'bg-blue-50' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg ${
-                      !notification.read ? 'bg-[#0D7377] text-white' : 'bg-gray-100 text-gray-600'
+                      !notification.is_read ? 'bg-[#0D7377] text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {getIcon(notification.type)}
                     </div>
@@ -152,19 +172,13 @@ export function NotificationDropdown() {
                         <h4 className="text-sm font-semibold text-gray-900">
                           {notification.title}
                         </h4>
-                        <button
-                          onClick={() => deleteNotification(notification.id)}
-                          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
                       </div>
                       <p className="text-sm text-gray-600 mt-1">
                         {notification.message}
                       </p>
                       <div className="flex items-center justify-between mt-2">
-                        <p className="text-xs text-gray-500">{notification.time}</p>
-                        {!notification.read && (
+                        <p className="text-xs text-gray-500">{getTimeAgo(notification.created_at)}</p>
+                        {!notification.is_read && (
                           <button
                             onClick={() => markAsRead(notification.id)}
                             className="text-xs text-[#0D7377] hover:text-[#0a5c5f] font-medium flex items-center gap-1"

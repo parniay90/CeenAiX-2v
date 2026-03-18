@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Building2, FileText, X } from 'lucide-react';
+import { Calendar, Clock, User, Building2, FileText, X, CheckCircle, Download, CalendarPlus } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Doctor {
@@ -132,6 +132,70 @@ export function AppointmentScheduler({ onClose, onAppointmentBooked, patientId }
     return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
   };
 
+  const generateCalendarFile = () => {
+    if (!selectedDoctor || !selectedDate || !selectedTime) return '';
+
+    const startDateTime = new Date(`${selectedDate}T${selectedTime}`);
+    const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
+
+    const formatDateForCal = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//CeenAiX//Appointment//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDateForCal(startDateTime)}`,
+      `DTEND:${formatDateForCal(endDateTime)}`,
+      `SUMMARY:Appointment with ${selectedDoctor.full_name}`,
+      `DESCRIPTION:${reason}\\nSpecialty: ${selectedDoctor.specialty}`,
+      `LOCATION:CeenAiX Medical Center`,
+      'STATUS:CONFIRMED',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT1H',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:Appointment with ${selectedDoctor.full_name} in 1 hour`,
+      'END:VALARM',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT24H',
+      'ACTION:DISPLAY',
+      `DESCRIPTION:Appointment with ${selectedDoctor.full_name} tomorrow`,
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    return icsContent;
+  };
+
+  const downloadCalendarFile = () => {
+    const icsContent = generateCalendarFile();
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `appointment-${selectedDate}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const addToGoogleCalendar = () => {
+    if (!selectedDoctor || !selectedDate || !selectedTime) return;
+
+    const startDateTime = new Date(`${selectedDate}T${selectedTime}`);
+    const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
+
+    const formatGoogleDate = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Appointment with ${selectedDoctor.full_name}`)}&dates=${formatGoogleDate(startDateTime)}/${formatGoogleDate(endDateTime)}&details=${encodeURIComponent(`Reason: ${reason}\nSpecialty: ${selectedDoctor.specialty}`)}&location=${encodeURIComponent('CeenAiX Medical Center')}`;
+
+    window.open(googleCalUrl, '_blank');
+  };
+
   const handleBookAppointment = async () => {
     if (!selectedDoctor || !selectedDate || !selectedTime || !reason) {
       alert('Please fill in all fields');
@@ -160,8 +224,7 @@ export function AppointmentScheduler({ onClose, onAppointmentBooked, patientId }
       alert('Failed to book appointment. Please try again.');
       console.error(error);
     } else {
-      onAppointmentBooked();
-      onClose();
+      setStep(4);
     }
   };
 
@@ -227,7 +290,7 @@ export function AppointmentScheduler({ onClose, onAppointmentBooked, patientId }
 
         <div style={{ padding: 32 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
               <div
                 key={s}
                 style={{
@@ -529,6 +592,152 @@ export function AppointmentScheduler({ onClose, onAppointmentBooked, patientId }
                   {loading ? 'Booking...' : 'Confirm Appointment'}
                 </button>
               </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px'
+              }}>
+                <CheckCircle size={48} color="white" />
+              </div>
+
+              <h3 style={{ fontSize: 24, fontWeight: 700, color: '#1F2937', marginBottom: 12 }}>
+                Appointment Confirmed!
+              </h3>
+              <p style={{ fontSize: 16, color: '#6B7280', marginBottom: 32 }}>
+                Your appointment has been successfully booked
+              </p>
+
+              <div style={{
+                padding: 20,
+                background: '#F9FAFB',
+                borderRadius: 12,
+                marginBottom: 24,
+                border: '1px solid #E5E7EB',
+                textAlign: 'left'
+              }}>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, color: '#6B7280' }}>Doctor:</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    {selectedDoctor?.full_name} - {selectedDoctor?.specialty}
+                  </div>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, color: '#6B7280' }}>Date & Time:</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {formatTime(selectedTime)}
+                  </div>
+                </div>
+                <div>
+                  <span style={{ fontSize: 13, color: '#6B7280' }}>Duration:</span>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1F2937', marginTop: 4 }}>
+                    45 minutes
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 24 }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
+                  Add to your calendar:
+                </p>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={addToGoogleCalendar}
+                    style={{
+                      flex: 1,
+                      padding: '12px 16px',
+                      background: 'white',
+                      color: '#0D7377',
+                      border: '2px solid #0D7377',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#0D7377';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = '#0D7377';
+                    }}
+                  >
+                    <CalendarPlus size={18} />
+                    Google Calendar
+                  </button>
+                  <button
+                    onClick={downloadCalendarFile}
+                    style={{
+                      flex: 1,
+                      padding: '12px 16px',
+                      background: 'white',
+                      color: '#0D7377',
+                      border: '2px solid #0D7377',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#0D7377';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = '#0D7377';
+                    }}
+                  >
+                    <Download size={18} />
+                    Download (.ics)
+                  </button>
+                </div>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 8 }}>
+                  Download the .ics file to add to iPhone Calendar, Outlook, or any calendar app
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  onAppointmentBooked();
+                  onClose();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: '#0D7377',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#0a5c5f'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#0D7377'}
+              >
+                Done
+              </button>
             </div>
           )}
         </div>
