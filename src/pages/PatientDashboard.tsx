@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Home, Calendar, FileText, Pill, FlaskConical, MessageSquare, Sparkles, User,
   Clock, Video, MapPin, Phone, Mail, Bell, Search, Filter, Download, Upload,
@@ -6,6 +6,9 @@ import {
   Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip, CalendarPlus
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/NotificationDropdown';
+import { AppointmentScheduler } from '../components/AppointmentScheduler';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Dashboard', icon: Home },
@@ -175,10 +178,12 @@ const MESSAGES = [
 ];
 
 export default function PatientDashboard() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [apptFilter, setApptFilter] = useState('upcoming');
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [refreshAppointments, setRefreshAppointments] = useState(0);
   const [aiMessages, setAiMessages] = useState([
     { role: 'ai', text: 'Hello! I\'m your CeenAiX AI Health Assistant. How can I help you today?' }
   ]);
@@ -200,7 +205,7 @@ export default function PatientDashboard() {
       case 'home':
         return <DashboardHome onBookAppointment={() => setShowBookingModal(true)} />;
       case 'appointments':
-        return <AppointmentsTab filter={apptFilter} setFilter={setApptFilter} appointments={filteredAppointments} onBookAppointment={() => setShowBookingModal(true)} />;
+        return <AppointmentsTab filter={apptFilter} setFilter={setApptFilter} appointments={filteredAppointments} onBookAppointment={() => setShowBookingModal(true)} refreshTrigger={refreshAppointments} />;
       case 'records':
         return <RecordsTab />;
       case 'prescriptions':
@@ -294,7 +299,16 @@ export default function PatientDashboard() {
         </main>
       </div>
 
-      {showBookingModal && <BookingModal onClose={() => setShowBookingModal(false)} />}
+      {showBookingModal && user && (
+        <AppointmentScheduler
+          onClose={() => setShowBookingModal(false)}
+          onAppointmentBooked={() => {
+            setShowBookingModal(false);
+            setRefreshAppointments(prev => prev + 1);
+          }}
+          patientId={user.id}
+        />
+      )}
     </div>
   );
 }
@@ -446,7 +460,103 @@ function DashboardHome({ onBookAppointment }: { onBookAppointment: () => void })
   );
 }
 
-function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment }: any) {
+function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment, refreshTrigger }: any) {
+  const { user } = useAuth();
+  const [realAppointments, setRealAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user, filter, refreshTrigger]);
+
+  const fetchAppointments = async () => {
+    if (!user) return;
+
+    setLoading(true);
+    const statusFilter = filter === 'upcoming' ? 'scheduled' : 'completed';
+
+    const { data: appointmentsData } = await supabase
+      .from('appointments')
+      .select(`
+        *,
+        doctor:doctors!appointments_doctor_id_fkey (
+          id,
+          specialty
+        )
+      `)
+      .eq('patient_id', user.id)
+      .eq('status', statusFilter)
+      .order('appointment_date', { ascending: filter === 'upcoming' });
+
+    if (appointmentsData) {
+      const appointmentsWithDoctorNames = await Promise.all(
+        appointmentsData.map(async (apt) => {
+          const { data: doctorProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', apt.doctor_id)
+            .single();
+
+          return {
+            ...apt,
+            doctorName: doctorProfile?.full_name || 'Unknown Doctor',
+            specialty: apt.doctor?.specialty || 'General'
+          };
+        })
+      );
+
+      setRealAppointments(appointmentsWithDoctorNames);
+    }
+
+    setLoading(false);
+  };
+
+  const handleToggleNotifications = async (appointmentId: string, enabled: boolean) => {
+    await supabase
+      .from('appointments')
+      .update({ notifications_enabled: enabled })
+      .eq('id', appointmentId);
+  };
+
+  const handleReschedule = (appointmentId: string) => {
+    setRescheduleAppointmentId(appointmentId);
+    setShowReschedule(true);
+  };
+
+  const handleCancelAppointment = async (appointmentId: string) => {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+      await supabase
+        .from('appointments')
+        .update({ status: 'cancelled' })
+        .eq('id', appointmentId);
+
+      fetchAppointments();
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) return 'Today';
+    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -487,60 +597,147 @@ function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment }:
       </div>
 
       <div className="grid gap-6">
-        {appointments.map((apt: any) => (
-          <div key={apt.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl">
-                  {apt.doctor.charAt(4)}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{apt.doctor}</h3>
-                  <p className="text-teal-700 font-semibold mb-2">{apt.specialty}</p>
-                  <p className="text-sm text-gray-600">{apt.clinic}</p>
-                </div>
-              </div>
-              <span className={`px-4 py-2 rounded-full text-xs font-bold ${
-                apt.type === 'Teleconsultation'
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-green-100 text-green-700'
-              }`}>
-                {apt.type}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4 text-teal-600" />
-                <span>{apt.date}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Clock className="w-4 h-4 text-teal-600" />
-                <span>{apt.time}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className="w-4 h-4 text-teal-600" />
-                <span>{apt.location}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              {apt.type === 'Teleconsultation' && (
-                <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all">
-                  <Video className="w-5 h-5" />
-                  Join Video Call
-                </button>
-              )}
-              <button className="flex-1 px-4 py-3 border-2 border-teal-600 text-teal-700 font-semibold rounded-xl hover:bg-teal-50 transition-all">
-                View Details
-              </button>
-              <button className="px-4 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all">
-                Reschedule
-              </button>
-            </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading appointments...</p>
           </div>
-        ))}
+        ) : realAppointments.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
+            <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600">No {filter} appointments</p>
+            <button
+              onClick={onBookAppointment}
+              className="mt-4 px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+            >
+              Book Your First Appointment
+            </button>
+          </div>
+        ) : (
+          realAppointments.map((apt) => (
+            <div key={apt.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl">
+                    {apt.doctorName.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">{apt.doctorName}</h3>
+                    <p className="text-teal-700 font-semibold mb-2">{apt.specialty}</p>
+                    {apt.reason && <p className="text-sm text-gray-600">{apt.reason}</p>}
+                  </div>
+                </div>
+                <span className={`px-4 py-2 rounded-full text-xs font-bold ${
+                  apt.type === 'teleconsultation'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-green-100 text-green-700'
+                }`}>
+                  {apt.type === 'teleconsultation' ? 'Teleconsultation' : 'In-Clinic'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="w-4 h-4 text-teal-600" />
+                  <span>{formatDate(apt.appointment_date)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Clock className="w-4 h-4 text-teal-600" />
+                  <span>{formatTime(apt.appointment_time)}</span>
+                </div>
+              </div>
+
+              {filter === 'upcoming' && (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleReschedule(apt.id)}
+                      className="flex-1 px-4 py-3 border-2 border-teal-600 text-teal-700 font-semibold rounded-xl hover:bg-teal-50 transition-all"
+                    >
+                      Reschedule
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => handleToggleNotifications(apt.id, !apt.notifications_enabled)}
+                      className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all text-sm font-medium ${
+                        apt.notifications_enabled
+                          ? 'bg-[#0D7377] text-white hover:bg-[#0a5c5f]'
+                          : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {apt.notifications_enabled ? (
+                        <>
+                          <Bell className="w-4 h-4" />
+                          <span className="hidden sm:inline">On</span>
+                        </>
+                      ) : (
+                        <>
+                          <Bell className="w-4 h-4" />
+                          <span className="hidden sm:inline">Off</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        const startDateTime = new Date(`${apt.appointment_date}T${apt.appointment_time}`);
+                        const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
+                        const formatGoogleDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                        const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Appointment with ${apt.doctorName}`)}&dates=${formatGoogleDate(startDateTime)}/${formatGoogleDate(endDateTime)}&details=${encodeURIComponent(`Reason: ${apt.reason || 'Consultation'}\nSpecialty: ${apt.specialty}`)}&location=${encodeURIComponent('CeenAiX Medical Center')}`;
+                        window.open(googleCalUrl, '_blank');
+                      }}
+                      className="flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                    >
+                      <CalendarPlus className="w-4 h-4" />
+                      <span className="hidden sm:inline">Google</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        const startDateTime = new Date(`${apt.appointment_date}T${apt.appointment_time}`);
+                        const endDateTime = new Date(startDateTime.getTime() + 45 * 60000);
+                        const formatDateForCal = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                        const icsContent = [
+                          'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CeenAiX//Appointment//EN', 'BEGIN:VEVENT',
+                          `DTSTART:${formatDateForCal(startDateTime)}`, `DTEND:${formatDateForCal(endDateTime)}`,
+                          `SUMMARY:Appointment with ${apt.doctorName}`, `DESCRIPTION:${apt.reason || 'Consultation'}\\nSpecialty: ${apt.specialty}`,
+                          `LOCATION:CeenAiX Medical Center`, 'STATUS:CONFIRMED',
+                          'BEGIN:VALARM', 'TRIGGER:-PT1H', 'ACTION:DISPLAY', `DESCRIPTION:Appointment with ${apt.doctorName} in 1 hour`, 'END:VALARM',
+                          'END:VEVENT', 'END:VCALENDAR'
+                        ].join('\r\n');
+                        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = `appointment-${apt.appointment_date}.ics`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span className="hidden sm:inline">.ics</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
+
+      {showReschedule && user && (
+        <AppointmentScheduler
+          onClose={() => setShowReschedule(false)}
+          onAppointmentBooked={() => {
+            setShowReschedule(false);
+            fetchAppointments();
+          }}
+          patientId={user.id}
+        />
+      )}
     </div>
   );
 }
