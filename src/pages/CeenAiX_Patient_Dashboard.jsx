@@ -3,6 +3,8 @@ import { useUserProfile } from "../contexts/UserProfileContext";
 import { UserAvatar } from "../components/UserAvatar";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
+import { AppointmentScheduler } from "../components/AppointmentScheduler";
+import { supabase } from "../lib/supabase";
 
 const NAV_ITEMS = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -67,6 +69,9 @@ export default function PatientDashboard() {
   const [showPrescriptionsModal, setShowPrescriptionsModal] = useState(false);
   const [showLabResultsModal, setShowLabResultsModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,6 +89,72 @@ export default function PatientDashboard() {
     };
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    if (active === "appointments") {
+      fetchAppointments();
+    }
+  }, [active]);
+
+  const fetchAppointments = async () => {
+    setLoadingAppointments(true);
+    const { data: patientsData } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('id', profile.id)
+      .single();
+
+    if (patientsData) {
+      const { data: appointmentsData } = await supabase
+        .from('appointments')
+        .select(`
+          id,
+          appointment_date,
+          appointment_time,
+          status,
+          type,
+          reason,
+          notes,
+          doctor_id,
+          duration_minutes,
+          created_at
+        `)
+        .eq('patient_id', patientsData.id)
+        .order('appointment_date', { ascending: true })
+        .order('appointment_time', { ascending: true });
+
+      if (appointmentsData) {
+        const doctorIds = [...new Set(appointmentsData.map(a => a.doctor_id))];
+        const { data: doctorsData } = await supabase
+          .from('doctors')
+          .select('id, specialty')
+          .in('id', doctorIds);
+
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', doctorIds);
+
+        const appointmentsWithDetails = appointmentsData.map(apt => {
+          const doctor = doctorsData?.find(d => d.id === apt.doctor_id);
+          const doctorProfile = profilesData?.find(p => p.id === apt.doctor_id);
+          return {
+            ...apt,
+            doctor: doctorProfile?.full_name || 'Unknown Doctor',
+            specialty: doctor?.specialty || 'General Practice',
+            avatar: doctorProfile?.full_name?.charAt(0) || 'D'
+          };
+        });
+
+        setAppointments(appointmentsWithDetails);
+      }
+    }
+    setLoadingAppointments(false);
+  };
+
+  const handleAppointmentBooked = () => {
+    fetchAppointments();
+  };
+
   const sendAiMessage = (text) => {
     const msg = text || aiInput;
     if (!msg.trim()) return;
@@ -95,9 +166,19 @@ export default function PatientDashboard() {
     setAiInput("");
   };
 
-  const filteredAppts = APPOINTMENTS.filter(a =>
-    apptTab === "upcoming" ? a.status === "upcoming" : a.status === "completed"
-  );
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const filteredAppts = appointments.filter(a => {
+    const apptDate = new Date(a.appointment_date);
+    apptDate.setHours(0, 0, 0, 0);
+
+    if (apptTab === "upcoming") {
+      return (apptDate >= today || (apptDate.getTime() === today.getTime())) && a.status === 'scheduled';
+    } else {
+      return apptDate < today || a.status === 'completed' || a.status === 'cancelled';
+    }
+  });
 
   const handleProfileChange = (field, value) => {
     updateProfile({ [field]: value });
@@ -394,37 +475,124 @@ export default function PatientDashboard() {
           {/* ── APPOINTMENTS ── */}
           {active === "appointments" && (
             <div>
-              <div className="section-title">My Appointments</div>
-              <div className="section-sub">Manage your upcoming and past consultations</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+                <div>
+                  <div className="section-title">My Appointments</div>
+                  <div className="section-sub">Manage your upcoming and past consultations</div>
+                </div>
+                <button
+                  className="btn-primary"
+                  onClick={() => setShowScheduler(true)}
+                  style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}
+                >
+                  <span style={{ fontSize: 16 }}>+</span> Schedule New
+                </button>
+              </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-                <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>Upcoming ({APPOINTMENTS.filter(a => a.status === "upcoming").length})</button>
-                <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>Past ({APPOINTMENTS.filter(a => a.status === "completed").length})</button>
+                <button className={`tab-btn ${apptTab === "upcoming" ? "active" : "inactive"}`} onClick={() => setApptTab("upcoming")}>
+                  Upcoming ({appointments.filter(a => {
+                    const apptDate = new Date(a.appointment_date);
+                    apptDate.setHours(0, 0, 0, 0);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return (apptDate >= today || apptDate.getTime() === today.getTime()) && a.status === 'scheduled';
+                  }).length})
+                </button>
+                <button className={`tab-btn ${apptTab === "past" ? "active" : "inactive"}`} onClick={() => setApptTab("past")}>
+                  Past ({appointments.filter(a => {
+                    const apptDate = new Date(a.appointment_date);
+                    apptDate.setHours(0, 0, 0, 0);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return apptDate < today || a.status === 'completed' || a.status === 'cancelled';
+                  }).length})
+                </button>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {filteredAppts.map(a => (
-                  <div key={a.id} className="card" style={{ display: "flex", alignItems: "center", gap: 20, padding: "20px 24px" }}>
-                    <div className="avatar" style={{ width: 48, height: 48, fontSize: 18 }}>{a.avatar}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>{a.doctor}</div>
-                      <div style={{ fontSize: 13, color: "#64748B" }}>{a.specialty} · {a.clinic}</div>
-                      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-                        <span style={{ fontSize: 12.5, color: "#0D7377", fontWeight: 600 }}>📅 {a.date} at {a.time}</span>
-                        <span className={`badge ${a.type === "Teleconsultation" ? "badge-purple" : "badge-teal"}`}>{a.type}</span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      {a.status === "upcoming" ? (
-                        <>
-                          {a.type === "Teleconsultation" && <button className="btn-primary" style={{ fontSize: 12 }}>Join Call</button>}
-                          <button className="btn-outline" style={{ fontSize: 12 }}>Cancel</button>
-                        </>
-                      ) : (
-                        <span className="badge badge-green">✓ Completed</span>
-                      )}
-                    </div>
+              {loadingAppointments ? (
+                <div style={{ textAlign: "center", padding: 40, color: "#64748B" }}>
+                  Loading appointments...
+                </div>
+              ) : filteredAppts.length === 0 ? (
+                <div className="card" style={{ textAlign: "center", padding: 40 }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#1A1A2E", marginBottom: 8 }}>
+                    No {apptTab} appointments
                   </div>
-                ))}
-              </div>
+                  <div style={{ fontSize: 14, color: "#64748B", marginBottom: 20 }}>
+                    {apptTab === "upcoming"
+                      ? "Schedule your first appointment with a doctor"
+                      : "You don't have any past appointments yet"}
+                  </div>
+                  {apptTab === "upcoming" && (
+                    <button className="btn-primary" onClick={() => setShowScheduler(true)}>
+                      Schedule Appointment
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {filteredAppts.map(a => {
+                    const formatDate = (dateStr) => {
+                      const date = new Date(dateStr);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const apptDate = new Date(date);
+                      apptDate.setHours(0, 0, 0, 0);
+
+                      if (apptDate.getTime() === today.getTime()) return "Today";
+
+                      const tomorrow = new Date(today);
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      if (apptDate.getTime() === tomorrow.getTime()) return "Tomorrow";
+
+                      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    };
+
+                    const formatTime = (timeStr) => {
+                      const [hours, minutes] = timeStr.split(':').map(Number);
+                      const ampm = hours >= 12 ? 'PM' : 'AM';
+                      const displayHours = hours % 12 || 12;
+                      return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+                    };
+
+                    return (
+                      <div key={a.id} className="card" style={{ display: "flex", alignItems: "center", gap: 20, padding: "20px 24px" }}>
+                        <div className="avatar" style={{ width: 48, height: 48, fontSize: 18 }}>{a.avatar}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>{a.doctor}</div>
+                          <div style={{ fontSize: 13, color: "#64748B", marginBottom: 4 }}>{a.specialty}</div>
+                          {a.reason && (
+                            <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 6, fontStyle: "italic" }}>
+                              Reason: {a.reason}
+                            </div>
+                          )}
+                          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                            <span style={{ fontSize: 12.5, color: "#0D7377", fontWeight: 600 }}>
+                              📅 {formatDate(a.appointment_date)} at {formatTime(a.appointment_time)}
+                            </span>
+                            <span className={`badge ${a.type === "teleconsultation" ? "badge-purple" : "badge-teal"}`}>
+                              {a.type === "teleconsultation" ? "Teleconsultation" : "In-Clinic"}
+                            </span>
+                            <span className="badge badge-amber">{a.duration_minutes || 45} min</span>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {a.status === "scheduled" && apptTab === "upcoming" ? (
+                            <>
+                              {a.type === "teleconsultation" && <button className="btn-primary" style={{ fontSize: 12 }}>Join Call</button>}
+                              <button className="btn-outline" style={{ fontSize: 12 }}>Reschedule</button>
+                            </>
+                          ) : a.status === "completed" ? (
+                            <span className="badge badge-green">✓ Completed</span>
+                          ) : a.status === "cancelled" ? (
+                            <span className="badge badge-red">Cancelled</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -944,6 +1112,15 @@ export default function PatientDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Appointment Scheduler */}
+      {showScheduler && (
+        <AppointmentScheduler
+          onClose={() => setShowScheduler(false)}
+          onAppointmentBooked={handleAppointmentBooked}
+          patientId={profile.id}
+        />
       )}
     </div>
   );
