@@ -8,6 +8,7 @@ import {
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { AppointmentScheduler } from '../components/AppointmentScheduler';
 import { MyAppointments } from '../components/MyAppointments';
+import { HealthRecordModal } from '../components/HealthRecordModal';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -744,46 +745,166 @@ function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment, r
 }
 
 function RecordsTab() {
+  const { user } = useAuth();
+  const [records, setRecords] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const [filterType, setFilterType] = useState<string>('all');
+
+  useEffect(() => {
+    if (user) {
+      fetchHealthRecords();
+    }
+  }, [user]);
+
+  const fetchHealthRecords = async () => {
+    if (!user) return;
+
+    setLoading(true);
+
+    const { data: patientData } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (patientData) {
+      const { data: recordsData, error } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('patient_id', patientData.id)
+        .order('recorded_date', { ascending: false });
+
+      if (recordsData && !error) {
+        setRecords(recordsData);
+      }
+    }
+
+    setLoading(false);
+  };
+
+  const getRecordIcon = (type: string) => {
+    switch (type) {
+      case 'medical_report':
+        return { icon: FileText, color: 'bg-blue-100 text-blue-600' };
+      case 'lab_report':
+        return { icon: FlaskConical, color: 'bg-green-100 text-green-600' };
+      case 'imaging':
+        return { icon: Activity, color: 'bg-purple-100 text-purple-600' };
+      case 'prescription':
+        return { icon: Pill, color: 'bg-amber-100 text-amber-600' };
+      default:
+        return { icon: FileText, color: 'bg-teal-100 text-teal-600' };
+    }
+  };
+
+  const recordTypes = [
+    { value: 'all', label: 'All Records' },
+    { value: 'medical_report', label: 'Medical Reports' },
+    { value: 'lab_report', label: 'Lab Reports' },
+    { value: 'imaging', label: 'Imaging' },
+    { value: 'prescription', label: 'Prescriptions' },
+    { value: 'consultation_notes', label: 'Consultation Notes' },
+  ];
+
+  const filteredRecords = filterType === 'all'
+    ? records
+    : records.filter(r => r.record_type === filterType);
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Health Records</h2>
-          <p className="text-gray-600">Your medical documents and reports</p>
+    <>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Health Records</h2>
+            <p className="text-gray-600">Your medical documents and reports</p>
+          </div>
+          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg transition-all">
+            <Upload className="w-5 h-5" />
+            Upload Record
+          </button>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg transition-all">
-          <Upload className="w-5 h-5" />
-          Upload Record
-        </button>
+
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {recordTypes.map((type) => (
+            <button
+              key={type.value}
+              onClick={() => setFilterType(type.value)}
+              className={`px-5 py-2.5 rounded-lg font-semibold whitespace-nowrap transition-all ${
+                filterType === type.value
+                  ? 'bg-teal-600 text-white shadow-lg'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border-2 border-gray-200'
+              }`}
+            >
+              {type.label}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent mb-4"></div>
+            <p className="text-gray-500">Loading health records...</p>
+          </div>
+        ) : filteredRecords.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg">
+            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 mb-2">No health records found</p>
+            <p className="text-sm text-gray-500">Upload your first health record to get started</p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredRecords.map(record => {
+              const { icon: Icon, color } = getRecordIcon(record.record_type);
+              return (
+                <div key={record.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className={`p-3 ${color} rounded-xl flex-shrink-0`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-gray-900 truncate">{record.title}</h3>
+                        <p className="text-sm text-gray-600 mt-0.5">{record.provider_name || 'Healthcare Provider'}</p>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(record.recorded_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                          <span className="px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full font-semibold">
+                            {record.record_type.replace('_', ' ').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-4 flex-shrink-0">
+                      <button
+                        onClick={() => setSelectedRecord(record)}
+                        className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-teal-600/30 group-hover:shadow-xl"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                  {record.description && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <p className="text-sm text-gray-600 line-clamp-2">{record.description}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="grid gap-4">
-        {HEALTH_RECORDS.map(record => (
-          <div key={record.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-teal-100 rounded-xl">
-                  <FileText className="w-6 h-6 text-teal-600" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900">{record.title}</h3>
-                  <p className="text-sm text-gray-600">{record.doctor}</p>
-                  <p className="text-xs text-gray-500 mt-1">{record.date} • {record.size}</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all">
-                  <Download className="w-5 h-5 text-gray-600" />
-                </button>
-                <button className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all">
-                  View
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      {selectedRecord && (
+        <HealthRecordModal
+          record={selectedRecord}
+          onClose={() => setSelectedRecord(null)}
+        />
+      )}
+    </>
   );
 }
 
