@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { AppointmentScheduler } from '../components/AppointmentScheduler';
+import { MyAppointments } from '../components/MyAppointments';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -205,7 +206,7 @@ export default function PatientDashboard() {
       case 'home':
         return <DashboardHome onBookAppointment={() => setShowBookingModal(true)} />;
       case 'appointments':
-        return <AppointmentsTab filter={apptFilter} setFilter={setApptFilter} appointments={filteredAppointments} onBookAppointment={() => setShowBookingModal(true)} refreshTrigger={refreshAppointments} />;
+        return <MyAppointments />;
       case 'records':
         return <RecordsTab />;
       case 'prescriptions':
