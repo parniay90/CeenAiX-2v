@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PatientLayout } from '../components/PatientLayout';
+import { useNavigation } from '../Router';
 import {
   FileText,
   Calendar,
@@ -66,6 +67,7 @@ export default function LabTestsPage() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
   const { t } = useLanguage();
+  const { navigateToFindLabs } = useNavigation();
 
   const [testOrders, setTestOrders] = useState<TestOrder[]>([]);
   const [testResults, setTestResults] = useState<{ [key: string]: TestResult }>({});
@@ -347,7 +349,7 @@ export default function LabTestsPage() {
           {/* Quick Actions */}
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             <button
-              onClick={() => window.location.href = '/find-labs'}
+              onClick={() => navigateToFindLabs()}
               className="p-6 rounded-xl border-2 border-dashed transition-all hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20"
               style={{
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
@@ -369,9 +371,8 @@ export default function LabTestsPage() {
               </div>
             </button>
 
-            <button
-              onClick={() => window.location.href = '/doctors'}
-              className="p-6 rounded-xl border-2 border-dashed transition-all hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20"
+            <div
+              className="p-6 rounded-xl border-2 border-dashed"
               style={{
                 borderColor: isDarkMode ? '#334155' : '#E2E8F0',
                 background: isDarkMode ? '#1E293B' : 'white'
@@ -383,14 +384,14 @@ export default function LabTestsPage() {
                 </div>
                 <div className="text-left">
                   <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Request Test from Doctor
+                    Test Orders from Doctor
                   </h3>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Consult with a doctor for test orders
+                    Your doctor-ordered tests will appear below
                   </p>
                 </div>
               </div>
-            </button>
+            </div>
           </div>
 
           {/* Test Orders List */}

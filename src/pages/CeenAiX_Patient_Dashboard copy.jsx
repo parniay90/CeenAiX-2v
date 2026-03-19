@@ -53,7 +53,7 @@ const AI_RESPONSES = {
 
 export default function PatientDashboard({ onNavigateHome }) {
   const { profile, updateProfile, updateAvatar } = useUserProfile();
-  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology } = useNavigation();
+  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology, navigateToLabTests, navigateToFindLabs } = useNavigation();
   const [active, setActive] = useState("home");
   const [apptTab, setApptTab] = useState("upcoming");
   const [aiMessages, setAiMessages] = useState([
@@ -791,7 +791,7 @@ export default function PatientDashboard({ onNavigateHome }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
                 <div
                   className="card"
-                  onClick={() => window.location.href = '/lab-tests'}
+                  onClick={() => navigateToLabTests()}
                   style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
@@ -807,7 +807,7 @@ export default function PatientDashboard({ onNavigateHome }) {
 
                 <div
                   className="card"
-                  onClick={() => window.location.href = '/find-labs'}
+                  onClick={() => navigateToFindLabs()}
                   style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
@@ -829,7 +829,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   ))}
                 </div>
                 {LAB_RESULTS.map((r, i) => (
-                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => window.location.href = '/lab-tests'}>
+                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => navigateToLabTests()}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1A1A2E" }}>{r.test}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.lab}</div>
                     <div style={{ fontSize: 13, color: "#64748B" }}>{r.date}</div>
