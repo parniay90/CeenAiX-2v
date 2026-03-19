@@ -53,7 +53,7 @@ const AI_RESPONSES = {
 
 export default function PatientDashboard({ onNavigateHome }) {
   const { profile, updateProfile, updateAvatar } = useUserProfile();
-  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology, navigateToLabTests, navigateToFindLabs } = useNavigation();
+  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology, navigateToLabTests, navigateToFindLabs, navigateToMessages } = useNavigation();
   const [active, setActive] = useState("home");
   const [apptTab, setApptTab] = useState("upcoming");
   const [aiMessages, setAiMessages] = useState([
@@ -294,6 +294,8 @@ export default function PatientDashboard({ onNavigateHome }) {
               onClick={() => {
                 if (item.id === "labs") {
                   navigateToLabTests();
+                } else if (item.id === "messages") {
+                  navigateToMessages();
                 } else {
                   setActive(item.id);
                 }
@@ -420,7 +422,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   { label: "Upcoming Appointments", value: appointments.filter(a => a.status === "upcoming").length.toString(), icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
                   { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
                   { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => navigateToLabTests() },
-                  { label: "Unread Messages", value: "1", icon: "💬", color: "#E67E22", onClick: () => setActive("messages") },
+                  { label: "Unread Messages", value: "8", icon: "💬", color: "#E67E22", onClick: () => navigateToMessages() },
                 ].map((s, i) => (
                   <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
