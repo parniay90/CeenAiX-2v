@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { MyAppointments } from '../components/MyAppointments';
 import { HealthRecordModal } from '../components/HealthRecordModal';
+import { EmergencyButton } from '../components/EmergencyButton';
 
 export default function CeenAiXPatientDashboard({ onNavigateHome }) {
   const { user, signOut } = useAuth();
@@ -462,6 +463,8 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
           onClose={() => setSelectedRecord(null)}
         />
       )}
+
+      <EmergencyButton />
     </div>
   );
 }

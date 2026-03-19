@@ -5,6 +5,7 @@ import { useNavigation } from '../Router';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { BackButton } from './BackButton';
+import { EmergencyButton } from './EmergencyButton';
 
 interface NavItem {
   id: string;
@@ -408,6 +409,9 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
         {/* CONTENT AREA */}
         <div style={{ flex: 1, overflowY: 'auto' }}>{children}</div>
       </div>
+
+      {/* EMERGENCY BUTTON */}
+      <EmergencyButton />
     </div>
   );
 }

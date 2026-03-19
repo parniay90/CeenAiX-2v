@@ -3,6 +3,7 @@ import { useUserProfile } from "../contexts/UserProfileContext";
 import { UserAvatar } from "../components/UserAvatar";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
+import { EmergencyButton } from "../components/EmergencyButton";
 
 const NAV_ITEMS = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -1758,6 +1759,8 @@ export default function PatientDashboard({ onNavigateHome }) {
           </div>
         </div>
       )}
+
+      <EmergencyButton />
     </div>
   );
 }

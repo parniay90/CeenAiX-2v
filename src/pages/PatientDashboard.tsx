@@ -3,7 +3,8 @@ import {
   Home, Calendar, FileText, Pill, FlaskConical, MessageSquare, Sparkles, User,
   Clock, Video, MapPin, Phone, Mail, Bell, Search, Filter, Download, Upload,
   Activity, Heart, TrendingUp, AlertCircle, Check, X, ChevronRight, Plus,
-  Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip, CalendarPlus
+  Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip, CalendarPlus,
+  Ambulance, PhoneCall
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { AppointmentScheduler } from '../components/AppointmentScheduler';
@@ -520,6 +521,55 @@ function DashboardHome({ onBookAppointment }: { onBookAppointment: () => void })
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">78</h3>
           <p className="text-sm text-gray-600">Health Score</p>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-6 shadow-xl border-2 border-red-400">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-3 bg-white/20 rounded-xl">
+            <Ambulance className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-white">Emergency Services</h3>
+            <p className="text-red-100 text-sm">Available 24/7 for urgent medical needs</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            onClick={() => window.location.href = 'tel:911'}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-2 border-white/40 rounded-xl p-4 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <PhoneCall className="w-6 h-6 text-white" />
+              <span className="text-lg font-bold text-white">911</span>
+            </div>
+            <p className="text-white text-sm font-medium">Emergency Medical</p>
+            <p className="text-red-100 text-xs mt-1">Life-threatening situations</p>
+          </button>
+
+          <button
+            onClick={() => window.location.href = 'tel:1-800-222-1222'}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-2 border-white/40 rounded-xl p-4 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <AlertTriangle className="w-6 h-6 text-white" />
+              <span className="text-sm font-bold text-white">Poison Control</span>
+            </div>
+            <p className="text-white text-sm font-medium">1-800-222-1222</p>
+            <p className="text-red-100 text-xs mt-1">Poisoning emergencies</p>
+          </button>
+
+          <button
+            onClick={() => window.location.href = 'tel:988'}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-2 border-white/40 rounded-xl p-4 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <Heart className="w-6 h-6 text-white" />
+              <span className="text-lg font-bold text-white">988</span>
+            </div>
+            <p className="text-white text-sm font-medium">Mental Health Crisis</p>
+            <p className="text-red-100 text-xs mt-1">24/7 counseling support</p>
+          </button>
         </div>
       </div>
 

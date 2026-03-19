@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NotificationDropdown } from "../components/NotificationDropdown";
+import { EmergencyButton } from "../components/EmergencyButton";
 
 const NAV = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -1044,6 +1045,8 @@ export default function DoctorDashboard({ onNavigateHome }) {
           </div>
         </div>
       )}
+
+      <EmergencyButton />
     </div>
   );
 }
