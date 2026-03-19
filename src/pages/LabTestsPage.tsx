@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { PatientLayout } from '../components/PatientLayout';
 import { useNavigation } from '../Router';
@@ -20,100 +18,204 @@ import {
   ArrowRight,
   AlertCircle,
   TrendingUp,
-  Filter,
-  X
 } from 'lucide-react';
 
-interface TestOrder {
-  id: string;
-  test_type_id: string;
-  order_date: string;
-  scheduled_date: string;
-  status: string;
-  priority: string;
-  notes: string;
-  test_types: {
-    name: string;
-    category: string;
-    description: string;
-  };
-  lab_facilities: {
-    name: string;
-    address: string;
-    city: string;
-  } | null;
-}
+const mockTestOrders = [
+  {
+    id: '1',
+    test_type_id: '1',
+    order_date: '2026-03-10T10:00:00',
+    scheduled_date: '2026-03-12T10:00:00',
+    status: 'Completed',
+    priority: 'Normal',
+    notes: '',
+    test_types: {
+      name: 'Complete Blood Count (CBC)',
+      category: 'Hematology',
+      description: 'Comprehensive blood panel measuring red and white blood cells, platelets, and hemoglobin'
+    },
+    lab_facilities: {
+      name: 'Quest Diagnostics',
+      address: '123 Medical Center Dr',
+      city: 'New York'
+    }
+  },
+  {
+    id: '2',
+    test_type_id: '2',
+    order_date: '2026-03-08T14:00:00',
+    scheduled_date: '2026-03-10T14:00:00',
+    status: 'Completed',
+    priority: 'Normal',
+    notes: '',
+    test_types: {
+      name: 'Lipid Panel',
+      category: 'Chemistry',
+      description: 'Cholesterol and triglycerides screening'
+    },
+    lab_facilities: {
+      name: 'LabCorp',
+      address: '456 Health Plaza',
+      city: 'New York'
+    }
+  },
+  {
+    id: '3',
+    test_type_id: '3',
+    order_date: '2026-03-15T09:00:00',
+    scheduled_date: '2026-03-18T09:00:00',
+    status: 'Processing',
+    priority: 'Normal',
+    notes: '',
+    test_types: {
+      name: 'Thyroid Function Test',
+      category: 'Endocrinology',
+      description: 'TSH, T3, and T4 levels'
+    },
+    lab_facilities: {
+      name: 'BioReference Laboratories',
+      address: '789 Medical Pkwy',
+      city: 'New York'
+    }
+  },
+  {
+    id: '4',
+    test_type_id: '4',
+    order_date: '2026-02-28T11:00:00',
+    scheduled_date: '2026-03-02T11:00:00',
+    status: 'Completed',
+    priority: 'Normal',
+    notes: '',
+    test_types: {
+      name: 'Vitamin D Test',
+      category: 'Chemistry',
+      description: 'Measures vitamin D levels in blood'
+    },
+    lab_facilities: {
+      name: 'Quest Diagnostics',
+      address: '123 Medical Center Dr',
+      city: 'New York'
+    }
+  }
+];
 
-interface TestResult {
-  id: string;
-  test_order_id: string;
-  result_date: string;
-  result_data: any;
-  doctor_interpretation: string;
-  doctor_recommendations: string;
-  follow_up_tests: string[];
-  status: string;
-  attachments: string[];
-}
+const mockTestResults: { [key: string]: any } = {
+  '1': {
+    id: 'r1',
+    test_order_id: '1',
+    result_date: '2026-03-13T10:00:00',
+    result_data: {
+      'White Blood Cells': {
+        value: 7.5,
+        unit: 'K/uL',
+        reference_range: '4.0-11.0',
+        status: 'Normal'
+      },
+      'Red Blood Cells': {
+        value: 4.8,
+        unit: 'M/uL',
+        reference_range: '4.2-5.9',
+        status: 'Normal'
+      },
+      'Hemoglobin': {
+        value: 14.2,
+        unit: 'g/dL',
+        reference_range: '12.0-16.0',
+        status: 'Normal'
+      },
+      'Hematocrit': {
+        value: 42.5,
+        unit: '%',
+        reference_range: '36.0-48.0',
+        status: 'Normal'
+      },
+      'Platelets': {
+        value: 245,
+        unit: 'K/uL',
+        reference_range: '150-400',
+        status: 'Normal'
+      }
+    },
+    doctor_interpretation: 'Your Complete Blood Count results are within normal ranges. All blood cell counts, including white blood cells, red blood cells, and platelets, are healthy and functioning properly. This indicates good overall health with no signs of anemia, infection, or blood disorders.',
+    doctor_recommendations: 'Continue maintaining your current healthy lifestyle. Ensure adequate hydration, balanced nutrition rich in iron and vitamins, and regular physical activity. Schedule routine follow-up testing in 6 months as part of your preventive care plan.',
+    follow_up_tests: [],
+    status: 'Final',
+    attachments: []
+  },
+  '2': {
+    id: 'r2',
+    test_order_id: '2',
+    result_date: '2026-03-11T14:00:00',
+    result_data: {
+      'Total Cholesterol': {
+        value: 195,
+        unit: 'mg/dL',
+        reference_range: '<200',
+        status: 'Normal'
+      },
+      'LDL Cholesterol': {
+        value: 115,
+        unit: 'mg/dL',
+        reference_range: '<100',
+        status: 'High'
+      },
+      'HDL Cholesterol': {
+        value: 58,
+        unit: 'mg/dL',
+        reference_range: '>40',
+        status: 'Normal'
+      },
+      'Triglycerides': {
+        value: 110,
+        unit: 'mg/dL',
+        reference_range: '<150',
+        status: 'Normal'
+      },
+      'VLDL Cholesterol': {
+        value: 22,
+        unit: 'mg/dL',
+        reference_range: '5-40',
+        status: 'Normal'
+      }
+    },
+    doctor_interpretation: 'Your lipid panel shows generally good results with total cholesterol and triglycerides in healthy ranges. However, your LDL (bad cholesterol) is slightly elevated at 115 mg/dL, which is above the optimal level of 100 mg/dL. Your HDL (good cholesterol) is at a healthy level.',
+    doctor_recommendations: 'To lower your LDL cholesterol, consider increasing dietary fiber intake, reducing saturated fats, and incorporating more omega-3 fatty acids. Regular aerobic exercise (30 minutes daily) can also help. We should recheck your lipid panel in 3 months to monitor progress. If levels remain elevated, we may discuss statin therapy.',
+    follow_up_tests: ['Lipid Panel'],
+    status: 'Final',
+    attachments: []
+  },
+  '4': {
+    id: 'r4',
+    test_order_id: '4',
+    result_date: '2026-03-03T11:00:00',
+    result_data: {
+      'Vitamin D, 25-Hydroxy': {
+        value: 28,
+        unit: 'ng/mL',
+        reference_range: '30-100',
+        status: 'Low'
+      }
+    },
+    doctor_interpretation: 'Your Vitamin D level is slightly below the optimal range at 28 ng/mL. Vitamin D insufficiency is common, especially in winter months or with limited sun exposure. Low vitamin D can affect bone health, immune function, and overall energy levels.',
+    doctor_recommendations: 'Start Vitamin D3 supplementation at 2000 IU daily. Increase sun exposure when possible (15-20 minutes daily). Include vitamin D-rich foods such as fatty fish, fortified dairy, and egg yolks in your diet. Recheck vitamin D levels in 8-12 weeks to ensure adequate response to supplementation.',
+    follow_up_tests: ['Vitamin D Test'],
+    status: 'Final',
+    attachments: []
+  }
+};
 
 export default function LabTestsPage() {
-  const { user } = useAuth();
   const { isDarkMode } = useTheme();
   const { navigateToFindLabs } = useNavigation();
 
-  const [testOrders, setTestOrders] = useState<TestOrder[]>([]);
-  const [testResults, setTestResults] = useState<{ [key: string]: TestResult }>({});
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [selectedTest, setSelectedTest] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchTestOrders();
-    }
-  }, [user]);
+  const testOrders = mockTestOrders;
+  const testResults = mockTestResults;
 
-  const fetchTestOrders = async () => {
-    try {
-      setLoading(true);
-      const { data: orders, error: ordersError } = await supabase
-        .from('lab_test_orders')
-        .select(`
-          *,
-          test_types (name, category, description),
-          lab_facilities (name, address, city)
-        `)
-        .eq('patient_id', user?.id)
-        .order('order_date', { ascending: false });
-
-      if (ordersError) throw ordersError;
-
-      setTestOrders(orders || []);
-
-      const resultsMap: { [key: string]: TestResult } = {};
-
-      for (const order of orders || []) {
-        const { data: result } = await supabase
-          .from('lab_test_results')
-          .select('*')
-          .eq('test_order_id', order.id)
-          .maybeSingle();
-
-        if (result) {
-          resultsMap[order.id] = result;
-        }
-      }
-
-      setTestResults(resultsMap);
-    } catch (error) {
-      console.error('Error fetching test orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownloadReport = (order: TestOrder) => {
+  const handleDownloadReport = (order: any) => {
     const result = testResults[order.id];
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -223,7 +325,7 @@ export default function LabTestsPage() {
     printWindow.print();
   };
 
-  const handleShare = async (order: TestOrder) => {
+  const handleShare = async (order: any) => {
     const shareText = `Lab Test Report: ${order.test_types.name}\nCategory: ${order.test_types.category}\nDate: ${new Date(order.order_date).toLocaleDateString()}`;
 
     if (navigator.share) {
@@ -255,19 +357,6 @@ export default function LabTestsPage() {
 
   const selectedTestData = selectedTest ? testOrders.find(t => t.id === selectedTest) : null;
   const selectedResult = selectedTest ? testResults[selectedTest] : null;
-
-  if (loading) {
-    return (
-      <PatientLayout>
-        <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className={`text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading your test results...</p>
-          </div>
-        </div>
-      </PatientLayout>
-    );
-  }
 
   return (
     <PatientLayout>
