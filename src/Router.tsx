@@ -3,6 +3,7 @@ import FindCarePage from './pages/FindCarePage';
 import CeenAiX from './pages/CeenAiX_Full_Platform';
 import PatientPortal from './pages/PatientPortal';
 import DoctorPortal from './pages/DoctorPortal';
+import AdminPortal from './pages/AdminPortal';
 import LandingPage from './pages/LandingPage';
 import PaymentSettings from './pages/PaymentSettings';
 import ChangePassword from './pages/ChangePassword';
@@ -15,7 +16,7 @@ import LabTestsPage from './pages/LabTestsPage';
 import FindLabsPage from './pages/FindLabsPage';
 import RadiologyPage from './pages/RadiologyPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -23,6 +24,7 @@ interface NavigationContextType {
   navigateToPlatform: () => void;
   navigateToPatientPortal: () => void;
   navigateToDoctorPortal: () => void;
+  navigateToAdminPortal: () => void;
   navigateToPaymentSettings: () => void;
   navigateToChangePassword: () => void;
   navigateToSettings: () => void;
@@ -54,6 +56,7 @@ export default function Router() {
     navigateToPlatform: () => setCurrentView('platform'),
     navigateToPatientPortal: () => setCurrentView('patient-portal'),
     navigateToDoctorPortal: () => setCurrentView('doctor-portal'),
+    navigateToAdminPortal: () => setCurrentView('admin-portal'),
     navigateToPaymentSettings: () => setCurrentView('payment-settings'),
     navigateToChangePassword: () => setCurrentView('change-password'),
     navigateToSettings: () => setCurrentView('settings'),
@@ -89,6 +92,8 @@ export default function Router() {
         return <PatientPortal onNavigateHome={() => setCurrentView('home')} />;
       case 'doctor-portal':
         return <DoctorPortal onNavigateHome={() => setCurrentView('home')} />;
+      case 'admin-portal':
+        return <AdminPortal onNavigateHome={() => setCurrentView('home')} />;
       case 'payment-settings':
         return <PaymentSettings />;
       case 'change-password':

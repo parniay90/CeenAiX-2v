@@ -16,6 +16,7 @@ import {
   Zap,
   Globe
 } from 'lucide-react';
+import { useNavigation } from '../Router';
 
 interface LandingPageProps {
   onNavigateToFindCare: () => void;
@@ -27,6 +28,7 @@ export default function LandingPage({
   onNavigateToPatientPortal,
   onNavigateToDoctorPortal
 }: LandingPageProps) {
+  const { navigateToAdminPortal } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showWaitlist, setShowWaitlist] = useState(false);
 
@@ -65,6 +67,14 @@ export default function LandingPage({
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</a>
             <a href="#how-it-works" className="text-slate-600 hover:text-slate-900 transition-colors">How It Works</a>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={navigateToAdminPortal}
+              className="px-4 py-2 text-purple-600 hover:text-purple-700 font-medium"
+            >
+              Admin
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
