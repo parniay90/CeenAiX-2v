@@ -3,7 +3,6 @@ import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCir
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
 
 interface Prescription {
   id: string;
@@ -35,7 +34,6 @@ interface RefillRequest {
 
 export default function PrescriptionsPage() {
   const { isDarkMode } = useTheme();
-  const { user } = useAuth();
 
   const generateGoogleCalendarUrl = (prescription: Prescription) => {
     const title = encodeURIComponent(`Take ${prescription.medicationName}`);
@@ -106,25 +104,20 @@ END:VCALENDAR`;
   const [pharmacySearch, setPharmacySearch] = useState('');
 
   useEffect(() => {
-    if (user) {
-      fetchPrescriptions();
-      fetchRefillRequests();
-      fetchPreferredPharmacy();
-      fetchAvailablePharmacies();
-    }
-  }, [user]);
+    fetchPrescriptions();
+    fetchRefillRequests();
+    fetchPreferredPharmacy();
+    fetchAvailablePharmacies();
+  }, []);
 
   const fetchPrescriptions = async () => {
     try {
-      if (!user?.id) {
-        setLoading(false);
-        return;
-      }
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', mockUserId)
         .maybeSingle();
 
       if (!patientData) {
@@ -154,7 +147,7 @@ END:VCALENDAR`;
       if (error) throw error;
 
       if (!prescriptionsData || prescriptionsData.length === 0) {
-        await supabase.rpc('create_sample_prescription_data', { target_user_id: user.id });
+        await supabase.rpc('create_sample_prescription_data', { target_user_id: mockUserId });
 
         const { data: retryData } = await supabase
           .from('prescriptions')
@@ -229,12 +222,12 @@ END:VCALENDAR`;
 
   const fetchRefillRequests = async () => {
     try {
-      if (!user?.id) return;
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', mockUserId)
         .maybeSingle();
 
       if (!patientData) return;
@@ -268,12 +261,12 @@ END:VCALENDAR`;
 
   const fetchPreferredPharmacy = async () => {
     try {
-      if (!user?.id) return;
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', mockUserId)
         .eq('is_preferred', true)
         .maybeSingle();
 
@@ -293,12 +286,12 @@ END:VCALENDAR`;
 
   const fetchAvailablePharmacies = async () => {
     try {
-      if (!user?.id) return;
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', mockUserId)
         .order('is_preferred', { ascending: false });
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -311,12 +304,12 @@ END:VCALENDAR`;
 
   const handleSelectPharmacy = async (pharmacy: any) => {
     try {
-      if (!user?.id) return;
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
 
       await supabase
         .from('user_pharmacies')
         .update({ is_preferred: false })
-        .eq('user_id', user.id);
+        .eq('user_id', mockUserId);
 
       await supabase
         .from('user_pharmacies')
@@ -339,10 +332,11 @@ END:VCALENDAR`;
 
   const handleAddPharmacy = async (name: string, address: string, phone: string) => {
     try {
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
       const { error } = await supabase
         .from('user_pharmacies')
         .insert({
-          user_id: user?.id,
+          user_id: mockUserId,
           pharmacy_name: name,
           pharmacy_address: address,
           pharmacy_phone: phone,
@@ -377,13 +371,14 @@ END:VCALENDAR`;
   };
 
   const handleSaveReminder = async () => {
-    if (!selectedPrescription || !user) return;
+    if (!selectedPrescription) return;
 
     try {
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', mockUserId)
         .maybeSingle();
 
       if (!patientData) return;
@@ -432,13 +427,14 @@ END:VCALENDAR`;
   };
 
   const handleSubmitRefill = async () => {
-    if (!selectedPrescription || !user) return;
+    if (!selectedPrescription) return;
 
     try {
+      const mockUserId = '00000000-0000-0000-0000-000000000000';
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', mockUserId)
         .maybeSingle();
 
       if (!patientData) return;
