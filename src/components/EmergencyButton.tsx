@@ -1,23 +1,33 @@
 import { useState } from 'react';
-import { Phone, Ambulance, AlertTriangle, X } from 'lucide-react';
+import { Phone, Ambulance, AlertTriangle, X, MessageSquare } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { EmergencyAIChat } from './EmergencyAIChat';
 
 export function EmergencyButton() {
   const [showMenu, setShowMenu] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
   const { isDarkMode } = useTheme();
 
   const emergencyContacts = [
     { name: '911 Emergency', number: '911', icon: Ambulance, type: 'emergency' },
+    { name: 'Emergency AI Assistant', number: '', icon: MessageSquare, type: 'ai' },
     { name: 'Poison Control', number: '1-800-222-1222', icon: AlertTriangle, type: 'poison' },
     { name: 'Mental Health Crisis', number: '988', icon: Phone, type: 'mental' },
   ];
 
-  const handleCall = (number: string) => {
-    window.location.href = `tel:${number}`;
+  const handleCall = (number: string, type: string) => {
+    if (type === 'ai') {
+      setShowAIChat(true);
+      setShowMenu(false);
+    } else {
+      window.location.href = `tel:${number}`;
+    }
   };
 
   return (
     <>
+      {showAIChat && <EmergencyAIChat onClose={() => setShowAIChat(false)} />}
+
       <div
         style={{
           position: 'fixed',
@@ -59,7 +69,7 @@ export function EmergencyButton() {
               return (
                 <div
                   key={idx}
-                  onClick={() => handleCall(contact.number)}
+                  onClick={() => handleCall(contact.number, contact.type)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -71,16 +81,18 @@ export function EmergencyButton() {
                     marginBottom: idx < emergencyContacts.length - 1 ? 8 : 0,
                     background: contact.type === 'emergency'
                       ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)'
+                      : contact.type === 'ai'
+                      ? 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
                       : isDarkMode ? '#2D3748' : '#F8FAFC',
-                    color: contact.type === 'emergency' ? 'white' : isDarkMode ? '#F8FAFC' : '#1A1A2E',
+                    color: contact.type === 'emergency' || contact.type === 'ai' ? 'white' : isDarkMode ? '#F8FAFC' : '#1A1A2E',
                   }}
                   onMouseEnter={(e) => {
-                    if (contact.type !== 'emergency') {
+                    if (contact.type !== 'emergency' && contact.type !== 'ai') {
                       e.currentTarget.style.background = isDarkMode ? '#374151' : '#E2E8F0';
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (contact.type !== 'emergency') {
+                    if (contact.type !== 'emergency' && contact.type !== 'ai') {
                       e.currentTarget.style.background = isDarkMode ? '#2D3748' : '#F8FAFC';
                     }
                   }}
@@ -93,7 +105,7 @@ export function EmergencyButton() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: contact.type === 'emergency'
+                      background: contact.type === 'emergency' || contact.type === 'ai'
                         ? 'rgba(255,255,255,0.2)'
                         : '#EF4444',
                     }}
@@ -109,10 +121,14 @@ export function EmergencyButton() {
                       opacity: 0.8,
                       fontWeight: 500,
                     }}>
-                      {contact.number}
+                      {contact.number || (contact.type === 'ai' ? 'Instant medical guidance' : '')}
                     </div>
                   </div>
-                  <Phone size={18} style={{ opacity: 0.6 }} />
+                  {contact.type === 'ai' ? (
+                    <MessageSquare size={18} style={{ opacity: 0.6 }} />
+                  ) : (
+                    <Phone size={18} style={{ opacity: 0.6 }} />
+                  )}
                 </div>
               );
             })}
