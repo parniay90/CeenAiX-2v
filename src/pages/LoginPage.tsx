@@ -16,7 +16,7 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const mockNames: Record<UserRole, string> = {
-      patient: 'Ahmed Hassan',
+      patient: 'Ahmed Al-Mansoori',
       doctor: 'Ahmed Al Mansoori',
       clinic_admin: 'Clinic Manager',
       pharmacy_admin: 'Pharmacy Manager',
@@ -25,7 +25,17 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
       super_admin: 'Super Admin',
     };
 
-    login(selectedRole, 'mock-user-id', mockNames[selectedRole]);
+    const mockUserIds: Record<UserRole, string> = {
+      patient: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      doctor: 'mock-doctor-id',
+      clinic_admin: 'mock-clinic-admin-id',
+      pharmacy_admin: 'mock-pharmacy-admin-id',
+      lab_admin: 'mock-lab-admin-id',
+      insurance_admin: 'mock-insurance-admin-id',
+      super_admin: 'mock-super-admin-id',
+    };
+
+    login(selectedRole, mockUserIds[selectedRole], mockNames[selectedRole]);
     onLogin();
   };
 

@@ -94,26 +94,26 @@ export default function Router() {
       case 'home':
         return (
           <LandingPage
-            onNavigateToFindCare={() => setCurrentView('find-care')}
-            onNavigateToPatientPortal={() => setCurrentView('patient-portal')}
-            onNavigateToDoctorPortal={() => setCurrentView('doctor-portal')}
+            onNavigateToFindCare={() => navigateTo('find-care')}
+            onNavigateToPatientPortal={() => navigateTo('patient-portal')}
+            onNavigateToDoctorPortal={() => navigateTo('doctor-portal')}
           />
         );
       case 'find-care':
         return (
           <FindCarePage
-            onNavigateToPlatform={() => setCurrentView('platform')}
-            onNavigateHome={() => setCurrentView('home')}
+            onNavigateToPlatform={() => navigateTo('platform')}
+            onNavigateHome={() => navigateTo('home')}
           />
         );
       case 'platform':
-        return <CeenAiX onNavigateHome={() => setCurrentView('home')} />;
+        return <CeenAiX onNavigateHome={() => navigateTo('home')} />;
       case 'patient-portal':
-        return <PatientPortal onNavigateHome={() => setCurrentView('home')} />;
+        return <PatientPortal onNavigateHome={() => navigateTo('home')} />;
       case 'doctor-portal':
-        return <DoctorPortal onNavigateHome={() => setCurrentView('home')} />;
+        return <DoctorPortal onNavigateHome={() => navigateTo('home')} />;
       case 'admin-portal':
-        return <AdminPortal onNavigateHome={() => setCurrentView('home')} />;
+        return <AdminPortal onNavigateHome={() => navigateTo('home')} />;
       case 'payment-settings':
         return <PaymentSettings />;
       case 'change-password':
@@ -137,9 +137,9 @@ export default function Router() {
       default:
         return (
           <LandingPage
-            onNavigateToFindCare={() => setCurrentView('find-care')}
-            onNavigateToPatientPortal={() => setCurrentView('patient-portal')}
-            onNavigateToDoctorPortal={() => setCurrentView('doctor-portal')}
+            onNavigateToFindCare={() => navigateTo('find-care')}
+            onNavigateToPatientPortal={() => navigateTo('patient-portal')}
+            onNavigateToDoctorPortal={() => navigateTo('doctor-portal')}
           />
         );
     }

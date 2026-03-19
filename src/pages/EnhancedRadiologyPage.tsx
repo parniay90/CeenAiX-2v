@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
   Brain,
@@ -240,6 +241,7 @@ const SAMPLE_STUDIES: RadiologyStudy[] = [
 
 export default function EnhancedRadiologyPage() {
   const { isDarkMode } = useTheme();
+  const { userId } = useAuth();
   const [studies, setStudies] = useState<RadiologyStudy[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStudy, setSelectedStudy] = useState<RadiologyStudy | null>(null);
@@ -248,10 +250,14 @@ export default function EnhancedRadiologyPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRadiologyStudies();
-  }, []);
+    if (userId) {
+      fetchRadiologyStudies();
+    }
+  }, [userId]);
 
   const fetchRadiologyStudies = async () => {
+    if (!userId) return;
+
     try {
       const { data, error } = await supabase
         .from('radiology_studies')
@@ -262,6 +268,7 @@ export default function EnhancedRadiologyPage() {
             color
           )
         `)
+        .eq('patient_id', userId)
         .order('study_date', { ascending: false });
 
       if (error) throw error;
