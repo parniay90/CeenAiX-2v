@@ -38,9 +38,17 @@ export default function MessagesPage() {
     try {
       setLoading(true);
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No authenticated user');
+        setLoading(false);
+        return;
+      }
+
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*')
+        .eq('recipient_id', user.id)
         .order('created_at', { ascending: false });
 
       if (messagesError) throw messagesError;
