@@ -6,21 +6,29 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { PatientLayout } from '../components/PatientLayout';
 import { useNavigation } from '../Router';
 import {
-  FileText,
-  Calendar,
-  MessageSquare,
-  Send,
-  AlertCircle,
-  CheckCircle,
-  Clock,
   Download,
-  ChevronDown,
-  ChevronUp,
-  Beaker,
-  Activity,
-  Printer,
   Share2,
-  Bot
+  MessageCircle,
+  Calendar,
+  FileText,
+  Activity,
+  Search,
+  Filter,
+  ChevronRight,
+  X,
+  Send,
+  Sparkles,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  MapPin,
+  Building2,
+  Beaker,
+  Eye,
+  Plus
 } from 'lucide-react';
 
 interface TestOrder {
@@ -73,13 +81,15 @@ export default function LabTestsPage() {
   const [testResults, setTestResults] = useState<{ [key: string]: TestResult }>({});
   const [messages, setMessages] = useState<{ [key: string]: Message[] }>({});
   const [loading, setLoading] = useState(true);
-  const [expandedResult, setExpandedResult] = useState<string | null>(null);
+  const [selectedResult, setSelectedResult] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState<{ [key: string]: string }>({});
   const [sendingMessage, setSendingMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'completed'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showAIChat, setShowAIChat] = useState<string | null>(null);
   const [aiMessages, setAiMessages] = useState<{ [key: string]: Array<{role: string, text: string}> }>({});
   const [aiInput, setAiInput] = useState<{ [key: string]: string }>({});
+  const [showDoctorChat, setShowDoctorChat] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -104,12 +114,31 @@ export default function LabTestsPage() {
 
       setTestOrders(orders || []);
 
-      // Fetch results for completed tests
+      const resultsMap: { [key: string]: TestResult } = {};
+      const messagesMap: { [key: string]: Message[] } = {};
+
       for (const order of orders || []) {
-        if (order.status === 'completed') {
-          await fetchTestResult(order.id);
+        const { data: result } = await supabase
+          .from('lab_test_results')
+          .select('*')
+          .eq('test_order_id', order.id)
+          .single();
+
+        if (result) {
+          resultsMap[order.id] = result;
+
+          const { data: msgs } = await supabase
+            .from('lab_result_messages')
+            .select('*')
+            .eq('test_result_id', result.id)
+            .order('created_at', { ascending: true });
+
+          messagesMap[result.id] = msgs || [];
         }
       }
+
+      setTestResults(resultsMap);
+      setMessages(messagesMap);
     } catch (error) {
       console.error('Error fetching test orders:', error);
     } finally {
@@ -117,156 +146,128 @@ export default function LabTestsPage() {
     }
   };
 
-  const fetchTestResult = async (testOrderId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('lab_test_results')
-        .select('*')
-        .eq('test_order_id', testOrderId)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        setTestResults(prev => ({ ...prev, [testOrderId]: data }));
-        await fetchMessages(data.id);
-      }
-    } catch (error) {
-      console.error('Error fetching test result:', error);
-    }
-  };
-
-  const fetchMessages = async (testResultId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('lab_test_messages')
-        .select('*')
-        .eq('test_result_id', testResultId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      setMessages(prev => ({ ...prev, [testResultId]: data || [] }));
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    }
-  };
-
-  const sendMessage = async (testResultId: string) => {
-    const messageText = newMessage[testResultId]?.trim();
-    if (!messageText || sendingMessage) return;
+  const handleSendMessage = async (resultId: string) => {
+    if (!newMessage[resultId]?.trim() || sendingMessage) return;
 
     try {
-      setSendingMessage(testResultId);
-
+      setSendingMessage(resultId);
       const { error } = await supabase
-        .from('lab_test_messages')
+        .from('lab_result_messages')
         .insert({
-          test_result_id: testResultId,
+          test_result_id: resultId,
           sender_id: user?.id,
-          message: messageText,
+          message: newMessage[resultId],
           is_doctor: false
         });
 
       if (error) throw error;
 
-      setNewMessage(prev => ({ ...prev, [testResultId]: '' }));
-      await fetchMessages(testResultId);
+      setNewMessage(prev => ({ ...prev, [resultId]: '' }));
+      await fetchTestOrders();
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
     } finally {
       setSendingMessage(null);
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'scheduled':
-        return <Calendar className="w-5 h-5 text-blue-500" />;
-      case 'ordered':
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      default:
-        return <AlertCircle className="w-5 h-5 text-gray-500" />;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'stat':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-      case 'urgent':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
-      default:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-    }
-  };
-
-  const filteredOrders = testOrders.filter(order => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'pending') return order.status !== 'completed';
-    if (activeTab === 'completed') return order.status === 'completed';
-    return true;
-  });
-
-  const handlePrint = (order: TestOrder, result: TestResult) => {
+  const handlePrint = (order: TestOrder) => {
+    const result = testResults[order.id];
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     printWindow.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>Lab Test Result - ${order.test_types.name}</title>
+          <title>Lab Test Report - ${order.test_types.name}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
-            h1 { color: #0D7377; border-bottom: 3px solid #0D7377; padding-bottom: 10px; }
-            h2 { color: #1A1A2E; margin-top: 30px; }
-            .section { margin: 20px 0; padding: 15px; background: #F8FAFC; border-radius: 8px; }
-            .result-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E2E8F0; }
-            .label { font-weight: bold; }
-            .metadata { color: #64748B; font-size: 14px; margin-top: 20px; }
+            .header { border-bottom: 3px solid #0D7377; padding-bottom: 20px; margin-bottom: 30px; }
+            .header h1 { color: #0D7377; margin: 0; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0; }
+            .info-item { padding: 15px; background: #f8f9fa; border-radius: 8px; }
+            .info-label { font-weight: bold; color: #666; font-size: 12px; text-transform: uppercase; }
+            .info-value { font-size: 16px; color: #333; margin-top: 5px; }
+            .section { margin: 30px 0; }
+            .section h2 { color: #0D7377; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+            th { background: #f8f9fa; font-weight: 600; }
+            .interpretation { background: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0D7377; }
+            @media print { body { padding: 20px; } }
           </style>
         </head>
         <body>
-          <h1>${order.test_types.name}</h1>
-          <div class="metadata">
-            <p><strong>Test Category:</strong> ${order.test_types.category}</p>
-            <p><strong>Order Date:</strong> ${new Date(order.order_date).toLocaleDateString()}</p>
-            <p><strong>Result Date:</strong> ${new Date(result.result_date).toLocaleDateString()}</p>
-            ${order.lab_facilities ? `<p><strong>Laboratory:</strong> ${order.lab_facilities.name}, ${order.lab_facilities.city}</p>` : ''}
+          <div class="header">
+            <h1>Laboratory Test Report</h1>
+            <p style="color: #666; margin: 10px 0 0 0;">CeenAiX Healthcare Platform</p>
           </div>
 
-          <h2>Test Results</h2>
-          <div class="section">
-            ${Object.entries(result.result_data).map(([key, value]) =>
-              `<div class="result-item"><span class="label">${key}:</span><span>${value}</span></div>`
-            ).join('')}
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Test Name</div>
+              <div class="info-value">${order.test_types.name}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Test Date</div>
+              <div class="info-value">${new Date(result?.result_date || order.scheduled_date).toLocaleDateString()}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Laboratory</div>
+              <div class="info-value">${order.lab_facilities?.name || 'N/A'}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Status</div>
+              <div class="info-value">${order.status}</div>
+            </div>
           </div>
 
-          ${result.doctor_interpretation ? `
-            <h2>Doctor's Interpretation</h2>
-            <div class="section">${result.doctor_interpretation}</div>
-          ` : ''}
-
-          ${result.doctor_recommendations ? `
-            <h2>Recommendations</h2>
-            <div class="section">${result.doctor_recommendations}</div>
-          ` : ''}
-
-          ${result.follow_up_tests && result.follow_up_tests.length > 0 ? `
-            <h2>Recommended Follow-up Tests</h2>
+          ${result?.result_data ? `
             <div class="section">
-              <ul>
-                ${result.follow_up_tests.map(test => `<li>${test}</li>`).join('')}
-              </ul>
+              <h2>Test Results</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parameter</th>
+                    <th>Result</th>
+                    <th>Reference Range</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${Object.entries(result.result_data).map(([key, value]: [string, any]) => `
+                    <tr>
+                      <td>${key}</td>
+                      <td><strong>${value.value} ${value.unit || ''}</strong></td>
+                      <td>${value.reference_range || 'N/A'}</td>
+                      <td>${value.status || 'Normal'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
           ` : ''}
 
-          <div class="metadata" style="margin-top: 40px; border-top: 2px solid #E2E8F0; padding-top: 20px;">
-            <p><em>This report is for informational purposes only. Please consult with your healthcare provider for medical advice.</em></p>
-            <p>Generated on ${new Date().toLocaleString()}</p>
+          ${result?.doctor_interpretation ? `
+            <div class="section">
+              <h2>Doctor's Interpretation</h2>
+              <div class="interpretation">
+                <p>${result.doctor_interpretation}</p>
+              </div>
+            </div>
+          ` : ''}
+
+          ${result?.doctor_recommendations ? `
+            <div class="section">
+              <h2>Recommendations</h2>
+              <p>${result.doctor_recommendations}</p>
+            </div>
+          ` : ''}
+
+          <div style="margin-top: 60px; padding-top: 20px; border-top: 2px solid #e2e8f0; font-size: 12px; color: #666;">
+            <p>This is a computer-generated report from CeenAiX Healthcare Platform.</p>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
           </div>
         </body>
       </html>
@@ -298,461 +299,529 @@ export default function LabTestsPage() {
 
     const newMessages = [...(aiMessages[resultId] || []), { role: 'user', text: question }];
 
-    const aiResponse = `Based on your test results, ${question.toLowerCase().includes('normal') ? 'the values appear to be within normal ranges. However, I recommend discussing any concerns with your doctor for personalized medical advice.' : 'I can help explain your results. For specific medical advice, please consult with your healthcare provider who has access to your complete medical history.'}`;
+    const aiResponse = `Based on your test results, ${question.toLowerCase().includes('mean') ? 'this indicates...' : 'I can help explain...'} However, I recommend discussing specific concerns with your doctor for personalized medical advice.`;
 
     newMessages.push({ role: 'ai', text: aiResponse });
-
     setAiMessages(prev => ({ ...prev, [resultId]: newMessages }));
     setAiInput(prev => ({ ...prev, [resultId]: '' }));
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return <CheckCircle className="w-5 h-5" />;
+      case 'pending':
+        return <Clock className="w-5 h-5" />;
+      default:
+        return <AlertCircle className="w-5 h-5" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority?.toLowerCase()) {
+      case 'urgent':
+        return 'text-red-600 dark:text-red-400';
+      case 'high':
+        return 'text-orange-600 dark:text-orange-400';
+      default:
+        return 'text-gray-600 dark:text-gray-400';
+    }
+  };
+
+  const filteredOrders = testOrders.filter(order => {
+    const matchesTab = activeTab === 'all' || order.status.toLowerCase() === activeTab;
+    const matchesSearch = order.test_types.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         order.test_types.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  if (loading) {
+    return (
+      <PatientLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <Beaker className="w-12 h-12 animate-pulse mx-auto mb-4 text-teal-600" />
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>Loading test results...</p>
+          </div>
+        </div>
+      </PatientLayout>
+    );
+  }
+
   return (
     <PatientLayout>
-      <div className="min-h-screen" style={{ background: isDarkMode ? '#0F172A' : '#F8FAFC' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Beaker className="w-8 h-8 text-teal-600" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
               <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Lab Tests & Results
+                Lab Results
               </h1>
-            </div>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              View your test results, doctor recommendations, and ask questions
-            </p>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6 border-b" style={{ borderColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
-            {[
-              { key: 'all', label: 'All Tests' },
-              { key: 'pending', label: 'Pending' },
-              { key: 'completed', label: 'Completed' }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`px-6 py-3 font-semibold transition-all ${
-                  activeTab === tab.key
-                    ? 'border-b-2 border-teal-600 text-teal-600'
-                    : isDarkMode
-                    ? 'text-gray-400 hover:text-gray-300'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-2 gap-4 mb-8">
-            <button
-              onClick={() => navigateToFindLabs()}
-              className="p-6 rounded-xl border-2 border-dashed transition-all hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20"
-              style={{
-                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-                background: isDarkMode ? '#1E293B' : 'white'
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                  <Beaker className="w-6 h-6 text-teal-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Find Lab Facilities
-                  </h3>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Search for labs and book tests
-                  </p>
-                </div>
-              </div>
-            </button>
-
-            <div
-              className="p-6 rounded-xl border-2 border-dashed"
-              style={{
-                borderColor: isDarkMode ? '#334155' : '#E2E8F0',
-                background: isDarkMode ? '#1E293B' : 'white'
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Test Orders from Doctor
-                  </h3>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Your doctor-ordered tests will appear below
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Test Orders List */}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-              <p className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading tests...</p>
-            </div>
-          ) : filteredOrders.length === 0 ? (
-            <div className="text-center py-12 rounded-xl" style={{ background: isDarkMode ? '#1E293B' : 'white' }}>
-              <Beaker className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                No tests found
-              </h3>
-              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                You don't have any {activeTab !== 'all' ? activeTab : ''} lab tests yet
+              <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                View and manage your laboratory test results
               </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredOrders.map(order => {
-                const result = testResults[order.id];
-                const isExpanded = expandedResult === order.id;
+            <button
+              onClick={navigateToFindLabs}
+              className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <Plus className="w-5 h-5" />
+              Book New Test
+            </button>
+          </div>
 
-                return (
-                  <div
-                    key={order.id}
-                    className="rounded-xl shadow-sm transition-all"
-                    style={{ background: isDarkMode ? '#1E293B' : 'white' }}
-                  >
-                    {/* Order Header */}
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-start gap-4 flex-1">
-                          <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center flex-shrink-0">
-                            {getStatusIcon(order.status)}
+          {/* Search and Filter Bar */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+              <input
+                type="text"
+                placeholder="Search tests by name or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 transition-all ${
+                  isDarkMode
+                    ? 'bg-gray-800 border-gray-700 text-white focus:border-teal-500'
+                    : 'bg-white border-gray-200 text-gray-900 focus:border-teal-500'
+                } outline-none`}
+              />
+            </div>
+            <div className="flex gap-2">
+              {['all', 'pending', 'completed'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as any)}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                    activeTab === tab
+                      ? 'bg-teal-600 text-white shadow-lg'
+                      : isDarkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Test Results Grid */}
+        {filteredOrders.length === 0 ? (
+          <div className={`text-center py-16 rounded-2xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+            <Beaker className={`w-16 h-16 mx-auto mb-4 ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+            <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              No test results found
+            </h3>
+            <p className={`mb-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {searchQuery ? 'Try adjusting your search' : 'Book your first lab test to get started'}
+            </p>
+            <button
+              onClick={navigateToFindLabs}
+              className="px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-all"
+            >
+              Find Lab Facilities
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {filteredOrders.map((order) => {
+              const result = testResults[order.id];
+              const isSelected = selectedResult === order.id;
+
+              return (
+                <div
+                  key={order.id}
+                  className={`rounded-2xl border-2 transition-all ${
+                    isDarkMode
+                      ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                      : 'bg-white border-gray-200 hover:border-gray-300'
+                  } ${isSelected ? 'ring-4 ring-teal-500/20' : ''}`}
+                >
+                  {/* Test Card Header */}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                            <Beaker className="w-6 h-6 text-white" />
                           </div>
-                          <div className="flex-1">
-                            <h3 className={`text-xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          <div>
+                            <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {order.test_types.name}
                             </h3>
-                            <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              {order.test_types.category} • {order.test_types.description}
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {order.test_types.category}
                             </p>
-                            <div className="flex flex-wrap gap-2 items-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(order.priority)}`}>
-                                {order.priority.toUpperCase()}
-                              </span>
-                              <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                Ordered: {new Date(order.order_date).toLocaleDateString()}
-                              </span>
-                              {order.scheduled_date && (
-                                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                  • Scheduled: {new Date(order.scheduled_date).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          {result && (
-                            <>
-                              <button
-                                onClick={() => handlePrint(order, result)}
-                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-gray-600 text-white hover:bg-gray-700"
-                                title="Print results"
-                              >
-                                <Printer className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleShare(order)}
-                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-blue-600 text-white hover:bg-blue-700"
-                                title="Share results"
-                              >
-                                <Share2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setExpandedResult(isExpanded ? null : order.id)}
-                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-teal-600 text-white hover:bg-teal-700"
-                              >
-                                {isExpanded ? (
-                                  <>
-                                    <ChevronUp className="w-4 h-4 inline mr-1" />
-                                    Hide Results
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronDown className="w-4 h-4 inline mr-1" />
-                                    View Results
-                                  </>
-                                )}
-                              </button>
-                            </>
-                          )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          {order.status}
+                        </span>
+                        {order.priority && (
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(order.priority)}`}>
+                            {order.priority}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Test Info Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Calendar className="w-4 h-4 text-teal-600" />
+                          <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Order Date
+                          </span>
                         </div>
+                        <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {new Date(order.order_date).toLocaleDateString()}
+                        </p>
                       </div>
 
+                      {result && (
+                        <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Result Date
+                            </span>
+                          </div>
+                          <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {new Date(result.result_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      )}
+
                       {order.lab_facilities && (
-                        <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                          <p className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Building2 className="w-4 h-4 text-blue-600" />
+                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Laboratory
+                            </span>
+                          </div>
+                          <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             {order.lab_facilities.name}
                           </p>
-                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {order.lab_facilities.address}, {order.lab_facilities.city}
+                        </div>
+                      )}
+
+                      {order.lab_facilities && (
+                        <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <MapPin className="w-4 h-4 text-purple-600" />
+                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Location
+                            </span>
+                          </div>
+                          <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {order.lab_facilities.city}
                           </p>
                         </div>
                       )}
                     </div>
 
-                    {/* Expanded Results Section */}
-                    {result && isExpanded && (
-                      <div className="border-t px-6 py-6" style={{ borderColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
-                        {/* Result Data */}
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3">
+                      {result && (
+                        <>
+                          <button
+                            onClick={() => setSelectedResult(isSelected ? null : order.id)}
+                            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all"
+                          >
+                            <Eye className="w-4 h-4" />
+                            {isSelected ? 'Hide' : 'View'} Details
+                          </button>
+                          <button
+                            onClick={() => handlePrint(order)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                              isDarkMode
+                                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <Download className="w-4 h-4" />
+                            Print
+                          </button>
+                          <button
+                            onClick={() => handleShare(order)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                              isDarkMode
+                                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <Share2 className="w-4 h-4" />
+                            Share
+                          </button>
+                          <button
+                            onClick={() => setShowAIChat(showAIChat === result.id ? null : result.id)}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
+                          >
+                            <Sparkles className="w-4 h-4" />
+                            AI Assistant
+                          </button>
+                          <button
+                            onClick={() => setShowDoctorChat(showDoctorChat === result.id ? null : result.id)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                              isDarkMode
+                                ? 'bg-blue-900/30 text-blue-300 hover:bg-blue-900/50'
+                                : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                            }`}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Ask Doctor
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expanded Details */}
+                  {isSelected && result && (
+                    <div className={`border-t-2 p-6 ${isDarkMode ? 'border-gray-700 bg-gray-900/30' : 'border-gray-200 bg-gray-50'}`}>
+                      {/* Test Results Table */}
+                      {result.result_data && (
                         <div className="mb-6">
-                          <h4 className={`font-bold text-lg mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          <h4 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             Test Results
                           </h4>
-                          <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-blue-50'}`}>
-                            {Object.keys(result.result_data).length > 0 ? (
-                              <div className="space-y-2">
-                                {Object.entries(result.result_data).map(([key, value]) => (
-                                  <div key={key} className="flex justify-between">
-                                    <span className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                      {key}:
-                                    </span>
-                                    <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                                      {String(value)}
-                                    </span>
-                                  </div>
+                          <div className="overflow-x-auto rounded-xl border-2" style={{ borderColor: isDarkMode ? '#374151' : '#E5E7EB' }}>
+                            <table className="w-full">
+                              <thead className={isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}>
+                                <tr>
+                                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    Parameter
+                                  </th>
+                                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    Result
+                                  </th>
+                                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    Reference Range
+                                  </th>
+                                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    Status
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.entries(result.result_data).map(([key, value]: [string, any], idx) => (
+                                  <tr key={key} className={idx % 2 === 0 ? (isDarkMode ? 'bg-gray-800/50' : 'bg-white') : ''}>
+                                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                      {key}
+                                    </td>
+                                    <td className={`px-6 py-4 font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                      {value.value} {value.unit || ''}
+                                    </td>
+                                    <td className={`px-6 py-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                      {value.reference_range || 'N/A'}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                        value.status === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                        value.status === 'Low' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                      }`}>
+                                        {value.status || 'Normal'}
+                                      </span>
+                                    </td>
+                                  </tr>
                                 ))}
-                              </div>
-                            ) : (
-                              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                                Detailed results will be available soon
-                              </p>
-                            )}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
+                      )}
 
-                        {/* Doctor's Interpretation */}
-                        {result.doctor_interpretation && (
-                          <div className="mb-6">
-                            <h4 className={`font-bold text-lg mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              <FileText className="w-5 h-5" />
-                              Doctor's Interpretation
-                            </h4>
-                            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-green-50'}`}>
-                              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                                {result.doctor_interpretation}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Recommendations */}
-                        {result.doctor_recommendations && (
-                          <div className="mb-6">
-                            <h4 className={`font-bold text-lg mb-3 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              <AlertCircle className="w-5 h-5" />
-                              Recommendations
-                            </h4>
-                            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-yellow-50'}`}>
-                              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                                {result.doctor_recommendations}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Follow-up Tests */}
-                        {result.follow_up_tests && result.follow_up_tests.length > 0 && (
-                          <div className="mb-6">
-                            <h4 className={`font-bold text-lg mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              Recommended Follow-up Tests
-                            </h4>
-                            <div className="space-y-2">
-                              {result.follow_up_tests.map((test, index) => (
-                                <div
-                                  key={index}
-                                  className={`p-3 rounded-lg flex items-center gap-2 ${isDarkMode ? 'bg-gray-800' : 'bg-purple-50'}`}
-                                >
-                                  <CheckCircle className="w-5 h-5 text-purple-600" />
-                                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                                    {test}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Attachments */}
-                        {result.attachments && result.attachments.length > 0 && (
-                          <div className="mb-6">
-                            <h4 className={`font-bold text-lg mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              Attachments
-                            </h4>
-                            <div className="space-y-2">
-                              {result.attachments.map((attachment, index) => (
-                                <a
-                                  key={index}
-                                  href={attachment}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`p-3 rounded-lg flex items-center gap-2 hover:bg-opacity-80 transition-all ${
-                                    isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-gray-50 text-blue-600'
-                                  }`}
-                                >
-                                  <Download className="w-5 h-5" />
-                                  <span>Download Report {index + 1}</span>
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-3 mb-6">
-                          <button
-                            onClick={() => {
-                              setShowAIChat(result.id);
-                              if (!aiMessages[result.id]) {
-                                setAiMessages(prev => ({
-                                  ...prev,
-                                  [result.id]: [{ role: 'ai', text: 'Hi! I\'m your AI Health Assistant. I can help explain your test results in simple terms. What would you like to know?' }]
-                                }));
-                              }
-                            }}
-                            className="flex-1 py-3 px-4 rounded-lg font-semibold transition-all bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 flex items-center justify-center gap-2"
-                          >
-                            <Bot className="w-5 h-5" />
-                            Ask AI Assistant
-                          </button>
-                        </div>
-
-                        {/* AI Chat Section */}
-                        {showAIChat === result.id && (
-                          <div className={`border rounded-lg p-4 mb-6 ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-blue-50/50'}`}>
-                            <h4 className={`font-bold text-lg mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              <Bot className="w-5 h-5 text-teal-600" />
-                              AI Health Assistant
-                            </h4>
-
-                            <div className="space-y-3 mb-4 max-h-80 overflow-y-auto">
-                              {aiMessages[result.id]?.map((msg, idx) => (
-                                <div
-                                  key={idx}
-                                  className={`p-3 rounded-lg ${
-                                    msg.role === 'ai'
-                                      ? isDarkMode ? 'bg-teal-900/30 mr-8' : 'bg-teal-50 mr-8'
-                                      : isDarkMode ? 'bg-gray-700 ml-8' : 'bg-white ml-8'
-                                  }`}
-                                >
-                                  <p className={`text-xs font-semibold mb-1 ${
-                                    msg.role === 'ai' ? 'text-teal-600' : isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                                  }`}>
-                                    {msg.role === 'ai' ? '🤖 AI Assistant' : '👤 You'}
-                                  </p>
-                                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                                    {msg.text}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex gap-2">
-                              <input
-                                type="text"
-                                value={aiInput[result.id] || ''}
-                                onChange={(e) => setAiInput(prev => ({ ...prev, [result.id]: e.target.value }))}
-                                onKeyPress={(e) => e.key === 'Enter' && handleAIQuestion(result.id, aiInput[result.id] || '')}
-                                placeholder="Ask about your results..."
-                                className={`flex-1 px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-teal-600 ${
-                                  isDarkMode
-                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                                }`}
-                              />
-                              <button
-                                onClick={() => handleAIQuestion(result.id, aiInput[result.id] || '')}
-                                disabled={!aiInput[result.id]?.trim()}
-                                className="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                              >
-                                <Send className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Messages Section */}
-                        <div className={`border-t pt-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                          <h4 className={`font-bold text-lg mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            <MessageSquare className="w-5 h-5" />
-                            Ask Your Doctor
+                      {/* Doctor's Interpretation */}
+                      {result.doctor_interpretation && (
+                        <div className={`p-6 rounded-xl mb-6 ${isDarkMode ? 'bg-blue-900/20 border-2 border-blue-800' : 'bg-blue-50 border-2 border-blue-200'}`}>
+                          <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-blue-300' : 'text-blue-900'}`}>
+                            <Activity className="w-5 h-5" />
+                            Doctor's Interpretation
                           </h4>
+                          <p className={isDarkMode ? 'text-blue-200' : 'text-blue-800'}>
+                            {result.doctor_interpretation}
+                          </p>
+                        </div>
+                      )}
 
-                          {/* Message List */}
-                          <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
-                            {messages[result.id]?.map(msg => (
-                              <div
-                                key={msg.id}
-                                className={`p-4 rounded-lg ${
-                                  msg.is_doctor
-                                    ? isDarkMode
-                                      ? 'bg-blue-900/30 ml-8'
-                                      : 'bg-blue-50 ml-8'
-                                    : isDarkMode
-                                    ? 'bg-gray-800 mr-8'
-                                    : 'bg-gray-100 mr-8'
-                                }`}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <div>
-                                    <p className={`text-xs font-semibold mb-1 ${
-                                      msg.is_doctor ? 'text-blue-600' : isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                                    }`}>
-                                      {msg.is_doctor ? 'Doctor' : 'You'}
-                                    </p>
-                                    <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
-                                      {msg.message}
-                                    </p>
-                                    <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                      {new Date(msg.created_at).toLocaleString()}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
+                      {/* Recommendations */}
+                      {result.doctor_recommendations && (
+                        <div className={`p-6 rounded-xl mb-6 ${isDarkMode ? 'bg-green-900/20 border-2 border-green-800' : 'bg-green-50 border-2 border-green-200'}`}>
+                          <h4 className={`text-lg font-bold mb-3 flex items-center gap-2 ${isDarkMode ? 'text-green-300' : 'text-green-900'}`}>
+                            <CheckCircle className="w-5 h-5" />
+                            Recommendations
+                          </h4>
+                          <p className={isDarkMode ? 'text-green-200' : 'text-green-800'}>
+                            {result.doctor_recommendations}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Follow-up Tests */}
+                      {result.follow_up_tests && result.follow_up_tests.length > 0 && (
+                        <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-purple-900/20 border-2 border-purple-800' : 'bg-purple-50 border-2 border-purple-200'}`}>
+                          <h4 className={`text-lg font-bold mb-3 ${isDarkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                            Recommended Follow-up Tests
+                          </h4>
+                          <ul className="space-y-2">
+                            {result.follow_up_tests.map((test, idx) => (
+                              <li key={idx} className={`flex items-center gap-2 ${isDarkMode ? 'text-purple-200' : 'text-purple-800'}`}>
+                                <ChevronRight className="w-4 h-4" />
+                                {test}
+                              </li>
                             ))}
-                          </div>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                          {/* Message Input */}
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={newMessage[result.id] || ''}
-                              onChange={(e) => setNewMessage(prev => ({ ...prev, [result.id]: e.target.value }))}
-                              onKeyPress={(e) => e.key === 'Enter' && sendMessage(result.id)}
-                              placeholder="Ask a question about your results..."
-                              className={`flex-1 px-4 py-3 rounded-lg border-2 focus:outline-none focus:border-teal-600 ${
-                                isDarkMode
-                                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
-                                  : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'
-                              }`}
-                            />
-                            <button
-                              onClick={() => sendMessage(result.id)}
-                              disabled={!newMessage[result.id]?.trim() || sendingMessage === result.id}
-                              className="px-6 py-3 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                            >
-                              <Send className="w-5 h-5" />
-                            </button>
-                          </div>
+                  {/* AI Chat Panel */}
+                  {showAIChat === result?.id && (
+                    <div className={`border-t-2 p-6 ${isDarkMode ? 'border-gray-700 bg-gradient-to-br from-purple-900/20 to-pink-900/20' : 'border-gray-200 bg-gradient-to-br from-purple-50 to-pink-50'}`}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h4 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            AI Health Assistant
+                          </h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Ask questions about your test results
+                          </p>
                         </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+
+                      <div className={`rounded-xl p-4 mb-4 max-h-64 overflow-y-auto ${isDarkMode ? 'bg-gray-900/50' : 'bg-white'}`}>
+                        {(aiMessages[result.id] || []).map((msg, idx) => (
+                          <div key={idx} className={`mb-3 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                            <div className={`inline-block px-4 py-2 rounded-2xl max-w-xs ${
+                              msg.role === 'user'
+                                ? 'bg-teal-600 text-white'
+                                : isDarkMode
+                                ? 'bg-gray-800 text-gray-200'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Ask about your results..."
+                          value={aiInput[result.id] || ''}
+                          onChange={(e) => setAiInput(prev => ({ ...prev, [result.id]: e.target.value }))}
+                          onKeyPress={(e) => e.key === 'Enter' && handleAIQuestion(result.id, aiInput[result.id])}
+                          className={`flex-1 px-4 py-3 rounded-xl border-2 ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-700 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } outline-none focus:border-purple-500`}
+                        />
+                        <button
+                          onClick={() => handleAIQuestion(result.id, aiInput[result.id])}
+                          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+                        >
+                          <Send className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Doctor Chat Panel */}
+                  {showDoctorChat === result?.id && (
+                    <div className={`border-t-2 p-6 ${isDarkMode ? 'border-gray-700 bg-blue-900/10' : 'border-gray-200 bg-blue-50'}`}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <MessageCircle className="w-8 h-8 text-blue-600" />
+                        <div>
+                          <h4 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                            Message Your Doctor
+                          </h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Ask questions about this test result
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className={`rounded-xl p-4 mb-4 max-h-64 overflow-y-auto ${isDarkMode ? 'bg-gray-900/50' : 'bg-white'}`}>
+                        {(messages[result.id] || []).length === 0 ? (
+                          <p className={`text-center ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                            No messages yet. Start a conversation with your doctor.
+                          </p>
+                        ) : (
+                          messages[result.id].map((msg) => (
+                            <div key={msg.id} className={`mb-3 ${msg.is_doctor ? 'text-left' : 'text-right'}`}>
+                              <div className={`inline-block px-4 py-2 rounded-2xl max-w-xs ${
+                                msg.is_doctor
+                                  ? isDarkMode
+                                    ? 'bg-gray-800 text-gray-200'
+                                    : 'bg-gray-100 text-gray-800'
+                                  : 'bg-blue-600 text-white'
+                              }`}>
+                                <p className="text-sm">{msg.message}</p>
+                                <p className={`text-xs mt-1 ${msg.is_doctor ? 'text-gray-500' : 'text-blue-100'}`}>
+                                  {new Date(msg.created_at).toLocaleTimeString()}
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Type your message..."
+                          value={newMessage[result.id] || ''}
+                          onChange={(e) => setNewMessage(prev => ({ ...prev, [result.id]: e.target.value }))}
+                          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(result.id)}
+                          disabled={sendingMessage === result.id}
+                          className={`flex-1 px-4 py-3 rounded-xl border-2 ${
+                            isDarkMode
+                              ? 'bg-gray-800 border-gray-700 text-white'
+                              : 'bg-white border-gray-300 text-gray-900'
+                          } outline-none focus:border-blue-500`}
+                        />
+                        <button
+                          onClick={() => handleSendMessage(result.id)}
+                          disabled={sendingMessage === result.id}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
+                        >
+                          <Send className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </PatientLayout>
   );
