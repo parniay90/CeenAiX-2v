@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MapPin, Star, Calendar, Video, Clock, Filter, X, ChevronDown, Award, Languages, Shield, Phone, MessageCircle, Heart, Activity } from 'lucide-react';
+import { Search, MapPin, Star, Calendar, Video, Clock, Filter, X, ChevronDown, Award, Languages, Shield, Phone, MessageCircle, Heart, Activity, ArrowLeft } from 'lucide-react';
 
 interface FindCarePageProps {
   onNavigateToPlatform: () => void;
@@ -131,6 +131,13 @@ export default function FindCarePage({ onNavigateToPlatform, onNavigateHome }: F
             </button>
 
             <nav className="hidden md:flex items-center gap-8">
+              <button
+                onClick={onNavigateHome}
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </button>
               <a href="#" className="text-sm font-semibold text-teal-700 hover:text-teal-800 transition-colors">Find Care</a>
               <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">For Patients</a>
               <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">For Doctors</a>

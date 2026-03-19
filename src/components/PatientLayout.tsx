@@ -4,6 +4,7 @@ import { UserAvatar } from './UserAvatar';
 import { useNavigation } from '../Router';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { BackButton } from './BackButton';
 
 interface NavItem {
   id: string;
@@ -33,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
 export function PatientLayout({ children, activeNav = 'home', onNavChange }: PatientLayoutProps) {
   const { profile } = useUserProfile();
   const { signOut } = useAuth();
-  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology } = useNavigation();
+  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology, navigateBack, canGoBack } = useNavigation();
   const { isDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -161,6 +162,7 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {canGoBack && <BackButton onClick={navigateBack} />}
             <button
               onClick={() => setSidebarOpen((p) => !p)}
               style={{

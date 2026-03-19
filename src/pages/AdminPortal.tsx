@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Calendar, Building2, Stethoscope, Activity, TrendingUp, DollarSign, FileText, Settings, Bell, Search, Filter, Download, Plus, MoreVertical, ChevronRight, ArrowUp, ArrowDown, Eye, CreditCard as Edit, Trash2, CheckCircle, XCircle, Clock, BarChart3, PieChart, UserPlus, Guitar as Hospital, Pill, FlaskConical, Shield, Crown, Zap } from 'lucide-react';
+import { Users, Calendar, Building2, Stethoscope, Activity, TrendingUp, DollarSign, FileText, Settings, Bell, Search, Filter, Download, Plus, MoreVertical, ChevronRight, ArrowUp, ArrowDown, Eye, CreditCard as Edit, Trash2, CheckCircle, XCircle, Clock, BarChart3, PieChart, UserPlus, Guitar as Hospital, Pill, FlaskConical, Shield, Crown, Zap, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -331,6 +331,15 @@ export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-3">
+              {onNavigateHome && (
+                <button
+                  onClick={onNavigateHome}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 text-purple-700 font-semibold transition-all transform hover:scale-105 hover:shadow-md"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </button>
+              )}
               <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Crown className="w-7 h-7 text-white" />
               </div>

@@ -35,6 +35,8 @@ interface NavigationContextType {
   navigateToLabTests: () => void;
   navigateToFindLabs: () => void;
   navigateToRadiology: () => void;
+  navigateBack: () => void;
+  canGoBack: boolean;
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null);
@@ -49,24 +51,42 @@ export const useNavigation = () => {
 
 export default function Router() {
   const [currentView, setCurrentView] = useState<View>('home');
+  const [history, setHistory] = useState<View[]>(['home']);
+
+  const navigateTo = (view: View) => {
+    setHistory((prev) => [...prev, view]);
+    setCurrentView(view);
+  };
+
+  const navigateBack = () => {
+    if (history.length > 1) {
+      const newHistory = [...history];
+      newHistory.pop();
+      const previousView = newHistory[newHistory.length - 1];
+      setHistory(newHistory);
+      setCurrentView(previousView);
+    }
+  };
 
   const navigationValue: NavigationContextType = {
-    navigateToHome: () => setCurrentView('home'),
-    navigateToFindCare: () => setCurrentView('find-care'),
-    navigateToPlatform: () => setCurrentView('platform'),
-    navigateToPatientPortal: () => setCurrentView('patient-portal'),
-    navigateToDoctorPortal: () => setCurrentView('doctor-portal'),
-    navigateToAdminPortal: () => setCurrentView('admin-portal'),
-    navigateToPaymentSettings: () => setCurrentView('payment-settings'),
-    navigateToChangePassword: () => setCurrentView('change-password'),
-    navigateToSettings: () => setCurrentView('settings'),
-    navigateToTerms: () => setCurrentView('terms'),
-    navigateToPrivacy: () => setCurrentView('privacy'),
-    navigateToPrescriptions: () => setCurrentView('prescriptions'),
-    navigateToDoctorRefills: () => setCurrentView('doctor-refills'),
-    navigateToLabTests: () => setCurrentView('lab-tests'),
-    navigateToFindLabs: () => setCurrentView('find-labs'),
-    navigateToRadiology: () => setCurrentView('radiology'),
+    navigateToHome: () => navigateTo('home'),
+    navigateToFindCare: () => navigateTo('find-care'),
+    navigateToPlatform: () => navigateTo('platform'),
+    navigateToPatientPortal: () => navigateTo('patient-portal'),
+    navigateToDoctorPortal: () => navigateTo('doctor-portal'),
+    navigateToAdminPortal: () => navigateTo('admin-portal'),
+    navigateToPaymentSettings: () => navigateTo('payment-settings'),
+    navigateToChangePassword: () => navigateTo('change-password'),
+    navigateToSettings: () => navigateTo('settings'),
+    navigateToTerms: () => navigateTo('terms'),
+    navigateToPrivacy: () => navigateTo('privacy'),
+    navigateToPrescriptions: () => navigateTo('prescriptions'),
+    navigateToDoctorRefills: () => navigateTo('doctor-refills'),
+    navigateToLabTests: () => navigateTo('lab-tests'),
+    navigateToFindLabs: () => navigateTo('find-labs'),
+    navigateToRadiology: () => navigateTo('radiology'),
+    navigateBack,
+    canGoBack: history.length > 1,
   };
 
   const renderView = () => {

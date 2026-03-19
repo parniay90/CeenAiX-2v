@@ -273,6 +273,35 @@ export default function DoctorDashboard({ onNavigateHome }) {
         {/* TOPBAR */}
         <div style={{ background: "#0A1520", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {onNavigateHome && (
+              <button
+                onClick={onNavigateHome}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 16px",
+                  background: "#1E293B",
+                  border: "1px solid #334155",
+                  borderRadius: 10,
+                  color: "#F1F5F9",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateX(-2px)";
+                  e.currentTarget.style.background = "#334155";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateX(0)";
+                  e.currentTarget.style.background = "#1E293B";
+                }}
+              >
+                ← Back
+              </button>
+            )}
             <button onClick={() => setSidebarOpen(p => !p)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: "#475569" }}>☰</button>
             <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, width: 260 }}>
               <span style={{ color: "#475569", fontSize: 13 }}>🔍</span>
