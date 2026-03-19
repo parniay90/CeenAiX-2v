@@ -15,8 +15,9 @@ import DoctorRefillApproval from './pages/DoctorRefillApproval';
 import LabTestsPage from './pages/LabTestsPage';
 import FindLabsPage from './pages/FindLabsPage';
 import EnhancedRadiologyPage from './pages/EnhancedRadiologyPage';
+import MessagesPage from './pages/MessagesPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -35,6 +36,7 @@ interface NavigationContextType {
   navigateToLabTests: () => void;
   navigateToFindLabs: () => void;
   navigateToRadiology: () => void;
+  navigateToMessages: () => void;
   navigateBack: () => void;
   canGoBack: boolean;
 }
@@ -85,6 +87,7 @@ export default function Router() {
     navigateToLabTests: () => navigateTo('lab-tests'),
     navigateToFindLabs: () => navigateTo('find-labs'),
     navigateToRadiology: () => navigateTo('radiology'),
+    navigateToMessages: () => navigateTo('messages'),
     navigateBack,
     canGoBack: history.length > 1,
   };
@@ -134,6 +137,8 @@ export default function Router() {
         return <FindLabsPage />;
       case 'radiology':
         return <EnhancedRadiologyPage />;
+      case 'messages':
+        return <MessagesPage />;
       default:
         return (
           <LandingPage

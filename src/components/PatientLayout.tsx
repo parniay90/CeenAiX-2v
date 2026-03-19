@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
 export function PatientLayout({ children, activeNav = 'home', onNavChange }: PatientLayoutProps) {
   const { profile } = useUserProfile();
   const { signOut } = useAuth();
-  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology, navigateBack, canGoBack } = useNavigation();
+  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology, navigateToMessages, navigateBack, canGoBack } = useNavigation();
   const { isDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -68,6 +68,8 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
       navigateToPrescriptions();
     } else if (itemId === 'radiology') {
       navigateToRadiology();
+    } else if (itemId === 'messages') {
+      navigateToMessages();
     } else if (onNavChange) {
       onNavChange(itemId);
     }
