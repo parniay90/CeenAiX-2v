@@ -16,16 +16,16 @@ interface Message {
   read_at: string | null;
 }
 
-interface Doctor {
+interface Sender {
   id: string;
   full_name: string;
-  specialty: string;
+  specialty?: string;
 }
 
 export default function MessagesPage() {
   const { isDarkMode } = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [doctors, setDoctors] = useState<{ [key: string]: Doctor }>({});
+  const [senders, setSenders] = useState<{ [key: string]: Sender }>({});
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,19 +45,30 @@ export default function MessagesPage() {
 
       if (messagesError) throw messagesError;
 
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, role');
+
+      if (profilesError) throw profilesError;
+
       const { data: doctorsData, error: doctorsError } = await supabase
         .from('doctors')
-        .select('id, full_name, specialty');
+        .select('id, specialty');
 
       if (doctorsError) throw doctorsError;
 
-      const doctorsMap: { [key: string]: Doctor } = {};
-      doctorsData?.forEach((doc: Doctor) => {
-        doctorsMap[doc.id] = doc;
+      const sendersMap: { [key: string]: Sender } = {};
+      profilesData?.forEach((profile: any) => {
+        const doctor = doctorsData?.find((d: any) => d.id === profile.id);
+        sendersMap[profile.id] = {
+          id: profile.id,
+          full_name: profile.full_name || 'Unknown',
+          specialty: doctor?.specialty
+        };
       });
 
       setMessages(messagesData || []);
-      setDoctors(doctorsMap);
+      setSenders(sendersMap);
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
@@ -113,11 +124,11 @@ export default function MessagesPage() {
   };
 
   const getSenderName = (senderId: string) => {
-    return doctors[senderId]?.full_name || 'Unknown Sender';
+    return senders[senderId]?.full_name || 'Unknown Sender';
   };
 
   const getSenderSpecialty = (senderId: string) => {
-    return doctors[senderId]?.specialty || '';
+    return senders[senderId]?.specialty || '';
   };
 
   const formatDate = (dateString: string) => {
