@@ -291,7 +291,13 @@ export default function PatientDashboard({ onNavigateHome }) {
             <div
               key={item.id}
               className={`nav-item ${active === item.id ? "active" : ""}`}
-              onClick={() => setActive(item.id)}
+              onClick={() => {
+                if (item.id === "labs") {
+                  navigateToLabTests();
+                } else {
+                  setActive(item.id);
+                }
+              }}
               style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", color: active === item.id ? "white" : "#475569" }}
             >
               <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
@@ -413,7 +419,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                 {[
                   { label: "Upcoming Appointments", value: appointments.filter(a => a.status === "upcoming").length.toString(), icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
                   { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
-                  { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => setActive("labs") },
+                  { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => navigateToLabTests() },
                   { label: "Unread Messages", value: "1", icon: "💬", color: "#E67E22", onClick: () => setActive("messages") },
                 ].map((s, i) => (
                   <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
@@ -432,7 +438,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                     { icon: "📅", label: "Book Appointment", action: () => setActive("appointments") },
                     { icon: "✦", label: "AI Health Check", action: () => setActive("ai") },
                     { icon: "💊", label: "View Prescriptions", action: () => setActive("prescriptions") },
-                    { icon: "🔬", label: "Lab Results", action: () => setActive("labs") },
+                    { icon: "🔬", label: "Lab Results", action: () => navigateToLabTests() },
                   ].map((q, i) => (
                     <div key={i} className="quick-action" onClick={q.action}>
                       <div style={{ fontSize: 24, marginBottom: 8 }}>{q.icon}</div>
@@ -781,65 +787,6 @@ export default function PatientDashboard({ onNavigateHome }) {
             </div>
           )}
 
-          {/* ── LAB RESULTS ── */}
-          {active === "labs" && (
-            <div>
-              <div className="section-title">Lab Results</div>
-              <div className="section-sub">View your test results, doctor recommendations, and find lab facilities</div>
-
-              {/* Quick Actions */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
-                <div
-                  className="card"
-                  onClick={() => navigateToLabTests()}
-                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#E0F7F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🔬</div>
-                    <div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>View All Test Results</div>
-                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>See results, doctor notes & ask questions</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="card"
-                  onClick={() => navigateToFindLabs()}
-                  style={{ cursor: "pointer", padding: 20, transition: "all 0.2s", border: "2px solid #E2E8F0" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#0D7377"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E2E8F0"; e.currentTarget.style.transform = "translateY(0)"; }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "#E0F7F8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🏥</div>
-                    <div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>Find Lab Facilities</div>
-                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Search labs by test type & location</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "12px 24px", background: "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
-                  {["Test", "Lab", "Date", "Result", "Status"].map((h, i) => (
-                    <div key={i} style={{ fontSize: 11.5, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{h}</div>
-                  ))}
-                </div>
-                {LAB_RESULTS.map((r, i) => (
-                  <div key={r.id} className="lab-row" style={{ display: "grid", gridTemplateColumns: "2fr 1.5fr 1fr 1fr 1fr", padding: "14px 24px", borderBottom: i < LAB_RESULTS.length - 1 ? "1px solid #F8FAFC" : "none", cursor: "pointer" }} onClick={() => navigateToLabTests()}>
-                    <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1A1A2E" }}>{r.test}</div>
-                    <div style={{ fontSize: 13, color: "#64748B" }}>{r.lab}</div>
-                    <div style={{ fontSize: 13, color: "#64748B" }}>{r.date}</div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1A1A2E" }}>{r.result}</div>
-                    <span className={`badge ${r.status === "Normal" ? "badge-green" : r.status === "Review" ? "badge-amber" : "badge-teal"}`}>{r.status}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* ── RADIOLOGY / IMAGING ── */}
           {active === "radiology" && (
