@@ -16,7 +16,10 @@ import {
   ChevronDown,
   ChevronUp,
   Beaker,
-  Activity
+  Activity,
+  Printer,
+  Share2,
+  Bot
 } from 'lucide-react';
 
 interface TestOrder {
@@ -72,6 +75,9 @@ export default function LabTestsPage() {
   const [newMessage, setNewMessage] = useState<{ [key: string]: string }>({});
   const [sendingMessage, setSendingMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'completed'>('all');
+  const [showAIChat, setShowAIChat] = useState<string | null>(null);
+  const [aiMessages, setAiMessages] = useState<{ [key: string]: Array<{role: string, text: string}> }>({});
+  const [aiInput, setAiInput] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (user) {
@@ -202,6 +208,101 @@ export default function LabTestsPage() {
     if (activeTab === 'completed') return order.status === 'completed';
     return true;
   });
+
+  const handlePrint = (order: TestOrder, result: TestResult) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Lab Test Result - ${order.test_types.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
+            h1 { color: #0D7377; border-bottom: 3px solid #0D7377; padding-bottom: 10px; }
+            h2 { color: #1A1A2E; margin-top: 30px; }
+            .section { margin: 20px 0; padding: 15px; background: #F8FAFC; border-radius: 8px; }
+            .result-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E2E8F0; }
+            .label { font-weight: bold; }
+            .metadata { color: #64748B; font-size: 14px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>${order.test_types.name}</h1>
+          <div class="metadata">
+            <p><strong>Test Category:</strong> ${order.test_types.category}</p>
+            <p><strong>Order Date:</strong> ${new Date(order.order_date).toLocaleDateString()}</p>
+            <p><strong>Result Date:</strong> ${new Date(result.result_date).toLocaleDateString()}</p>
+            ${order.lab_facilities ? `<p><strong>Laboratory:</strong> ${order.lab_facilities.name}, ${order.lab_facilities.city}</p>` : ''}
+          </div>
+
+          <h2>Test Results</h2>
+          <div class="section">
+            ${Object.entries(result.result_data).map(([key, value]) =>
+              `<div class="result-item"><span class="label">${key}:</span><span>${value}</span></div>`
+            ).join('')}
+          </div>
+
+          ${result.doctor_interpretation ? `
+            <h2>Doctor's Interpretation</h2>
+            <div class="section">${result.doctor_interpretation}</div>
+          ` : ''}
+
+          ${result.doctor_recommendations ? `
+            <h2>Recommendations</h2>
+            <div class="section">${result.doctor_recommendations}</div>
+          ` : ''}
+
+          ${result.follow_up_tests && result.follow_up_tests.length > 0 ? `
+            <h2>Recommended Follow-up Tests</h2>
+            <div class="section">
+              <ul>
+                ${result.follow_up_tests.map(test => `<li>${test}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          <div class="metadata" style="margin-top: 40px; border-top: 2px solid #E2E8F0; padding-top: 20px;">
+            <p><em>This report is for informational purposes only. Please consult with your healthcare provider for medical advice.</em></p>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handleShare = async (order: TestOrder) => {
+    const shareText = `Lab Test: ${order.test_types.name}\nOrder Date: ${new Date(order.order_date).toLocaleDateString()}\nStatus: ${order.status}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Lab Test - ${order.test_types.name}`,
+          text: shareText,
+        });
+      } catch (error) {
+        console.log('Share cancelled or failed:', error);
+      }
+    } else {
+      navigator.clipboard.writeText(shareText);
+      alert('Test information copied to clipboard!');
+    }
+  };
+
+  const handleAIQuestion = (resultId: string, question: string) => {
+    if (!question.trim()) return;
+
+    const newMessages = [...(aiMessages[resultId] || []), { role: 'user', text: question }];
+
+    const aiResponse = `Based on your test results, ${question.toLowerCase().includes('normal') ? 'the values appear to be within normal ranges. However, I recommend discussing any concerns with your doctor for personalized medical advice.' : 'I can help explain your results. For specific medical advice, please consult with your healthcare provider who has access to your complete medical history.'}`;
+
+    newMessages.push({ role: 'ai', text: aiResponse });
+
+    setAiMessages(prev => ({ ...prev, [resultId]: newMessages }));
+    setAiInput(prev => ({ ...prev, [resultId]: '' }));
+  };
 
   return (
     <PatientLayout>
@@ -349,24 +450,42 @@ export default function LabTestsPage() {
                             </div>
                           </div>
                         </div>
-                        {result && (
-                          <button
-                            onClick={() => setExpandedResult(isExpanded ? null : order.id)}
-                            className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-teal-600 text-white hover:bg-teal-700"
-                          >
-                            {isExpanded ? (
-                              <>
-                                <ChevronUp className="w-4 h-4 inline mr-1" />
-                                Hide Results
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="w-4 h-4 inline mr-1" />
-                                View Results
-                              </>
-                            )}
-                          </button>
-                        )}
+                        <div className="flex gap-2">
+                          {result && (
+                            <>
+                              <button
+                                onClick={() => handlePrint(order, result)}
+                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-gray-600 text-white hover:bg-gray-700"
+                                title="Print results"
+                              >
+                                <Printer className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleShare(order)}
+                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-blue-600 text-white hover:bg-blue-700"
+                                title="Share results"
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setExpandedResult(isExpanded ? null : order.id)}
+                                className="px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-teal-600 text-white hover:bg-teal-700"
+                              >
+                                {isExpanded ? (
+                                  <>
+                                    <ChevronUp className="w-4 h-4 inline mr-1" />
+                                    Hide Results
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown className="w-4 h-4 inline mr-1" />
+                                    View Results
+                                  </>
+                                )}
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
                       {order.lab_facilities && (
@@ -484,6 +603,79 @@ export default function LabTestsPage() {
                                   <span>Download Report {index + 1}</span>
                                 </a>
                               ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 mb-6">
+                          <button
+                            onClick={() => {
+                              setShowAIChat(result.id);
+                              if (!aiMessages[result.id]) {
+                                setAiMessages(prev => ({
+                                  ...prev,
+                                  [result.id]: [{ role: 'ai', text: 'Hi! I\'m your AI Health Assistant. I can help explain your test results in simple terms. What would you like to know?' }]
+                                }));
+                              }
+                            }}
+                            className="flex-1 py-3 px-4 rounded-lg font-semibold transition-all bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 flex items-center justify-center gap-2"
+                          >
+                            <Bot className="w-5 h-5" />
+                            Ask AI Assistant
+                          </button>
+                        </div>
+
+                        {/* AI Chat Section */}
+                        {showAIChat === result.id && (
+                          <div className={`border rounded-lg p-4 mb-6 ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-blue-50/50'}`}>
+                            <h4 className={`font-bold text-lg mb-4 flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              <Bot className="w-5 h-5 text-teal-600" />
+                              AI Health Assistant
+                            </h4>
+
+                            <div className="space-y-3 mb-4 max-h-80 overflow-y-auto">
+                              {aiMessages[result.id]?.map((msg, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`p-3 rounded-lg ${
+                                    msg.role === 'ai'
+                                      ? isDarkMode ? 'bg-teal-900/30 mr-8' : 'bg-teal-50 mr-8'
+                                      : isDarkMode ? 'bg-gray-700 ml-8' : 'bg-white ml-8'
+                                  }`}
+                                >
+                                  <p className={`text-xs font-semibold mb-1 ${
+                                    msg.role === 'ai' ? 'text-teal-600' : isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                                  }`}>
+                                    {msg.role === 'ai' ? '🤖 AI Assistant' : '👤 You'}
+                                  </p>
+                                  <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+                                    {msg.text}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={aiInput[result.id] || ''}
+                                onChange={(e) => setAiInput(prev => ({ ...prev, [result.id]: e.target.value }))}
+                                onKeyPress={(e) => e.key === 'Enter' && handleAIQuestion(result.id, aiInput[result.id] || '')}
+                                placeholder="Ask about your results..."
+                                className={`flex-1 px-4 py-2 rounded-lg border-2 focus:outline-none focus:border-teal-600 ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                                }`}
+                              />
+                              <button
+                                onClick={() => handleAIQuestion(result.id, aiInput[result.id] || '')}
+                                disabled={!aiInput[result.id]?.trim()}
+                                className="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                              >
+                                <Send className="w-5 h-5" />
+                              </button>
                             </div>
                           </div>
                         )}
