@@ -240,11 +240,85 @@ const SAMPLE_STUDIES: RadiologyStudy[] = [
 
 export default function EnhancedRadiologyPage() {
   const { isDarkMode } = useTheme();
-  const [studies, setStudies] = useState<RadiologyStudy[]>(SAMPLE_STUDIES);
+  const [studies, setStudies] = useState<RadiologyStudy[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStudy, setSelectedStudy] = useState<RadiologyStudy | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showImageModal, setShowImageModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRadiologyStudies();
+  }, []);
+
+  const fetchRadiologyStudies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('radiology_studies')
+        .select(`
+          *,
+          radiology_categories (
+            name,
+            color
+          )
+        `)
+        .order('study_date', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedStudies: RadiologyStudy[] = data.map((study: any) => {
+        const categoryName = study.radiology_categories?.name || 'X-Ray';
+        let categoryId = 'musculoskeletal';
+        if (categoryName === 'MRI' && study.body_part === 'Brain') {
+          categoryId = 'neuro';
+        } else if (categoryName === 'CT Scan') {
+          categoryId = 'chest';
+        }
+
+        const findings = study.findings ? study.findings.split('\n\n').filter((f: string) => f.trim()) : [];
+        const impressionLines = study.impression ? study.impression.split('\n\n').filter((f: string) => f.trim()) : [];
+
+        return {
+          id: study.id,
+          category: categoryId,
+          modality: study.study_type,
+          bodyPart: study.body_part,
+          studyDate: study.study_date,
+          status: study.status === 'Completed' ? 'doctor-reviewed' : 'ai-analyzed',
+          imageUrl: study.image_url || 'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg',
+          thumbnailUrl: study.image_url || 'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=400',
+          aiAnalysis: {
+            findings: findings.slice(0, 5),
+            confidence: 0.92,
+            abnormalitiesDetected: study.urgency === 'Urgent' || study.urgency === 'Stat',
+            keyObservations: impressionLines.slice(0, 3),
+            suggestedFollowUp: study.recommendations || 'Follow-up as clinically indicated',
+          },
+          doctorReview: {
+            approved: true,
+            reviewDate: study.report_date,
+            doctorName: study.radiologist_name || 'Radiologist',
+            doctorComments: study.impression,
+            finalDiagnosis: impressionLines[0] || 'Study completed',
+            recommendations: study.recommendations ? study.recommendations.split('\n').filter((r: string) => r.trim()) : [],
+          },
+          technicalDetails: {
+            studyId: study.id,
+            accessionNumber: study.accession_number,
+            radiologist: study.radiologist_name || 'Staff Radiologist',
+            facility: 'CeenAiX Medical Imaging Center',
+          },
+        };
+      });
+
+      setStudies(formattedStudies);
+    } catch (error) {
+      console.error('Error fetching radiology studies:', error);
+      setStudies(SAMPLE_STUDIES);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredStudies = studies.filter((study) => {
     const matchesCategory = selectedCategory === 'all' || study.category === selectedCategory;
@@ -391,8 +465,27 @@ export default function EnhancedRadiologyPage() {
             })}
           </div>
 
-          <div style={{ display: 'grid', gap: 24 }}>
-            {filteredStudies.map((study) => (
+          {loading ? (
+            <div style={{
+              textAlign: 'center',
+              padding: 60,
+              color: isDarkMode ? '#94A3B8' : '#64748B',
+              fontSize: 16
+            }}>
+              Loading radiology studies...
+            </div>
+          ) : filteredStudies.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: 60,
+              color: isDarkMode ? '#94A3B8' : '#64748B',
+              fontSize: 16
+            }}>
+              No studies found matching your criteria
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 24 }}>
+              {filteredStudies.map((study) => (
               <div
                 key={study.id}
                 style={{
@@ -671,8 +764,9 @@ export default function EnhancedRadiologyPage() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
