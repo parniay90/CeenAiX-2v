@@ -40,12 +40,12 @@ interface Pharmacy {
 export default function Settings() {
   const { navigateToPatientPortal } = useNavigation();
   const { profile } = useUserProfile();
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode, isAutoMode, setAutoMode } = useTheme();
 
   const [activeSection, setActiveSection] = useState<'general' | 'notifications' | 'privacy' | 'data' | 'pharmacy'>('general');
 
   // General Settings
-  const [theme, setTheme] = useState<ThemeMode>(isDarkMode ? 'dark' : 'light');
+  const [theme, setTheme] = useState<ThemeMode>(isAutoMode ? 'system' : (isDarkMode ? 'dark' : 'light'));
   const [language, setLanguage] = useState<Language>('en');
   const [timezone, setTimezone] = useState('Asia/Dubai');
 
@@ -80,10 +80,14 @@ export default function Settings() {
   const [newPharmacy, setNewPharmacy] = useState({ name: '', address: '', phone: '' });
 
   const handleSaveSettings = () => {
-    if (theme === 'dark' && !isDarkMode) {
-      toggleDarkMode();
-    } else if (theme === 'light' && isDarkMode) {
-      toggleDarkMode();
+    if (theme === 'system') {
+      setAutoMode(true);
+    } else if (theme === 'dark') {
+      setAutoMode(false);
+      if (!isDarkMode) toggleDarkMode();
+    } else if (theme === 'light') {
+      setAutoMode(false);
+      if (isDarkMode) toggleDarkMode();
     }
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -98,9 +102,9 @@ export default function Settings() {
   ];
 
   const themeOptions = [
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'dark', label: 'Dark', icon: Moon },
-    { value: 'system', label: 'System', icon: Monitor },
+    { value: 'light', label: 'Light', icon: Sun, description: 'Always use light theme' },
+    { value: 'dark', label: 'Dark', icon: Moon, description: 'Always use dark theme' },
+    { value: 'system', label: 'Auto (Time-based)', icon: Monitor, description: 'Dark mode from 6 PM to 6 AM' },
   ];
 
   return (

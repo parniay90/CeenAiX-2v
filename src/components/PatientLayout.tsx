@@ -79,13 +79,15 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
       <div
         style={{
           width: sidebarOpen ? 220 : 60,
-          background: 'linear-gradient(180deg, #0D7377 0%, #14FFEC 100%)',
+          background: isDarkMode
+            ? 'linear-gradient(180deg, #0A5C5F 0%, #0D7377 100%)'
+            : 'linear-gradient(180deg, #0D7377 0%, #14FFEC 100%)',
           padding: '20px 14px',
           display: 'flex',
           flexDirection: 'column',
           gap: 20,
-          transition: 'width 0.3s',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+          transition: 'width 0.3s, background 0.3s',
+          boxShadow: isDarkMode ? '2px 0 8px rgba(0,0,0,0.3)' : '2px 0 8px rgba(0,0,0,0.1)',
           position: 'relative',
           zIndex: 20,
         }}
