@@ -27,10 +27,8 @@ export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchAdminData();
-    }
-  }, [user]);
+    fetchAdminData();
+  }, []);
 
   const fetchAdminData = async () => {
     setLoading(true);

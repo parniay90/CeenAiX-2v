@@ -23,6 +23,9 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
 
     if (user) {
       fetchUserData();
+    } else {
+      setLoading(false);
+      setProfile({ full_name: 'Demo User' });
     }
   }, [user]);
 
