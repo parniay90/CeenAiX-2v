@@ -10,7 +10,6 @@ import { AppointmentScheduler } from '../components/AppointmentScheduler';
 import { MyAppointments } from '../components/MyAppointments';
 import { HealthRecordModal } from '../components/HealthRecordModal';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
 
 const NAV_ITEMS = [
   { id: 'home', label: 'Dashboard', icon: Home },
@@ -334,7 +333,8 @@ const MESSAGES = [
 ];
 
 export default function PatientDashboard() {
-  const { user } = useAuth();
+  const testPatientId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+  const user = { id: testPatientId };
   const [activeTab, setActiveTab] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [apptFilter, setApptFilter] = useState('upcoming');
@@ -617,20 +617,18 @@ function DashboardHome({ onBookAppointment }: { onBookAppointment: () => void })
 }
 
 function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment, refreshTrigger }: any) {
-  const { user } = useAuth();
+  const testPatientId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+  const user = { id: testPatientId };
   const [realAppointments, setRealAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReschedule, setShowReschedule] = useState(false);
   const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      fetchAppointments();
-    }
-  }, [user, filter, refreshTrigger]);
+    fetchAppointments();
+  }, [filter, refreshTrigger]);
 
   const fetchAppointments = async () => {
-    if (!user) return;
 
     setLoading(true);
     const statusFilter = filter === 'upcoming' ? 'scheduled' : 'completed';
@@ -899,20 +897,18 @@ function AppointmentsTab({ filter, setFilter, appointments, onBookAppointment, r
 }
 
 function RecordsTab() {
-  const { user } = useAuth();
+  const testPatientId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+  const user = { id: testPatientId };
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
 
   useEffect(() => {
-    if (user) {
-      fetchHealthRecords();
-    }
-  }, [user]);
+    fetchHealthRecords();
+  }, []);
 
   const fetchHealthRecords = async () => {
-    if (!user) return;
 
     setLoading(true);
 
