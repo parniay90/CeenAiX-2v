@@ -14,7 +14,7 @@ import PrescriptionsPage from './pages/PrescriptionsPage';
 import DoctorRefillApproval from './pages/DoctorRefillApproval';
 import LabTestsPage from './pages/LabTestsPage';
 import FindLabsPage from './pages/FindLabsPage';
-import RadiologyPage from './pages/RadiologyPage';
+import EnhancedRadiologyPage from './pages/EnhancedRadiologyPage';
 
 type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology';
 
@@ -113,7 +113,7 @@ export default function Router() {
       case 'find-labs':
         return <FindLabsPage />;
       case 'radiology':
-        return <RadiologyPage />;
+        return <EnhancedRadiologyPage />;
       default:
         return (
           <LandingPage
