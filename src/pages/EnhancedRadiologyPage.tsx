@@ -288,8 +288,8 @@ export default function EnhancedRadiologyPage() {
           bodyPart: study.body_part,
           studyDate: study.study_date,
           status: study.status === 'Completed' ? 'doctor-reviewed' : 'ai-analyzed',
-          imageUrl: study.image_url || 'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg',
-          thumbnailUrl: study.image_url || 'https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=400',
+          imageUrl: study.image_url || '',
+          thumbnailUrl: study.image_url || '',
           aiAnalysis: {
             findings: findings.slice(0, 5),
             confidence: 0.92,
@@ -520,22 +520,33 @@ export default function EnhancedRadiologyPage() {
                       position: 'relative',
                       background: '#000',
                       cursor: 'pointer',
+                      minHeight: '300px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                     onClick={() => {
                       setSelectedStudy(study);
                       setShowImageModal(true);
                     }}
                   >
-                    <img
-                      src={study.thumbnailUrl}
-                      alt={study.modality}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        opacity: 0.8,
-                      }}
-                    />
+                    {study.thumbnailUrl ? (
+                      <img
+                        src={study.thumbnailUrl}
+                        alt={study.modality}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          opacity: 0.8,
+                        }}
+                        onError={(e) => {
+                          console.error('Image failed to load:', study.thumbnailUrl);
+                        }}
+                      />
+                    ) : (
+                      <Scan size={64} color="#666" />
+                    )}
                     <div
                       style={{
                         position: 'absolute',
