@@ -9,10 +9,10 @@ export function EmergencyButton() {
   const { isDarkMode } = useTheme();
 
   const emergencyContacts = [
-    { name: '911 Emergency', number: '911', icon: Ambulance, type: 'emergency' },
+    { name: '999 Emergency', number: '999', icon: Ambulance, type: 'emergency' },
     { name: 'Emergency AI Assistant', number: '', icon: MessageSquare, type: 'ai' },
-    { name: 'Poison Control', number: '1-800-222-1222', icon: AlertTriangle, type: 'poison' },
-    { name: 'Mental Health Crisis', number: '988', icon: Phone, type: 'mental' },
+    { name: 'Dubai Police', number: '901', icon: Phone, type: 'police' },
+    { name: 'Ambulance', number: '998', icon: AlertTriangle, type: 'ambulance' },
   ];
 
   const handleCall = (number: string, type: string) => {

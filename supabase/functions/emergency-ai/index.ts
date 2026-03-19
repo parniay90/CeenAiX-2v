@@ -105,7 +105,7 @@ function generateEmergencyResponse(
   const lowerMessage = message.toLowerCase();
 
   if (lowerMessage.includes("chest pain") || lowerMessage.includes("heart")) {
-    return "⚠️ CRITICAL: Chest pain could indicate a heart attack. Call 911 immediately or have someone take you to the emergency room. While waiting:\n\n• Sit down and stay calm\n• Chew an aspirin if available and not allergic\n• Loosen tight clothing\n• Do NOT drive yourself\n\nIs someone with you? Are you able to call 911 now?";
+    return "⚠️ CRITICAL: Chest pain could indicate a heart attack. Call 999 immediately or have someone take you to the emergency room. While waiting:\n\n• Sit down and stay calm\n• Chew an aspirin if available and not allergic\n• Loosen tight clothing\n• Do NOT drive yourself\n\nIs someone with you? Are you able to call 999 now?";
   }
 
   if (
@@ -113,11 +113,11 @@ function generateEmergencyResponse(
     lowerMessage.includes("difficulty breathing") ||
     lowerMessage.includes("breathing")
   ) {
-    return "⚠️ URGENT: Difficulty breathing requires immediate attention. Call 911 now. While waiting:\n\n• Sit upright, don't lie down\n• Loosen tight clothing\n• Try to stay calm and breathe slowly\n• If you have an inhaler, use it\n\nAre you able to speak in full sentences? Do you have a history of asthma?";
+    return "⚠️ URGENT: Difficulty breathing requires immediate attention. Call 999 now. While waiting:\n\n• Sit upright, don't lie down\n• Loosen tight clothing\n• Try to stay calm and breathe slowly\n• If you have an inhaler, use it\n\nAre you able to speak in full sentences? Do you have a history of asthma?";
   }
 
   if (lowerMessage.includes("bleeding") || lowerMessage.includes("blood")) {
-    return "⚠️ URGENT: For severe bleeding:\n\n• Apply direct pressure with a clean cloth\n• Don't remove the cloth if it soaks through, add more on top\n• Elevate the wound above heart level if possible\n• Call 911 if bleeding doesn't stop in 10 minutes\n\nHow much blood have you lost? Is the bleeding slowing down with pressure?";
+    return "⚠️ URGENT: For severe bleeding:\n\n• Apply direct pressure with a clean cloth\n• Don't remove the cloth if it soaks through, add more on top\n• Elevate the wound above heart level if possible\n• Call 999 if bleeding doesn't stop in 10 minutes\n\nHow much blood have you lost? Is the bleeding slowing down with pressure?";
   }
 
   if (
@@ -125,11 +125,11 @@ function generateEmergencyResponse(
     lowerMessage.includes("passed out") ||
     lowerMessage.includes("fainted")
   ) {
-    return "⚠️ CRITICAL: If someone is unconscious, call 911 immediately.\n\n• Check if they're breathing\n• Place them on their side (recovery position)\n• Do NOT give them anything to eat or drink\n• Stay with them until help arrives\n\nAre they breathing? Are they responsive to touch or voice?";
+    return "⚠️ CRITICAL: If someone is unconscious, call 999 immediately.\n\n• Check if they're breathing\n• Place them on their side (recovery position)\n• Do NOT give them anything to eat or drink\n• Stay with them until help arrives\n\nAre they breathing? Are they responsive to touch or voice?";
   }
 
   if (lowerMessage.includes("seizure") || lowerMessage.includes("convulsion")) {
-    return "⚠️ CRITICAL: During a seizure:\n\n• Call 911 immediately\n• Protect them from injury (move objects away)\n• Do NOT restrain them or put anything in their mouth\n• Time the seizure\n• Turn them on their side when seizure stops\n\nIs this their first seizure? How long has it lasted?";
+    return "⚠️ CRITICAL: During a seizure:\n\n• Call 999 immediately\n• Protect them from injury (move objects away)\n• Do NOT restrain them or put anything in their mouth\n• Time the seizure\n• Turn them on their side when seizure stops\n\nIs this their first seizure? How long has it lasted?";
   }
 
   if (
@@ -137,7 +137,7 @@ function generateEmergencyResponse(
     lowerMessage.includes("face drooping") ||
     lowerMessage.includes("arm weakness")
   ) {
-    return "⚠️ CRITICAL: Possible stroke. Use FAST test:\n\n• Face: Is one side drooping?\n• Arms: Can they raise both arms?\n• Speech: Is speech slurred?\n• Time: Call 911 immediately\n\nEvery minute counts in stroke treatment. Do NOT drive to hospital. Which symptoms are you experiencing?";
+    return "⚠️ CRITICAL: Possible stroke. Use FAST test:\n\n• Face: Is one side drooping?\n• Arms: Can they raise both arms?\n• Speech: Is speech slurred?\n• Time: Call 999 immediately\n\nEvery minute counts in stroke treatment. Do NOT drive to hospital. Which symptoms are you experiencing?";
   }
 
   if (
@@ -145,7 +145,7 @@ function generateEmergencyResponse(
     lowerMessage.includes("swelling") ||
     lowerMessage.includes("hives")
   ) {
-    return "⚠️ URGENT: Severe allergic reaction needs immediate care. Call 911 if:\n\n• Difficulty breathing or swallowing\n• Swelling of face, lips, or tongue\n• Dizziness or fainting\n• Use EpiPen if available\n\nDo you have an EpiPen? Are you having trouble breathing or swallowing?";
+    return "⚠️ URGENT: Severe allergic reaction needs immediate care. Call 999 if:\n\n• Difficulty breathing or swallowing\n• Swelling of face, lips, or tongue\n• Dizziness or fainting\n• Use EpiPen if available\n\nDo you have an EpiPen? Are you having trouble breathing or swallowing?";
   }
 
   if (
@@ -153,7 +153,7 @@ function generateEmergencyResponse(
     lowerMessage.includes("overdose") ||
     lowerMessage.includes("swallowed")
   ) {
-    return "⚠️ CRITICAL: Poisoning emergency:\n\n• Call Poison Control: 1-800-222-1222\n• Call 911 if unconscious, seizing, or not breathing\n• Do NOT induce vomiting unless instructed\n• Keep the substance container if possible\n\nWhat was ingested? How much and when?";
+    return "⚠️ CRITICAL: Poisoning emergency:\n\n• Call Poison Control: 800-POISON (800-764-766)\n• Call 999 if unconscious, seizing, or not breathing\n• Do NOT induce vomiting unless instructed\n• Keep the substance container if possible\n\nWhat was ingested? How much and when?";
   }
 
   if (lowerMessage.includes("fever") || lowerMessage.includes("temperature")) {
@@ -177,14 +177,14 @@ function generateEmergencyResponse(
     lowerMessage.includes("kill myself") ||
     lowerMessage.includes("end my life")
   ) {
-    return "⚠️ CRITICAL: Your life matters and help is available:\n\n• National Suicide Prevention Lifeline: 988\n• Crisis Text Line: Text HOME to 741741\n• Call 911 if in immediate danger\n\nYou don't have to face this alone. Will you call 988 now? Is someone with you?";
+    return "⚠️ CRITICAL: Your life matters and help is available:\n\n• National Suicide Prevention Lifeline: 800-HOPE (800-4673)\n• Crisis Text Line: Text HOME to 741741\n• Call 999 if in immediate danger\n\nYou don't have to face this alone. Will you call 800-HOPE (800-4673) now? Is someone with you?";
   }
 
   if (
     lowerMessage.includes("anxiety") ||
     lowerMessage.includes("panic attack")
   ) {
-    return "For anxiety/panic attack:\n\n• Find a quiet place to sit\n• Practice deep breathing: inhale 4 counts, hold 4, exhale 4\n• Focus on your senses (5 things you see, 4 you hear, etc.)\n• Remind yourself this will pass\n\nCall 988 for mental health crisis support if needed. How long have you been feeling this way?";
+    return "For anxiety/panic attack:\n\n• Find a quiet place to sit\n• Practice deep breathing: inhale 4 counts, hold 4, exhale 4\n• Focus on your senses (5 things you see, 4 you hear, etc.)\n• Remind yourself this will pass\n\nCall 800-HOPE (800-4673) for mental health crisis support if needed. How long have you been feeling this way?";
   }
 
   if (lowerMessage.includes("pain")) {
@@ -196,8 +196,8 @@ function generateEmergencyResponse(
     lowerMessage.includes("thanks") ||
     lowerMessage.includes("appreciate")
   ) {
-    return "You're welcome. Remember, if your symptoms worsen or you feel this is an emergency, please call 911 or go to the nearest emergency room. Your health and safety are the top priority. Is there anything else I can help you with?";
+    return "You're welcome. Remember, if your symptoms worsen or you feel this is an emergency, please call 999 or go to the nearest emergency room. Your health and safety are the top priority. Is there anything else I can help you with?";
   }
 
-  return "I understand you need help. To better assist you, please tell me:\n\n• What are your main symptoms?\n• When did they start?\n• On a scale of 1-10, how severe?\n• Any other medical conditions?\n\nRemember: If this is life-threatening (chest pain, difficulty breathing, severe bleeding, etc.), call 911 immediately. How can I help assess your situation?";
+  return "I understand you need help. To better assist you, please tell me:\n\n• What are your main symptoms?\n• When did they start?\n• On a scale of 1-10, how severe?\n• Any other medical conditions?\n\nRemember: If this is life-threatening (chest pain, difficulty breathing, severe bleeding, etc.), call 999 immediately. How can I help assess your situation?";
 }
