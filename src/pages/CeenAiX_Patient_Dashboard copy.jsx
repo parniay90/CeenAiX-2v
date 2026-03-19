@@ -292,9 +292,11 @@ export default function PatientDashboard({ onNavigateHome }) {
               key={item.id}
               className={`nav-item ${active === item.id ? "active" : ""}`}
               onClick={() => {
+                console.log("Nav clicked:", item.id);
                 if (item.id === "labs") {
                   navigateToLabTests();
                 } else if (item.id === "messages") {
+                  console.log("Navigating to messages...");
                   navigateToMessages();
                 } else {
                   setActive(item.id);
@@ -422,7 +424,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   { label: "Upcoming Appointments", value: appointments.filter(a => a.status === "upcoming").length.toString(), icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
                   { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
                   { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => navigateToLabTests() },
-                  { label: "Unread Messages", value: "8", icon: "💬", color: "#E67E22", onClick: () => navigateToMessages() },
+                  { label: "Unread Messages", value: "8", icon: "💬", color: "#E67E22", onClick: () => { console.log("Messages clicked!"); navigateToMessages(); } },
                 ].map((s, i) => (
                   <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
