@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { EmergencyButton } from "../components/EmergencyButton";
+import FamilyMedicalHistory from "../components/FamilyMedicalHistory";
 
 const NAV = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -26,11 +27,11 @@ const TODAY_APPTS = [
 ];
 
 const PATIENTS = [
-  { id: 1, name: "Fatima Al Rashid", age: 34, condition: "Type 2 Diabetes", lastVisit: "Today", visits: 8, avatar: "F", insurance: "Daman", phone: "+971 50 XXX XXXX" },
-  { id: 2, name: "Mohammed Al Zaabi", age: 52, condition: "Hypertension", lastVisit: "Today", visits: 12, avatar: "M", insurance: "AXA", phone: "+971 55 XXX XXXX" },
-  { id: 3, name: "Parnia Yazdkhasti", age: 38, condition: "Cardiac monitoring", lastVisit: "Today", visits: 5, avatar: "P", insurance: "Daman", phone: "+971 5X XXX XXXX" },
-  { id: 4, name: "Rajan Pillai", age: 45, condition: "Post-surgery care", lastVisit: "Mar 5", visits: 3, avatar: "R", insurance: "MetLife", phone: "+971 52 XXX XXXX" },
-  { id: 5, name: "Aisha Noor", age: 29, condition: "New patient", lastVisit: "—", visits: 0, avatar: "A", insurance: "Thiqa", phone: "+971 56 XXX XXXX" },
+  { id: 1, name: "Fatima Al Rashid", age: 34, condition: "Type 2 Diabetes", lastVisit: "Today", visits: 8, avatar: "F", insurance: "Daman", phone: "+971 50 XXX XXXX", patient_id: null },
+  { id: 2, name: "Mohammed Al Zaabi", age: 52, condition: "Hypertension", lastVisit: "Today", visits: 12, avatar: "M", insurance: "AXA", phone: "+971 55 XXX XXXX", patient_id: null },
+  { id: 3, name: "Parnia Yazdkhasti", age: 38, condition: "Cardiac monitoring", lastVisit: "Today", visits: 5, avatar: "P", insurance: "Daman", phone: "+971 5X XXX XXXX", patient_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+  { id: 4, name: "Rajan Pillai", age: 45, condition: "Post-surgery care", lastVisit: "Mar 5", visits: 3, avatar: "R", insurance: "MetLife", phone: "+971 52 XXX XXXX", patient_id: null },
+  { id: 5, name: "Aisha Noor", age: 29, condition: "New patient", lastVisit: "—", visits: 0, avatar: "A", insurance: "Thiqa", phone: "+971 56 XXX XXXX", patient_id: null },
 ];
 
 const UPCOMING_APPTS = [
@@ -521,7 +522,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                       ))}
                     </div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                     {[
                       { title: "Conditions", icon: "🫀", items: ["Type 2 Diabetes", "Hypertension"] },
                       { title: "Allergies", icon: "⚠️", items: ["Penicillin — Severe"] },
@@ -536,6 +537,9 @@ export default function DoctorDashboard({ onNavigateHome }) {
                       </div>
                     ))}
                   </div>
+                  {selectedPatient.patient_id && (
+                    <FamilyMedicalHistory patientId={selectedPatient.patient_id} />
+                  )}
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

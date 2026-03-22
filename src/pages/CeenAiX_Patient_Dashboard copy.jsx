@@ -4,11 +4,13 @@ import { UserAvatar } from "../components/UserAvatar";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
 import { EmergencyButton } from "../components/EmergencyButton";
+import FamilyMembersSection from "../components/FamilyMembersSection";
 
 const NAV_ITEMS = [
   { id: "home", label: "Dashboard", icon: "⊞" },
   { id: "appointments", label: "My Appointments", icon: "📅" },
   { id: "records", label: "Health Records", icon: "🗂" },
+  { id: "family", label: "Family Members", icon: "👨‍👩‍👧‍👦" },
   { id: "prescriptions", label: "Prescriptions", icon: "💊" },
   { id: "labs", label: "Lab Results", icon: "🔬" },
   { id: "radiology", label: "Imaging / Radiology", icon: "🩻" },
@@ -972,6 +974,17 @@ export default function PatientDashboard({ onNavigateHome }) {
               <div style={{ marginTop: 12, fontSize: 11.5, color: "#94A3B8", textAlign: "center" }}>
                 ⚠️ This assistant provides health guidance only. Always consult a licensed physician for medical decisions.
               </div>
+            </div>
+          )}
+
+          {/* ── FAMILY MEMBERS ── */}
+          {active === "family" && (
+            <div>
+              <div style={{ marginBottom: 24 }}>
+                <div className="section-title">Family Members</div>
+                <div className="section-sub">Manage your family's health profiles and records</div>
+              </div>
+              <FamilyMembersSection />
             </div>
           )}
 
