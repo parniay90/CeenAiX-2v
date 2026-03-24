@@ -88,6 +88,39 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
   const [showPatientsModal, setShowPatientsModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [editMode, setEditMode] = useState(null);
+  const [profileForm, setProfileForm] = useState({
+    full_name: "Dr. Layla Al Mansoori",
+    specialty: "Cardiology",
+    sub_specialty: "Interventional Cardiology",
+    medical_school: "UAE University, College of Medicine",
+    graduation_year: "2013",
+    dha_license: "DHA-12345678",
+    years_experience: "12",
+    languages: "Arabic, English",
+    clinic_fee: "350",
+    tele_fee: "200",
+    insurance: "Daman, AXA, Thiqa, MetLife",
+    bio: "Dr. Layla Al Mansoori is a board-certified cardiologist with over 12 years of experience treating cardiovascular conditions in Dubai. She specializes in interventional cardiology and preventive heart care, and is committed to delivering patient-centered, evidence-based treatment."
+  });
+  const [showDHAVerification, setShowDHAVerification] = useState(false);
+  const [dhaVerificationForm, setDhaVerificationForm] = useState({
+    request_type: "initial",
+    license_number: "",
+    specialization: "Cardiology",
+    sub_specialization: "",
+    years_of_experience: 12,
+    medical_school: "",
+    graduation_year: 2013,
+    additional_notes: ""
+  });
+  const [showDocumentUpload, setShowDocumentUpload] = useState(false);
+  const [documents, setDocuments] = useState([
+    { id: 1, type: "Medical License", status: "approved", uploaded: "2024-01-15", name: "medical_license.pdf" },
+    { id: 2, type: "DHA Certificate", status: "approved", uploaded: "2024-01-15", name: "dha_cert.pdf" },
+    { id: 3, type: "Medical Degree", status: "approved", uploaded: "2024-01-15", name: "degree.pdf" }
+  ]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1092,59 +1125,258 @@ export default function DoctorDashboard({ onNavigateHome }) {
           {active === "profile" && (
             <div>
               <div className="section-title">My Profile</div>
-              <div className="section-sub">Your public-facing CeenAiX doctor profile</div>
+              <div className="section-sub">Manage your professional information and credentials</div>
+
               <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 24 }}>
-                <div className="glass-card" style={{ textAlign: "center" }}>
-                  <div className="avatar" style={{ width: 80, height: 80, fontSize: 30, margin: "0 auto 16px" }}>L</div>
-                  <div style={{ fontFamily: "Playfair Display, serif", fontSize: 18, fontWeight: 800, color: "#1E293B" }}>Dr. Layla Al Mansoori</div>
-                  <div style={{ fontSize: 12.5, color: "#64748B", marginTop: 4 }}>Cardiologist</div>
-                  <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 10 }}>
-                    <span className="badge badge-green">✓ DHA Verified</span>
-                    <span className="badge badge-teal">Active</span>
+                {/* Left Sidebar */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div className="glass-card" style={{ textAlign: "center" }}>
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                      <div className="avatar" style={{ width: 80, height: 80, fontSize: 30, margin: "0 auto 16px" }}>L</div>
+                      <button
+                        style={{
+                          position: "absolute",
+                          bottom: 12,
+                          right: -4,
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #0D7377, #14BDBD)",
+                          color: "white",
+                          border: "2px solid white",
+                          fontSize: 14,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                      >
+                        📷
+                      </button>
+                    </div>
+                    <div style={{ fontFamily: "Playfair Display, serif", fontSize: 18, fontWeight: 800, color: "#1E293B" }}>{profileForm.full_name}</div>
+                    <div style={{ fontSize: 12.5, color: "#64748B", marginTop: 4 }}>{profileForm.specialty}</div>
+                    <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 10 }}>
+                      <span className="badge badge-green">✓ DHA Verified</span>
+                      <span className="badge badge-teal">Active</span>
+                    </div>
                   </div>
-                  <div style={{ marginTop: 20, borderTop: "1px solid #E2E8F0", paddingTop: 16 }}>
-                    {[["Experience", "12 years"], ["Languages", "Arabic, English"], ["Clinic", "Dubai Heart Center"], ["Rating", "4.9 / 5.0"], ["Consultations", "1,240+"]].map(([k, v], i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 12, borderBottom: i < 4 ? "1px solid #F1F5F9" : "none" }}>
+
+                  <div className="glass-card">
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B", marginBottom: 12 }}>Quick Actions</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      <button
+                        onClick={() => setShowDHAVerification(true)}
+                        className="btn-primary"
+                        style={{ width: "100%", fontSize: 12, padding: "10px" }}
+                      >
+                        🏥 DHA Verification Request
+                      </button>
+                      <button
+                        onClick={() => setShowDocumentUpload(true)}
+                        className="btn-outline"
+                        style={{ width: "100%", fontSize: 12, padding: "10px" }}
+                      >
+                        📄 Manage Documents
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="glass-card">
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B", marginBottom: 12 }}>Statistics</div>
+                    {[["Experience", profileForm.years_experience + " years"], ["Languages", profileForm.languages], ["Consultations", "1,240+"], ["Rating", "4.9 / 5.0"]].map(([k, v], i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", fontSize: 12, borderBottom: i < 3 ? "1px solid #F1F5F9" : "none" }}>
                         <span style={{ color: "#64748B" }}>{k}</span>
                         <span style={{ fontWeight: 700, color: "#1E293B" }}>{v}</span>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {/* Main Content */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {[
-                    { title: "Professional Info", fields: [["Full Name", "Dr. Layla Al Mansoori"], ["Specialty", "Cardiology"], ["Sub-specialty", "Interventional Cardiology"], ["Medical School", "UAE University, College of Medicine"], ["Graduation Year", "2013"], ["DHA License", "●●●●●●●● (Verified ✓)"]] },
-                    { title: "Consultation Fees", fields: [["In-Clinic Fee", "AED 350"], ["Teleconsultation Fee", "AED 200"], ["Insurance Accepted", "Daman, AXA, Thiqa, MetLife"]] },
-                  ].map((section, i) => (
-                    <div key={i} className="glass-card">
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B" }}>{section.title}</div>
-                        <button className="btn-ghost" style={{ fontSize: 11.5 }}>Edit</button>
-                      </div>
+                  {/* Professional Info */}
+                  <div className="glass-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B" }}>Professional Information</div>
+                      <button
+                        className="btn-ghost"
+                        style={{ fontSize: 11.5 }}
+                        onClick={() => setEditMode(editMode === "professional" ? null : "professional")}
+                      >
+                        {editMode === "professional" ? "Cancel" : "Edit"}
+                      </button>
+                    </div>
+
+                    {editMode === "professional" ? (
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                        {section.fields.map(([k, v], j) => (
+                        {[
+                          { label: "Full Name", key: "full_name", type: "text" },
+                          { label: "Specialty", key: "specialty", type: "text" },
+                          { label: "Sub-specialty", key: "sub_specialty", type: "text" },
+                          { label: "Medical School", key: "medical_school", type: "text" },
+                          { label: "Graduation Year", key: "graduation_year", type: "number" },
+                          { label: "DHA License", key: "dha_license", type: "text" },
+                          { label: "Years Experience", key: "years_experience", type: "number" },
+                          { label: "Languages", key: "languages", type: "text" }
+                        ].map((field, i) => (
+                          <div key={i}>
+                            <div style={{ fontSize: 10.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>{field.label}</div>
+                            <input
+                              type={field.type}
+                              value={profileForm[field.key]}
+                              onChange={(e) => setProfileForm({...profileForm, [field.key]: e.target.value})}
+                              style={{
+                                width: "100%",
+                                padding: "8px 12px",
+                                fontSize: 13,
+                                border: "1px solid #E2E8F0",
+                                borderRadius: 8,
+                                background: "white"
+                              }}
+                            />
+                          </div>
+                        ))}
+                        <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, marginTop: 8 }}>
+                          <button className="btn-primary" style={{ flex: 1 }} onClick={() => setEditMode(null)}>Save Changes</button>
+                          <button className="btn-outline" onClick={() => setEditMode(null)}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        {[
+                          ["Full Name", profileForm.full_name],
+                          ["Specialty", profileForm.specialty],
+                          ["Sub-specialty", profileForm.sub_specialty],
+                          ["Medical School", profileForm.medical_school],
+                          ["Graduation Year", profileForm.graduation_year],
+                          ["DHA License", "●●●●●●●● (Verified ✓)"],
+                          ["Years Experience", profileForm.years_experience + " years"],
+                          ["Languages", profileForm.languages]
+                        ].map(([k, v], j) => (
                           <div key={j}>
                             <div style={{ fontSize: 10.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{k}</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "#1E293B" }}>{v}</div>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ))}
-                  <div className="glass-card">
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B", marginBottom: 12 }}>Bio</div>
-                    <div style={{ fontSize: 13, color: "#64748B", lineHeight: 1.7 }}>Dr. Layla Al Mansoori is a board-certified cardiologist with over 12 years of experience treating cardiovascular conditions in Dubai. She specializes in interventional cardiology and preventive heart care, and is committed to delivering patient-centered, evidence-based treatment.</div>
-                    <button className="btn-ghost" style={{ marginTop: 12, fontSize: 11.5 }}>Edit Bio</button>
+                    )}
                   </div>
-                  <div className="glass-card" style={{ background: "rgba(239,68,68,0.05)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: "#DC2626", marginBottom: 12 }}>Account Actions</div>
-                    <button
-                      onClick={handleSignOut}
-                      className="btn-outline"
-                      style={{ width: "100%", borderColor: "#EF4444", color: "#F87171", fontSize: 13 }}
-                    >
-                      Sign Out
-                    </button>
+
+                  {/* Consultation Fees */}
+                  <div className="glass-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B" }}>Consultation Fees</div>
+                      <button
+                        className="btn-ghost"
+                        style={{ fontSize: 11.5 }}
+                        onClick={() => setEditMode(editMode === "fees" ? null : "fees")}
+                      >
+                        {editMode === "fees" ? "Cancel" : "Edit"}
+                      </button>
+                    </div>
+
+                    {editMode === "fees" ? (
+                      <div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                          {[
+                            { label: "In-Clinic Fee (AED)", key: "clinic_fee", type: "number" },
+                            { label: "Teleconsultation Fee (AED)", key: "tele_fee", type: "number" },
+                          ].map((field, i) => (
+                            <div key={i}>
+                              <div style={{ fontSize: 10.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>{field.label}</div>
+                              <input
+                                type={field.type}
+                                value={profileForm[field.key]}
+                                onChange={(e) => setProfileForm({...profileForm, [field.key]: e.target.value})}
+                                style={{
+                                  width: "100%",
+                                  padding: "8px 12px",
+                                  fontSize: 13,
+                                  border: "1px solid #E2E8F0",
+                                  borderRadius: 8,
+                                  background: "white"
+                                }}
+                              />
+                            </div>
+                          ))}
+                          <div style={{ gridColumn: "1 / -1" }}>
+                            <div style={{ fontSize: 10.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 5 }}>Insurance Accepted</div>
+                            <input
+                              type="text"
+                              value={profileForm.insurance}
+                              onChange={(e) => setProfileForm({...profileForm, insurance: e.target.value})}
+                              placeholder="e.g., Daman, AXA, Thiqa"
+                              style={{
+                                width: "100%",
+                                padding: "8px 12px",
+                                fontSize: 13,
+                                border: "1px solid #E2E8F0",
+                                borderRadius: 8,
+                                background: "white"
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                          <button className="btn-primary" style={{ flex: 1 }} onClick={() => setEditMode(null)}>Save Changes</button>
+                          <button className="btn-outline" onClick={() => setEditMode(null)}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                        {[
+                          ["In-Clinic Fee", "AED " + profileForm.clinic_fee],
+                          ["Teleconsultation Fee", "AED " + profileForm.tele_fee],
+                          ["Insurance Accepted", profileForm.insurance]
+                        ].map(([k, v], j) => (
+                          <div key={j} style={{ gridColumn: j === 2 ? "1 / -1" : "auto" }}>
+                            <div style={{ fontSize: 10.5, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>{k}</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "#1E293B" }}>{v}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bio */}
+                  <div className="glass-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1E293B" }}>Professional Bio</div>
+                      <button
+                        className="btn-ghost"
+                        style={{ fontSize: 11.5 }}
+                        onClick={() => setEditMode(editMode === "bio" ? null : "bio")}
+                      >
+                        {editMode === "bio" ? "Cancel" : "Edit Bio"}
+                      </button>
+                    </div>
+
+                    {editMode === "bio" ? (
+                      <div>
+                        <textarea
+                          value={profileForm.bio}
+                          onChange={(e) => setProfileForm({...profileForm, bio: e.target.value})}
+                          rows={5}
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            fontSize: 13,
+                            border: "1px solid #E2E8F0",
+                            borderRadius: 8,
+                            background: "white",
+                            lineHeight: 1.7,
+                            resize: "vertical"
+                          }}
+                        />
+                        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                          <button className="btn-primary" style={{ flex: 1 }} onClick={() => setEditMode(null)}>Save Bio</button>
+                          <button className="btn-outline" onClick={() => setEditMode(null)}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 13, color: "#64748B", lineHeight: 1.7 }}>{profileForm.bio}</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1216,6 +1448,254 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* DHA Verification Request Modal */}
+      {showDHAVerification && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowDHAVerification(false)}>
+          <div className="glass-card" style={{ width: "90%", maxWidth: 700, maxHeight: "90vh", overflow: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1E293B" }}>DHA Verification Request</h3>
+                <p style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>Submit your credentials for DHA verification</p>
+              </div>
+              <button onClick={() => setShowDHAVerification(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Request Type</label>
+                  <select
+                    value={dhaVerificationForm.request_type}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, request_type: e.target.value})}
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  >
+                    <option value="initial">Initial Application</option>
+                    <option value="renewal">License Renewal</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Current License Number (if any)</label>
+                  <input
+                    type="text"
+                    value={dhaVerificationForm.license_number}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, license_number: e.target.value})}
+                    placeholder="DHA-XXXXXXXX"
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Specialization *</label>
+                  <input
+                    type="text"
+                    value={dhaVerificationForm.specialization}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, specialization: e.target.value})}
+                    placeholder="e.g., Cardiology"
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Sub-Specialization</label>
+                  <input
+                    type="text"
+                    value={dhaVerificationForm.sub_specialization}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, sub_specialization: e.target.value})}
+                    placeholder="e.g., Interventional Cardiology"
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Years of Experience *</label>
+                  <input
+                    type="number"
+                    value={dhaVerificationForm.years_of_experience}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, years_of_experience: parseInt(e.target.value)})}
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Graduation Year *</label>
+                  <input
+                    type="number"
+                    value={dhaVerificationForm.graduation_year}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, graduation_year: parseInt(e.target.value)})}
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Medical School *</label>
+                  <input
+                    type="text"
+                    value={dhaVerificationForm.medical_school}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, medical_school: e.target.value})}
+                    placeholder="e.g., UAE University, College of Medicine"
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8 }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ fontSize: 11.5, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Additional Notes</label>
+                  <textarea
+                    value={dhaVerificationForm.additional_notes}
+                    onChange={(e) => setDhaVerificationForm({...dhaVerificationForm, additional_notes: e.target.value})}
+                    rows={3}
+                    placeholder="Any additional information you'd like to provide..."
+                    style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #E2E8F0", borderRadius: 8, resize: "vertical" }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ background: "#F8FAFB", padding: 16, borderRadius: 10, border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#1E293B", marginBottom: 8 }}>📋 Required Documents:</div>
+                <ul style={{ fontSize: 12, color: "#64748B", paddingLeft: 20, margin: 0 }}>
+                  <li>Medical Degree Certificate</li>
+                  <li>Specialization Certificate</li>
+                  <li>Current Medical License (if applicable)</li>
+                  <li>Passport Copy</li>
+                  <li>CV / Resume</li>
+                </ul>
+                <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 8 }}>
+                  Please upload these documents in the Document Management section before submitting your request.
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  className="btn-primary"
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    alert("DHA Verification request submitted successfully! We'll review your application within 5-7 business days.");
+                    setShowDHAVerification(false);
+                  }}
+                >
+                  Submit Verification Request
+                </button>
+                <button className="btn-outline" onClick={() => setShowDHAVerification(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Upload Modal */}
+      {showDocumentUpload && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }} onClick={() => setShowDocumentUpload(false)}>
+          <div className="glass-card" style={{ width: "90%", maxWidth: 800, maxHeight: "90vh", overflow: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E2E8F0" }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1E293B" }}>Document Management</h3>
+                <p style={{ fontSize: 12, color: "#64748B", marginTop: 4 }}>Upload and manage your professional credentials</p>
+              </div>
+              <button onClick={() => setShowDocumentUpload(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: "#64748B" }}>×</button>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ border: "2px dashed #E2E8F0", borderRadius: 12, padding: 32, textAlign: "center", background: "#F8FAFB", cursor: "pointer" }} onClick={() => document.getElementById('doc-upload').click()}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>📄</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#1E293B", marginBottom: 6 }}>Upload New Document</div>
+                <div style={{ fontSize: 12, color: "#64748B" }}>Click to browse or drag and drop your files here</div>
+                <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 4 }}>Supported formats: PDF, JPG, PNG (max 10MB)</div>
+                <input
+                  id="doc-upload"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    if (e.target.files[0]) {
+                      setUploadingDoc(true);
+                      setTimeout(() => {
+                        const newDoc = {
+                          id: documents.length + 1,
+                          type: "New Document",
+                          status: "pending",
+                          uploaded: new Date().toISOString().split('T')[0],
+                          name: e.target.files[0].name
+                        };
+                        setDocuments([...documents, newDoc]);
+                        setUploadingDoc(false);
+                        alert("Document uploaded successfully!");
+                      }, 1500);
+                    }
+                  }}
+                />
+              </div>
+
+              <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                {["Medical License", "DHA Certificate", "Degree", "Specialization Cert", "Passport", "CV"].map((docType, i) => (
+                  <button
+                    key={i}
+                    className="btn-ghost"
+                    style={{ fontSize: 11, padding: "8px 12px" }}
+                    onClick={() => document.getElementById('doc-upload').click()}
+                  >
+                    + {docType}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {uploadingDoc && (
+              <div style={{ background: "#F0F9FF", border: "1px solid #BAE6FD", borderRadius: 10, padding: 12, marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 20 }}>⏳</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#0369A1" }}>Uploading document...</div>
+                  <div style={{ width: "100%", height: 4, background: "#BAE6FD", borderRadius: 2, marginTop: 6, overflow: "hidden" }}>
+                    <div style={{ width: "60%", height: "100%", background: "#0284C7", animation: "pulse 1.5s ease-in-out infinite" }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {documents.map(doc => (
+                <div
+                  key={doc.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    padding: "14px 16px",
+                    background: "#F8FAFB",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: 10
+                  }}
+                >
+                  <div style={{ fontSize: 24 }}>
+                    {doc.status === "approved" ? "✅" : doc.status === "pending" ? "⏳" : "❌"}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: "#1E293B" }}>{doc.type}</div>
+                    <div style={{ fontSize: 11, color: "#64748B", marginTop: 2 }}>{doc.name}</div>
+                    <div style={{ fontSize: 10.5, color: "#94A3B8", marginTop: 2 }}>Uploaded: {doc.uploaded}</div>
+                  </div>
+                  <span className={`badge ${doc.status === "approved" ? "badge-green" : doc.status === "pending" ? "badge-amber" : "badge-red"}`}>
+                    {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                  </span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="btn-ghost" style={{ fontSize: 11, padding: "6px 10px" }}>View</button>
+                    <button className="btn-ghost" style={{ fontSize: 11, padding: "6px 10px", color: "#EF4444" }}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {documents.length === 0 && !uploadingDoc && (
+              <div style={{ textAlign: "center", padding: 40, color: "#94A3B8" }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
+                <div style={{ fontSize: 14 }}>No documents uploaded yet</div>
+              </div>
+            )}
           </div>
         </div>
       )}
