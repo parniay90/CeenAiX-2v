@@ -38,7 +38,7 @@ interface Section {
 }
 
 export default function TermsConditions() {
-  const { navigateToPatientPortal } = useNavigation();
+  const { navigateBack } = useNavigation();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['introduction']));
 
   useEffect(() => {
@@ -246,7 +246,7 @@ export default function TermsConditions() {
         <div style={{ maxWidth: 1000, margin: '0 auto', position: 'relative' }}>
           {/* Back Button */}
           <button
-            onClick={() => navigateToPatientPortal()}
+            onClick={() => navigateBack()}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -278,7 +278,7 @@ export default function TermsConditions() {
             }}
           >
             <ArrowLeft size={18} />
-            Back to Dashboard
+            Back
           </button>
 
           {/* Hero Header */}
@@ -712,7 +712,7 @@ export default function TermsConditions() {
 
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
               <button
-                onClick={() => navigateToPatientPortal()}
+                onClick={() => navigateBack()}
                 style={{
                   padding: '16px 40px',
                   background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
