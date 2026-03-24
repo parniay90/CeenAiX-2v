@@ -329,7 +329,7 @@ export default function PatientDashboard({ onNavigateHome }) {
         input[type="text"] { font-family: inherit; }
         .quick-action { background: white; border-radius: 14px; padding: 20px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .quick-action:hover { border-color: #0D7377; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,115,119,0.12); }
-        .profile-menu { position: absolute; top: 50px; right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); min-width: 240px; z-index: 100; overflow: hidden; }
+        .profile-menu { position: absolute; top: 50px; right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); min-width: 240px; z-index: 9999; overflow: hidden; }
         .profile-menu-item { padding: 12px 20px; display: flex; align-items: center; gap: 12px; font-size: 13.5px; color: #475569; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
         .profile-menu-item:hover { background: #F8FAFC; border-left-color: #0D7377; color: #0D7377; }
         .profile-menu-item.danger { color: #EF4444; }
@@ -434,7 +434,10 @@ export default function PatientDashboard({ onNavigateHome }) {
             <div style={{ position: "relative" }} ref={profileMenuRef}>
               <div
                 style={{ cursor: "pointer" }}
-                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileMenuOpen(!profileMenuOpen);
+                }}
               >
                 <UserAvatar size={36} fontSize={14} />
               </div>

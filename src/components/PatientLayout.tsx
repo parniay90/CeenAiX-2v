@@ -229,7 +229,10 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
               ></span>
             </div>
             <div style={{ position: 'relative' }} ref={profileMenuRef}>
-              <div style={{ cursor: 'pointer' }} onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
+              <div style={{ cursor: 'pointer' }} onClick={(e) => {
+                e.stopPropagation();
+                setProfileMenuOpen(!profileMenuOpen);
+              }}>
                 <UserAvatar size={36} fontSize={14} />
               </div>
 
@@ -243,7 +246,7 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
                     borderRadius: 12,
                     boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
                     minWidth: 240,
-                    zIndex: 1000,
+                    zIndex: 9999,
                   }}
                 >
                   <div style={{ padding: '16px 20px', borderBottom: isDarkMode ? '1px solid #2D3748' : '1px solid #F1F5F9' }}>
