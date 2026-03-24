@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { EmergencyButton } from "../components/EmergencyButton";
 import FamilyMedicalHistory from "../components/FamilyMedicalHistory";
+import { useNavigation } from "../Router";
 
 const NAV = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -71,6 +72,7 @@ const CONSULTATION_PATIENT = {
 };
 
 export default function DoctorDashboard({ onNavigateHome }) {
+  const navigation = useNavigation();
   const [active, setActive] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [consultOpen, setConsultOpen] = useState(false);
@@ -353,7 +355,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
               }}>
                 {[
                   { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
-                  { icon: "⚙️", label: "Settings", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                  { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
                   { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
                   { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
                   { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
@@ -472,7 +474,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
 
                   {[
                     { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
-                    { icon: "⚙️", label: "Settings", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                    { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
                     { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
                     { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
                     { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
