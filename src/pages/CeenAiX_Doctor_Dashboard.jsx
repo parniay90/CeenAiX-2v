@@ -14,6 +14,7 @@ const NAV = [
   { id: "radiology", label: "Imaging / Radiology", icon: "🩻" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "earnings", label: "Earnings", icon: "💰" },
+  { id: "help", label: "Help & Support", icon: "❓" },
   { id: "profile", label: "My Profile", icon: "👤" },
 ];
 
@@ -304,7 +305,13 @@ export default function DoctorDashboard({ onNavigateHome }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
           {NAV.map(item => (
-            <div key={item.id} className={`nav-item ${active === item.id ? "active" : ""}`} onClick={() => setActive(item.id)}>
+            <div key={item.id} className={`nav-item ${active === item.id ? "active" : ""}`} onClick={() => {
+              if (item.id === "help") {
+                navigation.navigateToHelpSupport();
+              } else {
+                setActive(item.id);
+              }
+            }}>
               <span style={{ fontSize: 15, flexShrink: 0 }}>{item.icon}</span>
               {sidebarOpen && <span style={{ fontSize: 13, fontWeight: 500 }}>{item.label}</span>}
               {item.id === "messages" && sidebarOpen && <span style={{ marginLeft: "auto", background: "#EF4444", color: "white", fontSize: 10, fontWeight: 700, borderRadius: 10, padding: "1px 6px" }}>3</span>}
