@@ -18,6 +18,8 @@ export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const { user } = useAuth();
   const { navigateToNotifications } = useNavigation();
 
@@ -62,13 +64,22 @@ export function NotificationDropdown() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + 8,
+          right: window.innerWidth - rect.right
+        });
+      }
     }
 
     return () => {
@@ -122,8 +133,9 @@ export function NotificationDropdown() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <>
       <button
+        ref={buttonRef}
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
@@ -139,7 +151,15 @@ export function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-200" style={{ zIndex: 9999 }}>
+        <div
+          ref={dropdownRef}
+          className="fixed w-96 bg-white rounded-xl shadow-lg border border-gray-200"
+          style={{
+            zIndex: 9999,
+            top: `${dropdownPosition.top}px`,
+            right: `${dropdownPosition.right}px`
+          }}
+        >
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
             {unreadCount > 0 && (
@@ -215,6 +235,6 @@ export function NotificationDropdown() {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
