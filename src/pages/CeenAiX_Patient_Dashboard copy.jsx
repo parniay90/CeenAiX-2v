@@ -5,6 +5,7 @@ import { NotificationDropdown } from "../components/NotificationDropdown";
 import { useNavigation } from "../Router";
 import { EmergencyButton } from "../components/EmergencyButton";
 import FamilyMembersSection from "../components/FamilyMembersSection";
+import { AIChat } from "../components/AIChat";
 
 const NAV_ITEMS = [
   { id: "home", label: "Dashboard", icon: "⊞" },
@@ -932,45 +933,12 @@ export default function PatientDashboard({ onNavigateHome }) {
                 </div>
                 <div className="section-title" style={{ margin: 0 }}>AI Health Assistant</div>
               </div>
-              <div className="section-sub">Powered by CeenAiX AI · Your health, intelligently guided</div>
+              <div className="section-sub" style={{ marginBottom: 20 }}>Powered by CeenAiX AI · Your health, intelligently guided</div>
 
-              <div className="card" style={{ height: 420, display: "flex", flexDirection: "column" }}>
-                {/* Messages */}
-                <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 14, paddingBottom: 16 }}>
-                  {aiMessages.map((msg, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
-                      {msg.role === "ai" && (
-                        <div style={{ width: 30, height: 30, background: "linear-gradient(135deg, #6C63FF, #a855f7)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", marginRight: 8, flexShrink: 0, alignSelf: "flex-end" }}>
-                          <span style={{ color: "white", fontSize: 12 }}>✦</span>
-                        </div>
-                      )}
-                      <div className={`ai-bubble ${msg.role}`}>{msg.text}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Suggestions */}
-                {aiMessages.length < 3 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-                    {AI_SUGGESTIONS.map((s, i) => (
-                      <button key={i} className="ai-chip" onClick={() => sendAiMessage(s)}>{s}</button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Input */}
-                <div style={{ display: "flex", gap: 10, borderTop: "1px solid #F1F5F9", paddingTop: 14 }}>
-                  <input
-                    type="text"
-                    value={aiInput}
-                    onChange={e => setAiInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && sendAiMessage()}
-                    placeholder="Ask about your health, medications, symptoms..."
-                    style={{ flex: 1, background: "#F0F4F8", border: "none", borderRadius: 10, padding: "10px 16px", fontSize: 13.5, color: "#1A1A2E", outline: "none" }}
-                  />
-                  <button className="btn-primary" onClick={() => sendAiMessage()} style={{ background: "linear-gradient(135deg, #6C63FF, #a855f7)", padding: "10px 20px" }}>Send</button>
-                </div>
+              <div style={{ height: "calc(100vh - 300px)", minHeight: 500 }}>
+                <AIChat />
               </div>
+
               <div style={{ marginTop: 12, fontSize: 11.5, color: "#94A3B8", textAlign: "center" }}>
                 ⚠️ This assistant provides health guidance only. Always consult a licensed physician for medical decisions.
               </div>
