@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, X, CheckCircle, Calendar, FileText, MessageCircle, TestTube } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../Router';
 
 interface Notification {
   id: string;
@@ -18,6 +19,7 @@ export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const { navigateToNotifications } = useNavigation();
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -197,7 +199,13 @@ export function NotificationDropdown() {
 
           {notifications.length > 0 && (
             <div className="p-3 border-t border-gray-200">
-              <button className="w-full text-sm text-[#0D7377] hover:text-[#0a5c5f] font-medium text-center">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  navigateToNotifications();
+                }}
+                className="w-full text-sm text-[#0D7377] hover:text-[#0a5c5f] font-medium text-center"
+              >
                 View all notifications
               </button>
             </div>

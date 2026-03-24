@@ -356,7 +356,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 {[
                   { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
                   { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
-                  { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
+                  { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
                   { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
                   { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
                   { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },
@@ -475,7 +475,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                   {[
                     { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
                     { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
-                    { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
+                    { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
                     { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
                     { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
                     { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },

@@ -17,8 +17,9 @@ import FindLabsPage from './pages/FindLabsPage';
 import EnhancedRadiologyPage from './pages/EnhancedRadiologyPage';
 import MessagesPage from './pages/MessagesPage';
 import DoctorSettings from './pages/DoctorSettings';
+import NotificationsPage from './pages/NotificationsPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -39,6 +40,7 @@ interface NavigationContextType {
   navigateToRadiology: () => void;
   navigateToMessages: () => void;
   navigateToDoctorSettings: () => void;
+  navigateToNotifications: () => void;
   navigateBack: () => void;
   canGoBack: boolean;
 }
@@ -91,6 +93,7 @@ export default function Router() {
     navigateToRadiology: () => navigateTo('radiology'),
     navigateToMessages: () => navigateTo('messages'),
     navigateToDoctorSettings: () => navigateTo('doctor-settings'),
+    navigateToNotifications: () => navigateTo('notifications'),
     navigateBack,
     canGoBack: history.length > 1,
   };
@@ -144,6 +147,8 @@ export default function Router() {
         return <MessagesPage />;
       case 'doctor-settings':
         return <DoctorSettings />;
+      case 'notifications':
+        return <NotificationsPage />;
       default:
         return (
           <LandingPage
