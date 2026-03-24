@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ArrowLeft,
   FileText,
@@ -17,6 +17,19 @@ import {
 import { PatientLayout } from '../components/PatientLayout';
 import { useNavigation } from '../Router';
 
+const fadeInStyle = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
 interface Section {
   id: string;
   title: string;
@@ -27,6 +40,15 @@ interface Section {
 export default function TermsConditions() {
   const { navigateToPatientPortal } = useNavigation();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['introduction']));
+
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fadeInStyle;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedSections);
@@ -202,66 +224,177 @@ export default function TermsConditions() {
     <PatientLayout activeNav="profile">
       <div
         style={{
-          minHeight: '100%',
-          background: 'linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%)',
-          padding: '32px 24px',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0FDFA 100%)',
+          padding: '48px 24px',
+          position: 'relative',
         }}
       >
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        {/* Decorative Elements */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 300,
+            background: 'linear-gradient(180deg, rgba(13,115,119,0.03) 0%, transparent 100%)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ maxWidth: 1000, margin: '0 auto', position: 'relative' }}>
           {/* Back Button */}
           <button
             onClick={() => navigateToPatientPortal()}
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              padding: '8px 16px',
-              background: 'white',
-              border: '1px solid #E2E8F0',
-              borderRadius: 8,
-              color: '#475569',
+              padding: '10px 18px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(13, 115, 119, 0.1)',
+              borderRadius: 12,
+              color: '#0D7377',
               fontSize: 14,
-              fontWeight: 500,
+              fontWeight: 600,
               cursor: 'pointer',
-              marginBottom: 24,
-              transition: 'all 0.2s',
+              marginBottom: 32,
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(13, 115, 119, 0.08)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#F8FAFC';
-              e.currentTarget.style.borderColor = '#CBD5E1';
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.borderColor = '#0D7377';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 115, 119, 0.15)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-              e.currentTarget.style.borderColor = '#E2E8F0';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+              e.currentTarget.style.borderColor = 'rgba(13, 115, 119, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(13, 115, 119, 0.08)';
             }}
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={18} />
             Back to Dashboard
           </button>
 
-          {/* Header */}
+          {/* Hero Header */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #0D7377 0%, #0A5F63 100%)',
+              borderRadius: 24,
+              padding: '60px 48px',
+              marginBottom: 32,
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(13, 115, 119, 0.25)',
+            }}
+          >
+            {/* Decorative Pattern */}
+            <div
+              style={{
+                position: 'absolute',
+                top: -50,
+                right: -50,
+                width: 300,
+                height: 300,
+                background: 'radial-gradient(circle, rgba(20, 255, 236, 0.1) 0%, transparent 70%)',
+                borderRadius: '50%',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: -30,
+                left: -30,
+                width: 200,
+                height: 200,
+                background: 'radial-gradient(circle, rgba(20, 255, 236, 0.08) 0%, transparent 70%)',
+                borderRadius: '50%',
+              }}
+            />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '8px 20px',
+                  background: 'rgba(20, 255, 236, 0.15)',
+                  borderRadius: 30,
+                  marginBottom: 24,
+                }}
+              >
+                <Scale size={18} color="#14FFEC" />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#14FFEC', letterSpacing: '0.5px' }}>
+                  LEGAL DOCUMENT
+                </span>
+              </div>
+
+              <h1
+                style={{
+                  fontSize: 48,
+                  fontWeight: 800,
+                  color: 'white',
+                  marginBottom: 16,
+                  letterSpacing: '-1px',
+                  lineHeight: 1.1,
+                }}
+              >
+                Terms & Conditions
+              </h1>
+
+              <p style={{ fontSize: 18, color: 'rgba(255, 255, 255, 0.9)', lineHeight: 1.7, maxWidth: 700, marginBottom: 20 }}>
+                Please read these terms and conditions carefully before using the CeenAiX platform.
+                By accessing or using our services, you acknowledge that you have read, understood, and
+                agree to be bound by these terms.
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: '#14FFEC',
+                      boxShadow: '0 0 12px rgba(20, 255, 236, 0.6)',
+                    }}
+                  />
+                  <span style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 500 }}>
+                    Last updated: March 24, 2026
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FileText size={16} color="rgba(255, 255, 255, 0.7)" />
+                  <span style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 500 }}>
+                    {sections.length} Sections
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Navigation Card */}
           <div
             style={{
               background: 'white',
-              borderRadius: 16,
-              padding: 40,
-              marginBottom: 24,
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              borderRadius: 20,
+              padding: 36,
+              marginBottom: 32,
+              border: '1px solid rgba(13, 115, 119, 0.1)',
+              boxShadow: '0 8px 32px rgba(13, 115, 119, 0.08)',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                marginBottom: 16,
-              }}
-            >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
               <div
                 style={{
-                  width: 56,
-                  height: 56,
+                  width: 44,
+                  height: 44,
                   borderRadius: 12,
                   background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
                   display: 'flex',
@@ -269,95 +402,96 @@ export default function TermsConditions() {
                   justifyContent: 'center',
                 }}
               >
-                <FileText size={28} color="white" />
+                <FileText size={22} color="white" />
               </div>
-              <div>
-                <h1
-                  style={{
-                    fontSize: 32,
-                    fontWeight: 800,
-                    color: '#1A1A2E',
-                    marginBottom: 4,
-                  }}
-                >
-                  Terms & Conditions
-                </h1>
-                <p style={{ fontSize: 14, color: '#64748B' }}>
-                  Last updated: March 13, 2026
-                </p>
-              </div>
+              <h2
+                style={{
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: '#1A1A2E',
+                  margin: 0,
+                }}
+              >
+                Quick Navigation
+              </h2>
             </div>
-            <p style={{ fontSize: 15, color: '#475569', lineHeight: 1.7 }}>
-              Please read these terms and conditions carefully before using the CeenAiX platform.
-              By accessing or using our services, you acknowledge that you have read, understood, and
-              agree to be bound by these terms.
-            </p>
-          </div>
 
-          {/* Table of Contents */}
-          <div
-            style={{
-              background: 'white',
-              borderRadius: 16,
-              padding: 28,
-              marginBottom: 24,
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-            }}
-          >
-            <h2
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: '#1A1A2E',
-                marginBottom: 16,
-              }}
-            >
-              Table of Contents
-            </h2>
-            <div style={{ display: 'grid', gap: 8 }}>
+            <p style={{ fontSize: 14, color: '#64748B', marginBottom: 24, lineHeight: 1.6 }}>
+              Jump to any section by clicking on its title below. All sections are collapsed by default for easier browsing.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
               {sections.map((section, index) => (
                 <button
                   key={section.id}
                   onClick={() => {
                     const element = document.getElementById(section.id);
                     element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    if (!expandedSections.has(section.id)) {
+                      toggleSection(section.id);
+                    }
                   }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
-                    padding: '10px 12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: 8,
+                    gap: 12,
+                    padding: '14px 16px',
+                    background: 'linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%)',
+                    border: '1px solid rgba(13, 115, 119, 0.1)',
+                    borderRadius: 12,
                     color: '#475569',
-                    fontSize: 14,
-                    fontWeight: 500,
+                    fontSize: 13.5,
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
+                    transition: 'all 0.3s ease',
                     textAlign: 'left',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#F8FAFC';
-                    e.currentTarget.style.color = '#0D7377';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)';
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(13, 115, 119, 0.2)';
+                    const icon = e.currentTarget.querySelector('.section-icon') as HTMLElement;
+                    if (icon) icon.style.color = 'white';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%)';
                     e.currentTarget.style.color = '#475569';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                    const icon = e.currentTarget.querySelector('.section-icon') as HTMLElement;
+                    if (icon) icon.style.color = '#0D7377';
                   }}
                 >
-                  <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, minWidth: 24 }}>
-                    {(index + 1).toString().padStart(2, '0')}
+                  <span
+                    className="section-icon"
+                    style={{
+                      color: '#0D7377',
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'color 0.3s ease',
+                    }}
+                  >
+                    {section.icon}
                   </span>
                   <span style={{ flex: 1 }}>{section.title}</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: 'inherit',
+                      opacity: 0.6,
+                    }}
+                  >
+                    {(index + 1).toString().padStart(2, '0')}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Sections */}
-          <div style={{ display: 'grid', gap: 16 }}>
+          <div style={{ display: 'grid', gap: 20 }}>
             {sections.map((section, index) => {
               const isExpanded = expandedSections.has(section.id);
               return (
@@ -366,11 +500,13 @@ export default function TermsConditions() {
                   id={section.id}
                   style={{
                     background: 'white',
-                    borderRadius: 16,
-                    border: '1px solid #E2E8F0',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    borderRadius: 20,
+                    border: isExpanded ? '2px solid #0D7377' : '1px solid rgba(13, 115, 119, 0.1)',
+                    boxShadow: isExpanded
+                      ? '0 12px 40px rgba(13, 115, 119, 0.15)'
+                      : '0 4px 16px rgba(13, 115, 119, 0.06)',
                     overflow: 'hidden',
-                    transition: 'all 0.2s',
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   <button
@@ -380,32 +516,42 @@ export default function TermsConditions() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: 24,
-                      background: isExpanded ? '#F8FAFC' : 'white',
+                      padding: '28px 32px',
+                      background: isExpanded
+                        ? 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)'
+                        : 'white',
                       border: 'none',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s ease',
                     }}
                     onMouseEnter={(e) => {
-                      if (!isExpanded) e.currentTarget.style.background = '#F8FAFC';
+                      if (!isExpanded) {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #F8FAFC 0%, #F0F9FF 100%)';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isExpanded) e.currentTarget.style.background = 'white';
+                      if (!isExpanded) {
+                        e.currentTarget.style.background = 'white';
+                      }
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                       <div
                         style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 10,
+                          width: 52,
+                          height: 52,
+                          borderRadius: 14,
                           background: isExpanded
                             ? 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)'
-                            : '#EFF6FF',
+                            : 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: isExpanded ? 'white' : '#0D7377',
+                          transition: 'all 0.3s ease',
+                          boxShadow: isExpanded
+                            ? '0 8px 20px rgba(13, 115, 119, 0.3)'
+                            : '0 4px 12px rgba(13, 115, 119, 0.1)',
                         }}
                       >
                         {section.icon}
@@ -413,52 +559,79 @@ export default function TermsConditions() {
                       <div style={{ textAlign: 'left' }}>
                         <div
                           style={{
-                            fontSize: 12,
-                            fontWeight: 600,
+                            fontSize: 11,
+                            fontWeight: 700,
                             color: '#94A3B8',
-                            marginBottom: 2,
+                            marginBottom: 4,
+                            letterSpacing: '1px',
                           }}
                         >
                           SECTION {(index + 1).toString().padStart(2, '0')}
                         </div>
                         <div
                           style={{
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: 700,
-                            color: '#1A1A2E',
+                            color: isExpanded ? '#0D7377' : '#1A1A2E',
+                            transition: 'color 0.3s ease',
                           }}
                         >
                           {section.title}
                         </div>
                       </div>
                     </div>
-                    {isExpanded ? (
-                      <ChevronUp size={20} color="#64748B" />
-                    ) : (
-                      <ChevronDown size={20} color="#64748B" />
-                    )}
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 10,
+                        background: isExpanded
+                          ? 'rgba(13, 115, 119, 0.1)'
+                          : 'rgba(148, 163, 184, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {isExpanded ? (
+                        <ChevronUp size={20} color="#0D7377" />
+                      ) : (
+                        <ChevronDown size={20} color="#64748B" />
+                      )}
+                    </div>
                   </button>
 
                   {isExpanded && (
                     <div
                       style={{
-                        padding: '0 24px 24px 24px',
-                        borderTop: '1px solid #F1F5F9',
+                        padding: '0 32px 32px 32px',
+                        animation: 'fadeIn 0.3s ease',
                       }}
                     >
-                      {section.content.map((paragraph, pIndex) => (
-                        <p
-                          key={pIndex}
-                          style={{
-                            fontSize: 14,
-                            color: '#475569',
-                            lineHeight: 1.8,
-                            marginBottom: pIndex < section.content.length - 1 ? 16 : 0,
-                          }}
-                        >
-                          {paragraph}
-                        </p>
-                      ))}
+                      <div
+                        style={{
+                          width: '100%',
+                          height: 1,
+                          background: 'linear-gradient(90deg, transparent 0%, rgba(13, 115, 119, 0.2) 50%, transparent 100%)',
+                          marginBottom: 24,
+                        }}
+                      />
+                      <div style={{ paddingLeft: 72 }}>
+                        {section.content.map((paragraph, pIndex) => (
+                          <p
+                            key={pIndex}
+                            style={{
+                              fontSize: 15,
+                              color: '#475569',
+                              lineHeight: 1.8,
+                              marginBottom: pIndex < section.content.length - 1 ? 20 : 0,
+                            }}
+                          >
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -466,64 +639,154 @@ export default function TermsConditions() {
             })}
           </div>
 
-          {/* Footer */}
+          {/* Footer Call-to-Action */}
           <div
             style={{
               background: 'white',
-              borderRadius: 16,
-              padding: 32,
-              marginTop: 24,
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              borderRadius: 24,
+              padding: 48,
+              marginTop: 32,
+              border: '1px solid rgba(13, 115, 119, 0.1)',
+              boxShadow: '0 8px 32px rgba(13, 115, 119, 0.08)',
               textAlign: 'center',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
+            {/* Decorative Background */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 4,
+                background: 'linear-gradient(90deg, #0D7377 0%, #14FFEC 50%, #0D7377 100%)',
+              }}
+            />
+
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
-                padding: '8px 16px',
-                background: '#FEF3C7',
-                borderRadius: 8,
-                marginBottom: 16,
+                gap: 10,
+                padding: '10px 20px',
+                background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                borderRadius: 12,
+                marginBottom: 24,
+                border: '1px solid rgba(217, 119, 6, 0.2)',
               }}
             >
-              <AlertTriangle size={16} color="#D97706" />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#92400E' }}>
-                Important Notice
+              <AlertTriangle size={18} color="#D97706" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#92400E', letterSpacing: '0.5px' }}>
+                IMPORTANT NOTICE
               </span>
             </div>
+
+            <h3
+              style={{
+                fontSize: 26,
+                fontWeight: 700,
+                color: '#1A1A2E',
+                marginBottom: 16,
+                lineHeight: 1.3,
+              }}
+            >
+              Acknowledgment of Terms
+            </h3>
+
             <p
               style={{
-                fontSize: 14,
-                color: '#475569',
-                lineHeight: 1.7,
-                marginBottom: 20,
+                fontSize: 15,
+                color: '#64748B',
+                lineHeight: 1.8,
+                marginBottom: 32,
+                maxWidth: 700,
+                margin: '0 auto 32px',
               }}
             >
               By continuing to use CeenAiX, you acknowledge that you have read, understood, and
               agree to be bound by these Terms & Conditions. If you do not agree to these terms,
               please discontinue use of the platform immediately.
             </p>
-            <button
-              onClick={() => navigateToPatientPortal()}
+
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center' }}>
+              <button
+                onClick={() => navigateToPatientPortal()}
+                style={{
+                  padding: '16px 40px',
+                  background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
+                  border: 'none',
+                  borderRadius: 14,
+                  color: 'white',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 8px 24px rgba(13, 115, 119, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 12px 32px rgba(13, 115, 119, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(13, 115, 119, 0.3)';
+                }}
+              >
+                I Understand and Agree
+              </button>
+
+              <button
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  padding: '16px 32px',
+                  background: 'white',
+                  border: '2px solid #0D7377',
+                  borderRadius: 14,
+                  color: '#0D7377',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F0F9FF';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Back to Top
+              </button>
+            </div>
+
+            <div
               style={{
-                padding: '12px 32px',
-                background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',
-                border: 'none',
-                borderRadius: 10,
-                color: 'white',
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
+                marginTop: 32,
+                paddingTop: 24,
+                borderTop: '1px solid #E2E8F0',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
-              I Understand and Agree
-            </button>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Mail size={16} color="#0D7377" />
+                  <span style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>
+                    Questions? Email us at{' '}
+                    <a
+                      href="mailto:legal@ceenaix.com"
+                      style={{ color: '#0D7377', fontWeight: 700, textDecoration: 'none' }}
+                    >
+                      legal@ceenaix.com
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
