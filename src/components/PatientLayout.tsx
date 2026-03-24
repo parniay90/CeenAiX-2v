@@ -29,13 +29,14 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'radiology', label: 'Imaging / Radiology', icon: '🩻' },
   { id: 'messages', label: 'Messages', icon: '💬' },
   { id: 'ai', label: 'AI Assistant', icon: '✦' },
+  { id: 'help', label: 'Help & Support', icon: '❓' },
   { id: 'profile', label: 'My Profile', icon: '👤' },
 ];
 
 export function PatientLayout({ children, activeNav = 'home', onNavChange }: PatientLayoutProps) {
   const { profile } = useUserProfile();
   const { signOut } = useAuth();
-  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology, navigateToMessages, navigateBack, canGoBack } = useNavigation();
+  const { navigateToPaymentSettings, navigateToPatientPortal, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome, navigateToPrescriptions, navigateToRadiology, navigateToMessages, navigateToHelpSupport, navigateBack, canGoBack } = useNavigation();
   const { isDarkMode } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -71,6 +72,8 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
       navigateToRadiology();
     } else if (itemId === 'messages') {
       navigateToMessages();
+    } else if (itemId === 'help') {
+      navigateToHelpSupport();
     } else if (onNavChange) {
       onNavChange(itemId);
     }
