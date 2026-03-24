@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { id: "radiology", label: "Imaging / Radiology", icon: "🩻" },
   { id: "messages", label: "Messages", icon: "💬" },
   { id: "ai", label: "AI Assistant", icon: "✦" },
+  { id: "help", label: "Help & Support", icon: "❓" },
   { id: "profile", label: "My Profile", icon: "👤" },
 ];
 
@@ -79,7 +80,7 @@ const AI_RESPONSES = {
 
 export default function PatientDashboard({ onNavigateHome }) {
   const { profile, updateProfile, updateAvatar } = useUserProfile();
-  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology, navigateToLabTests, navigateToFindLabs, navigateToMessages } = useNavigation();
+  const { navigateToPaymentSettings, navigateToChangePassword, navigateToSettings, navigateToTerms, navigateToPrivacy, navigateToHome: navToHome, navigateToRadiology, navigateToLabTests, navigateToFindLabs, navigateToMessages, navigateToHelpSupport } = useNavigation();
   const [active, setActive] = useState("home");
   const [apptTab, setApptTab] = useState("upcoming");
   const [aiMessages, setAiMessages] = useState([
@@ -375,6 +376,8 @@ export default function PatientDashboard({ onNavigateHome }) {
                 } else if (item.id === "messages") {
                   console.log("Navigating to messages...");
                   navigateToMessages();
+                } else if (item.id === "help") {
+                  navigateToHelpSupport();
                 } else {
                   setActive(item.id);
                 }
