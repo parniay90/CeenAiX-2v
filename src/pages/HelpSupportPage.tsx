@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Book, MessageCircle, Phone, Mail, FileText, ChevronDown, ChevronRight, Send, Clock, CheckCircle } from 'lucide-react';
+import { Search, Book, MessageCircle, Phone, Mail, FileText, ChevronDown, Send, Clock, CheckCircle, HelpCircle, Video, AlertCircle, ExternalLink, Users, Shield } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 
 interface FAQItem {
@@ -69,16 +69,36 @@ const faqs: FAQItem[] = [
     question: 'What should I do in a medical emergency?',
     answer: 'For life-threatening emergencies, call 911 immediately. For urgent but non-life-threatening issues, use our Emergency AI Assistant or contact our 24/7 hotline.',
     category: 'Emergency'
+  },
+  {
+    id: '11',
+    question: 'How do I update my payment information?',
+    answer: 'Go to Settings > Payment Settings to add, remove, or update your payment methods. All payment information is securely encrypted.',
+    category: 'Billing'
+  },
+  {
+    id: '12',
+    question: 'Can I have a video consultation?',
+    answer: 'Yes, many of our doctors offer teleconsultation services. When booking an appointment, select "Video Call" as the consultation type.',
+    category: 'Appointments'
   }
 ];
 
-const categories = ['All', 'Appointments', 'Medical Records', 'Prescriptions', 'Privacy & Security', 'Account', 'Insurance', 'Communication', 'Lab Tests', 'Emergency'];
+const categories = ['All', 'Appointments', 'Medical Records', 'Prescriptions', 'Privacy & Security', 'Account', 'Insurance', 'Communication', 'Lab Tests', 'Emergency', 'Billing'];
+
+const quickLinks = [
+  { icon: Book, label: 'Getting Started Guide', description: 'Learn the basics of using CeenAiX', color: 'bg-blue-50 text-blue-600' },
+  { icon: Video, label: 'Video Tutorials', description: 'Watch step-by-step video guides', color: 'bg-purple-50 text-purple-600' },
+  { icon: FileText, label: 'Privacy Policy', description: 'Read our privacy policy', color: 'bg-green-50 text-green-600' },
+  { icon: Shield, label: 'Terms of Service', description: 'View our terms and conditions', color: 'bg-orange-50 text-orange-600' },
+];
 
 export default function HelpSupportPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
   const [supportMessage, setSupportMessage] = useState('');
+  const [supportSubject, setSupportSubject] = useState('');
   const [messageSent, setMessageSent] = useState(false);
 
   const filteredFAQs = faqs.filter(faq => {
@@ -89,54 +109,79 @@ export default function HelpSupportPage() {
   });
 
   const handleSendMessage = () => {
-    if (supportMessage.trim()) {
+    if (supportMessage.trim() && supportSubject.trim()) {
       setMessageSent(true);
       setSupportMessage('');
+      setSupportSubject('');
       setTimeout(() => setMessageSent(false), 5000);
     }
   };
 
   return (
-    <PatientLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+    <PatientLayout activeNav="help">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">Help & Support</h1>
-            <p className="text-slate-600">Find answers to your questions or contact our support team</p>
+          <div className="mb-10 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl mb-4 shadow-lg">
+              <HelpCircle className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-3">How can we help you?</h1>
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">Find answers to your questions, browse our knowledge base, or contact our support team</p>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-8 max-w-3xl mx-auto">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6" />
               <input
                 type="text"
-                placeholder="Search for help..."
+                placeholder="Search for help articles, guides, FAQs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all text-slate-900"
+                className="w-full pl-14 pr-6 py-5 rounded-2xl border-2 border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition-all text-slate-900 text-lg shadow-sm"
               />
             </div>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-6 mb-10">
+            {quickLinks.map((link, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl p-5 border border-slate-200 hover:border-teal-300 hover:shadow-lg transition-all cursor-pointer group"
+              >
+                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 ${link.color}`}>
+                  <link.icon className="w-6 h-6" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-1 group-hover:text-teal-600 transition-colors">{link.label}</h3>
+                <p className="text-sm text-slate-600">{link.description}</p>
+                <ExternalLink className="w-4 h-4 text-slate-400 mt-2 group-hover:text-teal-500 transition-colors" />
+              </div>
+            ))}
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
 
             <div className="lg:col-span-2 space-y-6">
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <Book className="w-6 h-6 text-teal-600" />
-                  <h2 className="text-2xl font-bold text-slate-900">Frequently Asked Questions</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+                    <Book className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">Frequently Asked Questions</h2>
+                    <p className="text-sm text-slate-600">Quick answers to common questions</p>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6 pb-6 border-b border-slate-200">
                   {categories.map(category => (
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                         selectedCategory === category
-                          ? 'bg-teal-600 text-white shadow-sm'
+                          ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md shadow-teal-200'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
@@ -150,130 +195,153 @@ export default function HelpSupportPage() {
                     filteredFAQs.map(faq => (
                       <div
                         key={faq.id}
-                        className="border border-slate-200 rounded-lg overflow-hidden hover:border-teal-300 transition-colors"
+                        className="border-2 border-slate-200 rounded-xl overflow-hidden hover:border-teal-300 transition-all"
                       >
                         <button
                           onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
-                          className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors"
+                          className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors group"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-teal-600 bg-teal-50 px-2 py-1 rounded">
+                          <div className="flex-1 pr-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
                                 {faq.category}
                               </span>
                             </div>
-                            <h3 className="font-semibold text-slate-900">{faq.question}</h3>
+                            <h3 className="font-semibold text-slate-900 group-hover:text-teal-600 transition-colors">{faq.question}</h3>
                           </div>
-                          {expandedFAQ === faq.id ? (
-                            <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                          ) : (
-                            <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                          )}
+                          <ChevronDown className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform ${expandedFAQ === faq.id ? 'rotate-180' : ''}`} />
                         </button>
                         {expandedFAQ === faq.id && (
-                          <div className="px-5 py-4 bg-slate-50 border-t border-slate-200">
+                          <div className="px-6 py-5 bg-gradient-to-br from-slate-50 to-blue-50 border-t-2 border-slate-200">
                             <p className="text-slate-700 leading-relaxed">{faq.answer}</p>
                           </div>
                         )}
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-12">
-                      <p className="text-slate-500">No FAQs match your search. Try different keywords or contact support.</p>
+                    <div className="text-center py-16">
+                      <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <p className="text-slate-500 text-lg">No FAQs match your search</p>
+                      <p className="text-slate-400 text-sm mt-1">Try different keywords or contact support</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <MessageCircle className="w-6 h-6 text-teal-600" />
-                  <h2 className="text-2xl font-bold text-slate-900">Send us a message</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">Contact Support</h2>
+                    <p className="text-sm text-slate-600">Send us a message and we'll respond within 24 hours</p>
+                  </div>
                 </div>
-                <p className="text-slate-600 mb-4">Can't find what you're looking for? Send us a message and we'll get back to you within 24 hours.</p>
 
                 {messageSent && (
-                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <p className="text-green-800 font-medium">Message sent successfully! We'll respond within 24 hours.</p>
+                  <div className="mb-6 p-5 bg-green-50 border-2 border-green-200 rounded-xl flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-green-900 font-semibold mb-1">Message sent successfully!</p>
+                      <p className="text-green-700 text-sm">Our support team will respond within 24 hours.</p>
+                    </div>
                   </div>
                 )}
 
-                <textarea
-                  value={supportMessage}
-                  onChange={(e) => setSupportMessage(e.target.value)}
-                  placeholder="Describe your issue or question..."
-                  rows={5}
-                  className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none resize-none mb-4"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!supportMessage.trim()}
-                  className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <Send className="w-5 h-5" />
-                  Send Message
-                </button>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+                    <input
+                      type="text"
+                      value={supportSubject}
+                      onChange={(e) => setSupportSubject(e.target.value)}
+                      placeholder="Brief description of your issue"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Message</label>
+                    <textarea
+                      value={supportMessage}
+                      onChange={(e) => setSupportMessage(e.target.value)}
+                      placeholder="Describe your issue or question in detail..."
+                      rows={6}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none resize-none transition-all"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!supportMessage.trim() || !supportSubject.trim()}
+                    className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white py-4 rounded-xl font-semibold hover:from-teal-600 hover:to-teal-700 transition-all disabled:from-slate-300 disabled:to-slate-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-teal-200 disabled:shadow-none"
+                  >
+                    <Send className="w-5 h-5" />
+                    Send Message
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="space-y-6">
 
-              <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl shadow-lg p-6 text-white">
-                <h3 className="text-xl font-bold mb-4">Contact Support</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">24/7 Hotline</p>
-                      <p className="text-teal-100">1-800-CEENAIX</p>
-                      <p className="text-sm text-teal-100 mt-1">(1-800-233-6249)</p>
-                    </div>
+              <div className="bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 rounded-2xl shadow-xl p-8 text-white">
+                <div className="flex items-center gap-2 mb-6">
+                  <Phone className="w-6 h-6" />
+                  <h3 className="text-xl font-bold">24/7 Support</h3>
+                </div>
+                <div className="space-y-5">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <p className="text-teal-100 text-sm mb-1">Hotline</p>
+                    <p className="text-xl font-bold">1-800-CEENAIX</p>
+                    <p className="text-teal-100 text-sm mt-1">(1-800-233-6249)</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Email Support</p>
-                      <p className="text-teal-100">support@ceenaix.com</p>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Mail className="w-4 h-4" />
+                      <p className="text-teal-100 text-sm">Email</p>
                     </div>
+                    <p className="font-semibold break-all">support@ceenaix.com</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold mb-1">Response Time</p>
-                      <p className="text-teal-100">Within 24 hours</p>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-4 h-4" />
+                      <p className="text-teal-100 text-sm">Response Time</p>
                     </div>
+                    <p className="font-semibold">Within 24 hours</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 className="text-xl font-bold text-slate-900 mb-4">Quick Links</h3>
-                <div className="space-y-3">
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                    <FileText className="w-5 h-5 text-teal-600" />
-                    <span className="text-slate-700 group-hover:text-teal-600 font-medium">User Guide</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                    <FileText className="w-5 h-5 text-teal-600" />
-                    <span className="text-slate-700 group-hover:text-teal-600 font-medium">Privacy Policy</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                    <FileText className="w-5 h-5 text-teal-600" />
-                    <span className="text-slate-700 group-hover:text-teal-600 font-medium">Terms of Service</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group">
-                    <Book className="w-5 h-5 text-teal-600" />
-                    <span className="text-slate-700 group-hover:text-teal-600 font-medium">Video Tutorials</span>
-                  </a>
+              <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 text-white">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageCircle className="w-6 h-6" />
+                  <h3 className="text-xl font-bold">AI Assistant</h3>
                 </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
-                <h3 className="text-xl font-bold mb-3">Need Immediate Help?</h3>
-                <p className="text-blue-100 mb-4">Our AI Assistant is available 24/7 to answer your questions instantly.</p>
-                <button className="w-full bg-white text-blue-600 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                <p className="text-blue-100 mb-6 leading-relaxed">Get instant answers to your questions with our intelligent AI assistant, available 24/7.</p>
+                <button className="w-full bg-white text-blue-600 py-3.5 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg">
                   Chat with AI Assistant
+                </button>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users className="w-5 h-5 text-slate-600" />
+                  <h3 className="text-lg font-bold text-slate-900">Community</h3>
+                </div>
+                <p className="text-slate-600 text-sm mb-4">Join our community forum to connect with other users and share experiences.</p>
+                <button className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-all">
+                  Visit Community Forum
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl border-2 border-orange-200 p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                  <h3 className="text-lg font-bold text-orange-900">Emergency?</h3>
+                </div>
+                <p className="text-orange-800 text-sm mb-4">For life-threatening emergencies, call 911 immediately.</p>
+                <button className="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg">
+                  Emergency Services
                 </button>
               </div>
             </div>
