@@ -48,6 +48,28 @@ const AI_SUGGESTIONS = [
   "I have a headache, what should I do?",
 ];
 
+const DOCTORS_DATA = [
+  { id: 1, name: "Dr. Layla Al Mansoori", specialty: "Cardiologist", hospital: "Dubai Heart Center", rating: 4.9, experience: "15 years", avatar: "L" },
+  { id: 2, name: "Dr. Rami Khalil", specialty: "General Practitioner", hospital: "HealthFirst Clinic", rating: 4.7, experience: "10 years", avatar: "R" },
+  { id: 3, name: "Dr. Sara Nasser", specialty: "Dermatologist", hospital: "Skin & Care Dubai", rating: 4.8, experience: "12 years", avatar: "S" },
+  { id: 4, name: "Dr. Ahmed Farhan", specialty: "Orthopedist", hospital: "City Medical Center", rating: 4.6, experience: "18 years", avatar: "A" },
+  { id: 5, name: "Dr. Khalid Rashid", specialty: "Cardiologist", hospital: "Emirates Hospital", rating: 4.9, experience: "20 years", avatar: "K" },
+  { id: 6, name: "Dr. Priya Menon", specialty: "Cardiologist", hospital: "Mediclinic City Hospital", rating: 4.8, experience: "14 years", avatar: "P" },
+  { id: 7, name: "Dr. Omar Hassan", specialty: "Neurologist", hospital: "Dubai Neurology Center", rating: 4.7, experience: "16 years", avatar: "O" },
+  { id: 8, name: "Dr. Fatima Ali", specialty: "Pediatrician", hospital: "Children's Hospital Dubai", rating: 4.9, experience: "11 years", avatar: "F" },
+];
+
+const HOSPITALS_DATA = [
+  { id: 1, name: "Dubai Heart Center", location: "Dubai Healthcare City", type: "Specialty Hospital", rating: 4.8, departments: ["Cardiology", "Cardiac Surgery"] },
+  { id: 2, name: "Emirates Hospital", location: "Jumeirah", type: "General Hospital", rating: 4.7, departments: ["Cardiology", "Orthopedics", "Emergency"] },
+  { id: 3, name: "Mediclinic City Hospital", location: "Dubai Healthcare City", type: "General Hospital", rating: 4.9, departments: ["All Specialties"] },
+  { id: 4, name: "HealthFirst Clinic", location: "Dubai Marina", type: "Clinic", rating: 4.6, departments: ["General Practice", "Family Medicine"] },
+  { id: 5, name: "Skin & Care Dubai", location: "Downtown Dubai", type: "Specialty Clinic", rating: 4.8, departments: ["Dermatology", "Cosmetic"] },
+  { id: 6, name: "City Medical Center", location: "Deira", type: "General Hospital", rating: 4.5, departments: ["Orthopedics", "Surgery", "Emergency"] },
+  { id: 7, name: "Dubai Neurology Center", location: "Al Barsha", type: "Specialty Hospital", rating: 4.7, departments: ["Neurology", "Neurosurgery"] },
+  { id: 8, name: "Children's Hospital Dubai", location: "Al Qusais", type: "Specialty Hospital", rating: 4.9, departments: ["Pediatrics", "Neonatology"] },
+];
+
 const AI_RESPONSES = {
   "Check my medications for interactions": "I've reviewed your current medications — Metformin and Atorvastatin. These two are commonly prescribed together and have no major interactions. However, make sure to stay well-hydrated with Metformin and avoid large amounts of grapefruit juice with Atorvastatin. Would you like me to explain more about either medication?",
   "What does my HbA1c result mean?": "Your latest HbA1c is 6.8%, which falls in the pre-diabetic range (5.7%–6.4% is pre-diabetic, 6.5%+ is diabetic). However, since you're on Metformin, your doctor is already managing this. A result of 6.8% suggests your blood sugar is being managed but there's room for improvement. I'd recommend discussing this with Dr. Al Mansoori at your next appointment.",
@@ -93,6 +115,10 @@ export default function PatientDashboard({ onNavigateHome }) {
   const [notificationEnabled, setNotificationEnabled] = useState({});
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [calendarPrescription, setCalendarPrescription] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchFilter, setSearchFilter] = useState("all");
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -209,6 +235,53 @@ export default function PatientDashboard({ onNavigateHome }) {
   const filteredAppts = appointments.filter(a =>
     apptTab === "upcoming" ? a.status === "upcoming" : a.status === "completed"
   );
+
+  const getFilteredSearchResults = () => {
+    if (!searchQuery.trim()) return { doctors: [], hospitals: [] };
+
+    const query = searchQuery.toLowerCase();
+
+    const filteredDoctors = DOCTORS_DATA.filter(doc =>
+      doc.name.toLowerCase().includes(query) ||
+      doc.specialty.toLowerCase().includes(query) ||
+      doc.hospital.toLowerCase().includes(query)
+    );
+
+    const filteredHospitals = HOSPITALS_DATA.filter(hospital =>
+      hospital.name.toLowerCase().includes(query) ||
+      hospital.location.toLowerCase().includes(query) ||
+      hospital.type.toLowerCase().includes(query) ||
+      hospital.departments.some(dept => dept.toLowerCase().includes(query))
+    );
+
+    if (searchFilter === "doctors") return { doctors: filteredDoctors, hospitals: [] };
+    if (searchFilter === "hospitals") return { doctors: [], hospitals: filteredHospitals };
+    return { doctors: filteredDoctors, hospitals: filteredHospitals };
+  };
+
+  const handleSearchClick = () => {
+    setShowSearchResults(true);
+    searchInputRef.current?.focus();
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    if (!showSearchResults) setShowSearchResults(true);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchInputRef.current && !searchInputRef.current.closest('.search-container')?.contains(event.target)) {
+        if (event.target.closest('.search-results-container')) return;
+        setShowSearchResults(false);
+      }
+    };
+
+    if (showSearchResults) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showSearchResults]);
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", background: "#F0F4F8", minHeight: "100vh", display: "flex" }}>
@@ -331,11 +404,26 @@ export default function PatientDashboard({ onNavigateHome }) {
 
         {/* TOP BAR */}
         <div style={{ background: "white", borderBottom: "1px solid #E8EFF5", padding: "14px 32px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
             <button onClick={() => setSidebarOpen(p => !p)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 18, color: "#64748B" }}>☰</button>
-            <div style={{ background: "#F0F4F8", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, width: 280 }}>
+            <div className="search-container" style={{ background: "#F0F4F8", borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8, width: 380, cursor: "text" }} onClick={handleSearchClick}>
               <span style={{ color: "#94A3B8", fontSize: 14 }}>🔍</span>
-              <span style={{ fontSize: 13, color: "#94A3B8" }}>Search records, doctors...</span>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search doctors, hospitals, specialties..."
+                style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 13, color: "#1A1A2E" }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setSearchQuery(""); setShowSearchResults(false); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8", fontSize: 16, padding: 0 }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -403,6 +491,159 @@ export default function PatientDashboard({ onNavigateHome }) {
             </div>
           </div>
         </div>
+
+        {/* SEARCH RESULTS */}
+        {showSearchResults && (
+          <div className="search-results-container" style={{ position: "absolute", top: 70, left: sidebarOpen ? 280 : 70, right: 32, zIndex: 20, maxWidth: 800 }}>
+            <div style={{ background: "white", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", overflow: "hidden" }}>
+              {/* Filter Tabs */}
+              <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #E8EFF5", padding: "12px 16px", background: "#F8FAFC" }}>
+                {[
+                  { id: "all", label: "All Results", icon: "🔍" },
+                  { id: "doctors", label: "Doctors", icon: "👨‍⚕️" },
+                  { id: "hospitals", label: "Hospitals", icon: "🏥" }
+                ].map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setSearchFilter(filter.id)}
+                    style={{
+                      background: searchFilter === filter.id ? "white" : "transparent",
+                      border: searchFilter === filter.id ? "1px solid #E2E8F0" : "1px solid transparent",
+                      borderRadius: 8,
+                      padding: "8px 16px",
+                      fontSize: 13,
+                      fontWeight: searchFilter === filter.id ? 600 : 500,
+                      color: searchFilter === filter.id ? "#0D7377" : "#64748B",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <span>{filter.icon}</span>
+                    <span>{filter.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Results */}
+              <div style={{ maxHeight: 500, overflowY: "auto", padding: 16 }}>
+                {!searchQuery.trim() ? (
+                  <div style={{ textAlign: "center", padding: 40, color: "#94A3B8" }}>
+                    <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+                    <div style={{ fontSize: 14, fontWeight: 500 }}>Start typing to search...</div>
+                    <div style={{ fontSize: 12, marginTop: 4 }}>Find doctors, hospitals, and specialties</div>
+                  </div>
+                ) : (() => {
+                  const results = getFilteredSearchResults();
+                  const hasResults = results.doctors.length > 0 || results.hospitals.length > 0;
+
+                  if (!hasResults) {
+                    return (
+                      <div style={{ textAlign: "center", padding: 40, color: "#94A3B8" }}>
+                        <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+                        <div style={{ fontSize: 14, fontWeight: 500 }}>No results found</div>
+                        <div style={{ fontSize: 12, marginTop: 4 }}>Try different keywords or filters</div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      {/* Doctors Results */}
+                      {results.doctors.length > 0 && (
+                        <div style={{ marginBottom: 24 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>
+                            Doctors ({results.doctors.length})
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            {results.doctors.map(doctor => (
+                              <div
+                                key={doctor.id}
+                                style={{
+                                  padding: 14,
+                                  background: "#F8FAFC",
+                                  borderRadius: 10,
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
+                                  border: "1px solid transparent"
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = "white"; e.currentTarget.style.borderColor = "#0D7377"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = "#F8FAFC"; e.currentTarget.style.borderColor = "transparent"; }}
+                                onClick={() => {
+                                  setShowSearchResults(false);
+                                  setSearchQuery("");
+                                  setActive("appointments");
+                                  setShowBookingModal(true);
+                                  setBookingForm(prev => ({ ...prev, specialty: doctor.specialty, doctor: doctor.name }));
+                                }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                  <div className="avatar" style={{ width: 44, height: 44, fontSize: 16, background: "linear-gradient(135deg, #0D7377, #14FFEC)" }}>
+                                    {doctor.avatar}
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A2E", marginBottom: 2 }}>{doctor.name}</div>
+                                    <div style={{ fontSize: 12, color: "#64748B", marginBottom: 2 }}>{doctor.specialty}</div>
+                                    <div style={{ fontSize: 11, color: "#94A3B8" }}>📍 {doctor.hospital}</div>
+                                  </div>
+                                  <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: "#0D7377", marginBottom: 2 }}>⭐ {doctor.rating}</div>
+                                    <div style={{ fontSize: 11, color: "#94A3B8" }}>{doctor.experience}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Hospitals Results */}
+                      {results.hospitals.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>
+                            Hospitals & Clinics ({results.hospitals.length})
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            {results.hospitals.map(hospital => (
+                              <div
+                                key={hospital.id}
+                                style={{
+                                  padding: 14,
+                                  background: "#F8FAFC",
+                                  borderRadius: 10,
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
+                                  border: "1px solid transparent"
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = "white"; e.currentTarget.style.borderColor = "#0D7377"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = "#F8FAFC"; e.currentTarget.style.borderColor = "transparent"; }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                  <div style={{ fontSize: 28 }}>🏥</div>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1A2E", marginBottom: 2 }}>{hospital.name}</div>
+                                    <div style={{ fontSize: 12, color: "#64748B", marginBottom: 2 }}>📍 {hospital.location}</div>
+                                    <div style={{ fontSize: 11, color: "#94A3B8" }}>{hospital.departments.join(", ")}</div>
+                                  </div>
+                                  <div style={{ textAlign: "right" }}>
+                                    <div style={{ fontSize: 13, fontWeight: 600, color: "#0D7377", marginBottom: 2 }}>⭐ {hospital.rating}</div>
+                                    <div style={{ fontSize: 11, color: "#94A3B8", background: "#E0F2F1", padding: "2px 8px", borderRadius: 4 }}>{hospital.type}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={{ padding: "32px" }}>
 
