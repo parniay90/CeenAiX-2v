@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { EmergencyButton } from "../components/EmergencyButton";
 import FamilyMedicalHistory from "../components/FamilyMedicalHistory";
@@ -87,6 +87,23 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [earningsTab, setEarningsTab] = useState("overview");
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
   const [showPatientsModal, setShowPatientsModal] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuOpen && !event.target.closest('.user-menu-container')) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   const handleSignOut = () => {
     if (onNavigateHome) {
@@ -261,12 +278,90 @@ export default function DoctorDashboard({ onNavigateHome }) {
         </div>
 
         {sidebarOpen && (
-          <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: 14, display: "flex", alignItems: "center", gap: 10, padding: "14px 8px 0" }}>
-            <div className="avatar" style={{ width: 34, height: 34, fontSize: 12 }}>L</div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1E293B" }}>Dr. Layla Al Mansoori</div>
-              <div style={{ fontSize: 10.5, color: "#64748B" }}>Cardiologist · DHA ✓</div>
+          <div className="user-menu-container" style={{ position: "relative" }}>
+            <div
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              style={{
+                borderTop: "1px solid #E2E8F0",
+                paddingTop: 14,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 8px 0",
+                cursor: "pointer",
+                transition: "background 0.2s",
+                borderRadius: "8px",
+                margin: "0 -4px"
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "rgba(13,115,119,0.05)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <div className="avatar" style={{ width: 34, height: 34, fontSize: 12 }}>L</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#1E293B" }}>Dr. Layla Al Mansoori</div>
+                <div style={{ fontSize: 10.5, color: "#64748B" }}>Cardiologist · DHA ✓</div>
+              </div>
+              <div style={{ fontSize: 18, color: "#64748B" }}>⋮</div>
             </div>
+
+            {userMenuOpen && (
+              <div style={{
+                position: "absolute",
+                bottom: "100%",
+                left: 0,
+                right: 0,
+                marginBottom: 8,
+                background: "white",
+                border: "1px solid #E2E8F0",
+                borderRadius: 12,
+                padding: "8px",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+                zIndex: 1000
+              }}>
+                {[
+                  { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                  { icon: "⚙️", label: "Settings", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                  { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
+                  { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
+                  { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
+                  { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },
+                  { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }
+                ].map((item, i) => (
+                  <button
+                    key={i}
+                    onClick={item.action}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 12px",
+                      border: "none",
+                      background: "transparent",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: item.isDanger ? "#DC2626" : "#1E293B",
+                      transition: "all 0.15s",
+                      textAlign: "left",
+                      marginTop: i === 6 ? "4px" : 0,
+                      borderTop: i === 6 ? "1px solid #E2E8F0" : "none",
+                      paddingTop: i === 6 ? "12px" : "10px"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = item.isDanger ? "rgba(220,38,38,0.05)" : "#F8FAFB";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    <span style={{ fontSize: 16 }}>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -315,7 +410,78 @@ export default function DoctorDashboard({ onNavigateHome }) {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ fontSize: 12, color: "#64748B" }}>Thu, 12 Mar 2026</div>
             <NotificationDropdown />
-            <div className="avatar" style={{ width: 34, height: 34, fontSize: 13, cursor: "pointer" }}>L</div>
+            <div className="user-menu-container" style={{ position: "relative" }}>
+              <div
+                className="avatar"
+                style={{ width: 34, height: 34, fontSize: 13, cursor: "pointer" }}
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+              >
+                L
+              </div>
+
+              {userMenuOpen && (
+                <div style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  right: 0,
+                  minWidth: 220,
+                  background: "white",
+                  border: "1px solid #E2E8F0",
+                  borderRadius: 12,
+                  padding: "8px",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+                  zIndex: 1000
+                }}>
+                  <div style={{ padding: "12px", borderBottom: "1px solid #E2E8F0", marginBottom: 4 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#1E293B" }}>Dr. Layla Al Mansoori</div>
+                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Cardiologist</div>
+                  </div>
+
+                  {[
+                    { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                    { icon: "⚙️", label: "Settings", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                    { icon: "🔔", label: "Notifications", action: () => setUserMenuOpen(false) },
+                    { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
+                    { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
+                    { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },
+                    { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }
+                  ].map((item, i) => (
+                    <button
+                      key={i}
+                      onClick={item.action}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 12px",
+                        border: "none",
+                        background: "transparent",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: item.isDanger ? "#DC2626" : "#1E293B",
+                        transition: "all 0.15s",
+                        textAlign: "left",
+                        marginTop: i === 6 ? "4px" : 0,
+                        borderTop: i === 6 ? "1px solid #E2E8F0" : "none",
+                        paddingTop: i === 6 ? "12px" : "10px"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = item.isDanger ? "rgba(220,38,38,0.05)" : "#F8FAFB";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
