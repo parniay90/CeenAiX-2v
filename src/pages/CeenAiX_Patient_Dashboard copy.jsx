@@ -748,6 +748,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── APPOINTMENTS ── */}
           {active === "appointments" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
                 <div>
                   <div className="section-title">My Appointments</div>
@@ -792,6 +814,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── HEALTH RECORDS ── */}
           {active === "records" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
                 <div>
                   <div className="section-title">Health Records</div>
@@ -922,6 +966,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── PRESCRIPTIONS ── */}
           {active === "prescriptions" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ marginBottom: 32 }}>
                 <h2 style={{ fontSize: 36, fontWeight: 900, background: "linear-gradient(135deg, #0D7377, #14FFEC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>
                   My Medications
@@ -1046,6 +1112,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── RADIOLOGY / IMAGING ── */}
           {active === "radiology" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div className="section-title">Imaging & Radiology</div>
               <div className="section-sub">Schedule imaging appointments and view results</div>
 
@@ -1174,6 +1262,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── AI ASSISTANT ── */}
           {active === "ai" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
                 <div style={{ width: 38, height: 38, background: "linear-gradient(135deg, #6C63FF, #a855f7)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span style={{ color: "white", fontWeight: 800, fontSize: 16 }}>✦</span>
@@ -1195,6 +1305,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── FAMILY MEMBERS ── */}
           {active === "family" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ marginBottom: 24 }}>
                 <div className="section-title">Family Members</div>
                 <div className="section-sub">Manage your family's health profiles and records</div>
@@ -1206,6 +1338,28 @@ export default function PatientDashboard({ onNavigateHome }) {
           {/* ── PROFILE ── */}
           {active === "profile" && (
             <div>
+              <button
+                onClick={() => setActive("home")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#0D7377",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginBottom: 16,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => { e.target.style.background = "#E6F4F4"; }}
+                onMouseLeave={(e) => { e.target.style.background = "none"; }}
+              >
+                ← Back
+              </button>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                 <div>
                   <div className="section-title">My Profile</div>
