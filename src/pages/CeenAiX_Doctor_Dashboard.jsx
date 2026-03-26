@@ -91,6 +91,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
   const [showPatientsModal, setShowPatientsModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [editMode, setEditMode] = useState(null);
   const [profileForm, setProfileForm] = useState({
     full_name: "Dr. Layla Al Mansoori",
@@ -127,19 +128,22 @@ export default function DoctorDashboard({ onNavigateHome }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (userMenuOpen && !event.target.closest('.user-menu-container')) {
+      if (userMenuOpen && !event.target.closest('.sidebar-user-menu')) {
         setUserMenuOpen(false);
+      }
+      if (headerMenuOpen && !event.target.closest('.header-user-menu')) {
+        setHeaderMenuOpen(false);
       }
     };
 
-    if (userMenuOpen) {
+    if (userMenuOpen || headerMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [userMenuOpen]);
+  }, [userMenuOpen, headerMenuOpen]);
 
   const handleSignOut = () => {
     if (onNavigateHome) {
@@ -320,7 +324,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
         </div>
 
         {sidebarOpen && (
-          <div className="user-menu-container" style={{ position: "relative" }}>
+          <div className="sidebar-user-menu" style={{ position: "relative" }}>
             <div
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               style={{
@@ -365,8 +369,8 @@ export default function DoctorDashboard({ onNavigateHome }) {
                   { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
                   { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
                   { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
-                  { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
-                  { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },
+                  { icon: "📄", label: "Terms & Conditions", action: () => { navigation.navigateToTerms(); setUserMenuOpen(false); } },
+                  { icon: "🔒", label: "Privacy Policy", action: () => { navigation.navigateToPrivacy(); setUserMenuOpen(false); } },
                   { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }
                 ].map((item, i) => (
                   <button
@@ -452,16 +456,16 @@ export default function DoctorDashboard({ onNavigateHome }) {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ fontSize: 12, color: "#64748B" }}>Thu, 12 Mar 2026</div>
             <NotificationDropdown />
-            <div className="user-menu-container" style={{ position: "relative" }}>
+            <div className="header-user-menu" style={{ position: "relative" }}>
               <div
                 className="avatar"
                 style={{ width: 34, height: 34, fontSize: 13, cursor: "pointer" }}
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                onClick={() => setHeaderMenuOpen(!headerMenuOpen)}
               >
                 L
               </div>
 
-              {userMenuOpen && (
+              {headerMenuOpen && (
                 <div style={{
                   position: "absolute",
                   top: "calc(100% + 8px)",
@@ -480,12 +484,12 @@ export default function DoctorDashboard({ onNavigateHome }) {
                   </div>
 
                   {[
-                    { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
-                    { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
-                    { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
-                    { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
-                    { icon: "📄", label: "Terms & Conditions", action: () => setUserMenuOpen(false) },
-                    { icon: "🔒", label: "Privacy Policy", action: () => setUserMenuOpen(false) },
+                    { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setHeaderMenuOpen(false); } },
+                    { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setHeaderMenuOpen(false); } },
+                    { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setHeaderMenuOpen(false); } },
+                    { icon: "❓", label: "Help & Support", action: () => setHeaderMenuOpen(false) },
+                    { icon: "📄", label: "Terms & Conditions", action: () => { navigation.navigateToTerms(); setHeaderMenuOpen(false); } },
+                    { icon: "🔒", label: "Privacy Policy", action: () => { navigation.navigateToPrivacy(); setHeaderMenuOpen(false); } },
                     { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }
                   ].map((item, i) => (
                     <button
