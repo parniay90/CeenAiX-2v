@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Pill, Calendar, User, MapPin, FileText, Send, Check, Clock, X, AlertCircle, CalendarPlus, Bell, CreditCard as Edit2, Search, Download, Plus, ChevronRight } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
 interface Prescription {
@@ -80,6 +81,7 @@ END:VCALENDAR`;
     document.body.removeChild(link);
   };
 
+  const { user } = useAuth();
   const [showCalendarOptions, setShowCalendarOptions] = useState<string | null>(null);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [refillRequests, setRefillRequests] = useState<RefillRequest[]>([]);
@@ -112,12 +114,12 @@ END:VCALENDAR`;
 
   const fetchPrescriptions = async () => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', mockUserId)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!patientData) {
@@ -147,7 +149,7 @@ END:VCALENDAR`;
       if (error) throw error;
 
       if (!prescriptionsData || prescriptionsData.length === 0) {
-        await supabase.rpc('create_sample_prescription_data', { target_user_id: mockUserId });
+        await supabase.rpc('create_sample_prescription_data', { target_user_id: user.id });
 
         const { data: retryData } = await supabase
           .from('prescriptions')
@@ -222,12 +224,12 @@ END:VCALENDAR`;
 
   const fetchRefillRequests = async () => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', mockUserId)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!patientData) return;
@@ -261,12 +263,12 @@ END:VCALENDAR`;
 
   const fetchPreferredPharmacy = async () => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', mockUserId)
+        .eq('user_id', user.id)
         .eq('is_preferred', true)
         .maybeSingle();
 
@@ -286,12 +288,12 @@ END:VCALENDAR`;
 
   const fetchAvailablePharmacies = async () => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', mockUserId)
+        .eq('user_id', user.id)
         .order('is_preferred', { ascending: false });
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -304,12 +306,12 @@ END:VCALENDAR`;
 
   const handleSelectPharmacy = async (pharmacy: any) => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
 
       await supabase
         .from('user_pharmacies')
         .update({ is_preferred: false })
-        .eq('user_id', mockUserId);
+        .eq('user_id', user.id);
 
       await supabase
         .from('user_pharmacies')
@@ -332,11 +334,11 @@ END:VCALENDAR`;
 
   const handleAddPharmacy = async (name: string, address: string, phone: string) => {
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
       const { error } = await supabase
         .from('user_pharmacies')
         .insert({
-          user_id: mockUserId,
+          user_id: user.id,
           pharmacy_name: name,
           pharmacy_address: address,
           pharmacy_phone: phone,
@@ -374,11 +376,11 @@ END:VCALENDAR`;
     if (!selectedPrescription) return;
 
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', mockUserId)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!patientData) return;
@@ -430,11 +432,11 @@ END:VCALENDAR`;
     if (!selectedPrescription) return;
 
     try {
-      const mockUserId = '00000000-0000-0000-0000-000000000000';
+      if (!user) return;
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', mockUserId)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (!patientData) return;

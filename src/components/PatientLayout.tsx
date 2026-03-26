@@ -145,7 +145,7 @@ export function PatientLayout({ children, activeNav = 'home', onNavChange }: Pat
             <UserAvatar size={34} fontSize={13} />
             <div>
               <div style={{ fontSize: 12.5, fontWeight: 600, color: 'white' }}>
-                {profile.full_name.split(' ')[0]} {profile.full_name.split(' ')[1]?.charAt(0)}.
+                {profile.full_name?.split(' ')[0] || 'User'} {profile.full_name?.split(' ')[1]?.charAt(0) ? `${profile.full_name.split(' ')[1].charAt(0)}.` : ''}
               </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Patient</div>
             </div>

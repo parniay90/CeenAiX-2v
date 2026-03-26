@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Calendar, Clock, MapPin, Video, Bell, BellOff, CalendarPlus, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 

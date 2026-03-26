@@ -116,6 +116,20 @@ export function MyAppointments() {
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
+  const getDateDay = (dateString: string) => {
+    const formatted = formatDate(dateString);
+    if (formatted === 'Today' || formatted === 'Tomorrow') return formatted;
+    const parts = formatted.split(' ');
+    return parts[2] || parts[0];
+  };
+
+  const getDateMonth = (dateString: string) => {
+    const formatted = formatDate(dateString);
+    if (formatted === 'Today' || formatted === 'Tomorrow') return '';
+    const parts = formatted.split(' ');
+    return parts[1] || '';
+  };
+
   const formatTime = (timeStr: string) => {
     const [hours, minutes] = timeStr.split(':').map(Number);
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -192,8 +206,8 @@ export function MyAppointments() {
               <div className="flex flex-col md:flex-row">
                 <div className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white p-6 md:w-48 flex-shrink-0">
                   <div className="text-center">
-                    <div className="text-3xl font-bold mb-1">{formatDate(apt.appointment_date).split(' ')[2]}</div>
-                    <div className="text-sm uppercase tracking-wide opacity-90">{formatDate(apt.appointment_date).split(' ')[1]}</div>
+                    <div className="text-3xl font-bold mb-1">{getDateDay(apt.appointment_date)}</div>
+                    <div className="text-sm uppercase tracking-wide opacity-90">{getDateMonth(apt.appointment_date)}</div>
                     <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="text-2xl font-semibold">{formatTime(apt.appointment_time)}</div>
                     </div>

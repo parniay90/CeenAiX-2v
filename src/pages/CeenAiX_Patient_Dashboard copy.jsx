@@ -395,7 +395,7 @@ export default function PatientDashboard({ onNavigateHome }) {
           <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 16, display: "flex", alignItems: "center", gap: 10 }}>
             <UserAvatar size={34} fontSize={13} />
             <div>
-              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1A1A2E" }}>{profile.full_name.split(' ')[0]} {profile.full_name.split(' ')[1]?.charAt(0)}.</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#1A1A2E" }}>{profile?.full_name?.split(' ')[0] || 'User'} {profile?.full_name?.split(' ')[1]?.charAt(0) ? `${profile.full_name.split(' ')[1].charAt(0)}.` : ''}</div>
               <div style={{ fontSize: 11, color: "#94A3B8" }}>Patient</div>
             </div>
           </div>

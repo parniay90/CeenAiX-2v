@@ -1,4 +1,3 @@
-import React from 'react';
 import { Video as LucideIcon } from 'lucide-react';
 
 interface StatCardProps {

@@ -4,7 +4,7 @@ import {
   Clock, Video, MapPin, Phone, Mail, Bell, Search, Filter, Download, Upload,
   Activity, Heart, TrendingUp, AlertCircle, Check, X, ChevronRight, Plus,
   Settings, LogOut, Menu, Shield, Award, Star, Send, Paperclip, CalendarPlus,
-  Ambulance, PhoneCall
+  Ambulance, PhoneCall, AlertTriangle
 } from 'lucide-react';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { AppointmentScheduler } from '../components/AppointmentScheduler';
