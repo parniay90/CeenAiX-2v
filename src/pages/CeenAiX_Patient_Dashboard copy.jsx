@@ -675,7 +675,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                   { label: "Upcoming Appointments", value: appointments.filter(a => a.status === "upcoming").length.toString(), icon: "📅", color: "#0D7377", onClick: () => setActive("appointments") },
                   { label: "Active Prescriptions", value: "2", icon: "💊", color: "#6C63FF", onClick: () => setActive("prescriptions") },
                   { label: "Lab Results", value: "4", icon: "🔬", color: "#1A9E5C", onClick: () => navigateToLabTests() },
-                  { label: "Unread Messages", value: "8", icon: "💬", color: "#E67E22", onClick: () => { console.log("Messages clicked!"); navigateToMessages(); } },
+                  { label: "Unread Messages", value: "8", icon: "💬", color: "#E67E22", onClick: () => navigateToMessages() },
                 ].map((s, i) => (
                   <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 22, marginBottom: 8 }}>{s.icon}</div>
@@ -690,7 +690,7 @@ export default function PatientDashboard({ onNavigateHome }) {
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E", marginBottom: 14 }}>Quick Actions</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                   {[
-                    { icon: "📅", label: "Book Appointment", action: () => setActive("appointments") },
+                    { icon: "📅", label: "Book Appointment", action: () => { setActive("appointments"); setShowBookingModal(true); } },
                     { icon: "✦", label: "AI Health Check", action: () => setActive("ai") },
                     { icon: "💊", label: "View Prescriptions", action: () => setActive("prescriptions") },
                     { icon: "🔬", label: "Lab Results", action: () => navigateToLabTests() },
