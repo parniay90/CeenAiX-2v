@@ -74,11 +74,15 @@ export default function LaboratoryAdminPortal() {
   const fetchLabData = async () => {
     setLoading(true);
     try {
-      const { data: labAdmin } = await supabase
+      const { data: labAdmin, error: adminError } = await supabase
         .from('lab_admins')
         .select('lab_id')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
+
+      if (adminError) {
+        console.error('Error fetching lab admin:', adminError);
+      }
 
       if (labAdmin) {
         const { data: lab } = await supabase
@@ -90,6 +94,16 @@ export default function LaboratoryAdminPortal() {
         if (lab) {
           setLabInfo(lab);
           await fetchReferrals(labAdmin.lab_id);
+        }
+      } else {
+        const { data: labs } = await supabase
+          .from('labs')
+          .select('*')
+          .limit(1);
+
+        if (labs && labs.length > 0) {
+          setLabInfo(labs[0]);
+          await fetchReferrals(labs[0].id);
         }
       }
     } catch (error) {

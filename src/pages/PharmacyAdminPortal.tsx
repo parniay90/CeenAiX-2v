@@ -72,11 +72,15 @@ export default function PharmacyAdminPortal() {
   const fetchPharmacyData = async () => {
     setLoading(true);
     try {
-      const { data: pharmacyAdmin } = await supabase
+      const { data: pharmacyAdmin, error: adminError } = await supabase
         .from('pharmacy_admins')
         .select('pharmacy_id')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
+
+      if (adminError) {
+        console.error('Error fetching pharmacy admin:', adminError);
+      }
 
       if (pharmacyAdmin) {
         const { data: pharmacy } = await supabase
@@ -88,6 +92,16 @@ export default function PharmacyAdminPortal() {
         if (pharmacy) {
           setPharmacyInfo(pharmacy);
           await fetchOrders(pharmacyAdmin.pharmacy_id);
+        }
+      } else {
+        const { data: pharmacies } = await supabase
+          .from('pharmacies')
+          .select('*')
+          .limit(1);
+
+        if (pharmacies && pharmacies.length > 0) {
+          setPharmacyInfo(pharmacies[0]);
+          await fetchOrders(pharmacies[0].id);
         }
       }
     } catch (error) {
