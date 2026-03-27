@@ -29,7 +29,7 @@ interface PharmacyInfo {
 }
 
 export default function PharmacyAdminPortal() {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState<PrescriptionOrder[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<PrescriptionOrder[]>([]);
@@ -47,10 +47,8 @@ export default function PharmacyAdminPortal() {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchPharmacyData();
-    }
-  }, [user]);
+    fetchPharmacyData();
+  }, []);
 
   useEffect(() => {
     let filtered = orders;
@@ -72,37 +70,18 @@ export default function PharmacyAdminPortal() {
   const fetchPharmacyData = async () => {
     setLoading(true);
     try {
-      const { data: pharmacyAdmin, error: adminError } = await supabase
-        .from('pharmacy_admins')
-        .select('pharmacy_id')
-        .eq('user_id', user?.id)
-        .maybeSingle();
+      const { data: pharmacies, error: pharmaciesError } = await supabase
+        .from('pharmacies')
+        .select('*')
+        .limit(1);
 
-      if (adminError) {
-        console.error('Error fetching pharmacy admin:', adminError);
+      if (pharmaciesError) {
+        console.error('Error fetching pharmacies:', pharmaciesError);
       }
 
-      if (pharmacyAdmin) {
-        const { data: pharmacy } = await supabase
-          .from('pharmacies')
-          .select('*')
-          .eq('id', pharmacyAdmin.pharmacy_id)
-          .single();
-
-        if (pharmacy) {
-          setPharmacyInfo(pharmacy);
-          await fetchOrders(pharmacyAdmin.pharmacy_id);
-        }
-      } else {
-        const { data: pharmacies } = await supabase
-          .from('pharmacies')
-          .select('*')
-          .limit(1);
-
-        if (pharmacies && pharmacies.length > 0) {
-          setPharmacyInfo(pharmacies[0]);
-          await fetchOrders(pharmacies[0].id);
-        }
+      if (pharmacies && pharmacies.length > 0) {
+        setPharmacyInfo(pharmacies[0]);
+        await fetchOrders(pharmacies[0].id);
       }
     } catch (error) {
       console.error('Error fetching pharmacy data:', error);

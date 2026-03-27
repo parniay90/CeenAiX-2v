@@ -26,7 +26,7 @@ interface LabInfo {
 }
 
 export default function LaboratoryAdminPortal() {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const [activeTab, setActiveTab] = useState('orders');
   const [labReferrals, setLabReferrals] = useState<LabReferral[]>([]);
   const [filteredReferrals, setFilteredReferrals] = useState<LabReferral[]>([]);
@@ -45,10 +45,8 @@ export default function LaboratoryAdminPortal() {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchLabData();
-    }
-  }, [user]);
+    fetchLabData();
+  }, []);
 
   useEffect(() => {
     let filtered = labReferrals;
@@ -74,37 +72,18 @@ export default function LaboratoryAdminPortal() {
   const fetchLabData = async () => {
     setLoading(true);
     try {
-      const { data: labAdmin, error: adminError } = await supabase
-        .from('lab_admins')
-        .select('lab_id')
-        .eq('user_id', user?.id)
-        .maybeSingle();
+      const { data: labs, error: labsError } = await supabase
+        .from('labs')
+        .select('*')
+        .limit(1);
 
-      if (adminError) {
-        console.error('Error fetching lab admin:', adminError);
+      if (labsError) {
+        console.error('Error fetching labs:', labsError);
       }
 
-      if (labAdmin) {
-        const { data: lab } = await supabase
-          .from('labs')
-          .select('*')
-          .eq('id', labAdmin.lab_id)
-          .single();
-
-        if (lab) {
-          setLabInfo(lab);
-          await fetchReferrals(labAdmin.lab_id);
-        }
-      } else {
-        const { data: labs } = await supabase
-          .from('labs')
-          .select('*')
-          .limit(1);
-
-        if (labs && labs.length > 0) {
-          setLabInfo(labs[0]);
-          await fetchReferrals(labs[0].id);
-        }
+      if (labs && labs.length > 0) {
+        setLabInfo(labs[0]);
+        await fetchReferrals(labs[0].id);
       }
     } catch (error) {
       console.error('Error fetching lab data:', error);
