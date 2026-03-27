@@ -29,7 +29,7 @@ interface Section {
 }
 
 export default function PrivacyPolicy() {
-  const { navigateToPatientPortal } = useNavigation();
+  const { navigateBack } = useNavigation();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['introduction']));
 
   const toggleSection = (sectionId: string) => {
@@ -490,7 +490,7 @@ export default function PrivacyPolicy() {
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           {/* Back Button */}
           <button
-            onClick={() => navigateToPatientPortal()}
+            onClick={() => navigateBack()}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -909,7 +909,7 @@ export default function PrivacyPolicy() {
               privacy rights, please contact us at privacy@ceenaix.com
             </p>
             <button
-              onClick={() => navigateToPatientPortal()}
+              onClick={() => navigateBack()}
               style={{
                 padding: '12px 32px',
                 background: 'linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)',

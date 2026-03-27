@@ -6,7 +6,7 @@ import { useNavigation } from '../Router';
 
 export default function ChangePassword() {
   const { updatePassword, user } = useAuth();
-  const { navigateToPatientPortal } = useNavigation();
+  const { navigateBack } = useNavigation();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNew, setShowNew] = useState(false);
@@ -55,7 +55,7 @@ export default function ChangePassword() {
       setConfirmPassword('');
 
       setTimeout(() => {
-        navigateToPatientPortal();
+        navigateBack();
       }, 2000);
     } catch (err: any) {
       console.error('Password update error:', err);
@@ -77,7 +77,7 @@ export default function ChangePassword() {
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           {/* Back Button */}
           <button
-            onClick={() => navigateToPatientPortal()}
+            onClick={() => navigateBack()}
             style={{
               display: 'flex',
               alignItems: 'center',

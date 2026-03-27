@@ -38,7 +38,7 @@ interface Pharmacy {
 }
 
 export default function Settings() {
-  const { navigateToPatientPortal } = useNavigation();
+  const { navigateBack } = useNavigation();
   const { profile } = useUserProfile();
   const { isDarkMode, toggleDarkMode, isAutoMode, setAutoMode } = useTheme();
 
@@ -119,7 +119,7 @@ export default function Settings() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           {/* Back Button */}
           <button
-            onClick={() => navigateToPatientPortal()}
+            onClick={() => navigateBack()}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -787,7 +787,7 @@ export default function Settings() {
                               Last changed 30 days ago
                             </p>
                             <button
-                              onClick={() => navigateToPatientPortal()}
+                              onClick={() => navigateBack()}
                               style={{
                                 padding: '8px 16px',
                                 background: isDarkMode ? '#16213E' : 'white',
@@ -1016,7 +1016,7 @@ export default function Settings() {
               {/* Save Button */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                 <button
-                  onClick={() => navigateToPatientPortal()}
+                  onClick={() => navigateBack()}
                   style={{
                     padding: '12px 24px',
                     background: isDarkMode ? '#16213E' : 'white',
