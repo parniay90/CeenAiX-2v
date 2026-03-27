@@ -9,12 +9,30 @@ import { EmergencyButton } from '../components/EmergencyButton';
 export default function CeenAiXPatientDashboard({ onNavigateHome }) {
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [tabHistory, setTabHistory] = useState(['dashboard']);
   const [profile, setProfile] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [healthRecords, setHealthRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeOfDay, setTimeOfDay] = useState('');
+
+  const navigateToTab = (tab) => {
+    setTabHistory(prev => [...prev, tab]);
+    setActiveTab(tab);
+  };
+
+  const handleBackNavigation = () => {
+    if (tabHistory.length > 1) {
+      const newHistory = [...tabHistory];
+      newHistory.pop();
+      const previousTab = newHistory[newHistory.length - 1];
+      setTabHistory(newHistory);
+      setActiveTab(previousTab);
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -120,14 +138,14 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
             title: 'Book Appointment',
             desc: 'Schedule with top doctors',
             gradient: 'from-blue-500 to-cyan-500',
-            action: () => setActiveTab('appointments')
+            action: () => navigateToTab('appointments')
           },
           {
             icon: FileText,
             title: 'View Records',
             desc: 'Access your health data',
             gradient: 'from-purple-500 to-pink-500',
-            action: () => setActiveTab('records')
+            action: () => navigateToTab('records')
           },
           {
             icon: MessageCircle,
@@ -164,7 +182,7 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
             </div>
           </div>
           <button
-            onClick={() => setActiveTab('appointments')}
+            onClick={() => navigateToTab('appointments')}
             className="text-teal-600 hover:text-teal-700 font-semibold flex items-center gap-2 group"
           >
             View All
@@ -177,7 +195,7 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
             <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 mb-2">No upcoming appointments</p>
             <button
-              onClick={() => setActiveTab('appointments')}
+              onClick={() => navigateToTab('appointments')}
               className="mt-4 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
             >
               Book Your First Appointment
@@ -233,7 +251,7 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
             </div>
           </div>
           <button
-            onClick={() => setActiveTab('records')}
+            onClick={() => navigateToTab('records')}
             className="text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2 group"
           >
             View All
@@ -436,7 +454,7 @@ export default function CeenAiXPatientDashboard({ onNavigateHome }) {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => navigateToTab(tab.id)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold whitespace-nowrap transition-all duration-300 ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg shadow-teal-600/30 scale-105'

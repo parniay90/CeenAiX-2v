@@ -75,6 +75,7 @@ const CONSULTATION_PATIENT = {
 export default function DoctorDashboard({ onNavigateHome }) {
   const navigation = useNavigation();
   const [active, setActive] = useState("home");
+  const [viewHistory, setViewHistory] = useState(["home"]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [consultOpen, setConsultOpen] = useState(false);
   const [consultNotes, setConsultNotes] = useState("");
@@ -99,6 +100,23 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [editMode, setEditMode] = useState(null);
+
+  const navigateToView = (view) => {
+    setViewHistory(prev => [...prev, view]);
+    setActive(view);
+  };
+
+  const handleBackNavigation = () => {
+    if (viewHistory.length > 1) {
+      const newHistory = [...viewHistory];
+      newHistory.pop();
+      const previousView = newHistory[newHistory.length - 1];
+      setViewHistory(newHistory);
+      setActive(previousView);
+      return true;
+    }
+    return false;
+  };
 
   const startRecording = async () => {
     try {
@@ -491,8 +509,8 @@ export default function DoctorDashboard({ onNavigateHome }) {
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
-              <button className="btn-outline" onClick={() => { setConsultOpen(false); setActive("prescriptions"); }}>💊 Write Prescription</button>
-              <button className="btn-outline" onClick={() => { setConsultOpen(false); setActive("referrals"); }}>🔬 Order Lab Test</button>
+              <button className="btn-outline" onClick={() => { setConsultOpen(false); navigateToView("prescriptions"); }}>💊 Write Prescription</button>
+              <button className="btn-outline" onClick={() => { setConsultOpen(false); navigateToView("referrals"); }}>🔬 Order Lab Test</button>
               <button className="btn-primary" style={{ marginLeft: "auto" }} onClick={() => setConsultOpen(false)}>✓ Mark Complete</button>
             </div>
           </div>
@@ -534,7 +552,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
               if (item.id === "help") {
                 navigation.navigateToHelpSupport();
               } else {
-                setActive(item.id);
+                navigateToView(item.id);
               }
             }}>
               <span style={{ fontSize: 15, flexShrink: 0 }}>{item.icon}</span>
@@ -586,7 +604,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 zIndex: 1000
               }}>
                 {[
-                  { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
+                  { icon: "👤", label: "View Profile", action: () => { navigateToView("profile"); setUserMenuOpen(false); } },
                   { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
                   { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
                   { icon: "❓", label: "Help & Support", action: () => { navigation.navigateToHelpSupport(); setUserMenuOpen(false); } },
@@ -639,9 +657,14 @@ export default function DoctorDashboard({ onNavigateHome }) {
         {/* TOPBAR */}
         <div style={{ background: "white", borderBottom: "1px solid #E2E8F0", padding: "12px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {onNavigateHome && (
+            {(viewHistory.length > 1 || onNavigateHome) && (
               <button
-                onClick={onNavigateHome}
+                onClick={() => {
+                  const navigatedBack = handleBackNavigation();
+                  if (!navigatedBack && onNavigateHome) {
+                    onNavigateHome();
+                  }
+                }}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -705,7 +728,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                   </div>
 
                   {[
-                    { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setHeaderMenuOpen(false); } },
+                    { icon: "👤", label: "View Profile", action: () => { navigateToView("profile"); setHeaderMenuOpen(false); } },
                     { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setHeaderMenuOpen(false); } },
                     { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setHeaderMenuOpen(false); } },
                     { icon: "❓", label: "Help & Support", action: () => { navigation.navigateToHelpSupport(); setHeaderMenuOpen(false); } },
@@ -768,7 +791,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 <div style={{ fontFamily: "Playfair Display, serif", fontSize: 26, fontWeight: 800, color: "white", marginBottom: 6 }}>Dr. Layla Al Mansoori</div>
                 <div style={{ fontSize: 13.5, color: "rgba(255,255,255,0.95)", marginBottom: 18 }}>Next: <span style={{ color: "white", fontWeight: 700 }}>Parnia Yazdkhasti</span> at 11:00 AM — Cardiac check-up</div>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button className="btn-primary" onClick={() => setActive("today")}>View Today's Schedule</button>
+                  <button className="btn-primary" onClick={() => navigateToView("today")}>View Today's Schedule</button>
                   <button className="btn-outline" onClick={() => { setConsultOpen(true); }}>Start Consultation</button>
                 </div>
               </div>
@@ -776,10 +799,10 @@ export default function DoctorDashboard({ onNavigateHome }) {
               {/* Stats row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
                 {[
-                  { label: "Today's Appointments", value: "8", sub: "3 remaining", color: "#14BDBD", icon: "📋", onClick: () => setActive("today") },
-                  { label: "Pending Messages", value: "3", sub: "2 urgent", color: "#F87171", icon: "💬", onClick: () => setActive("messages") },
-                  { label: "Lab Results In", value: "2", sub: "New today", color: "#34D399", icon: "🔬", onClick: () => setActive("referrals") },
-                  { label: "Earnings This Month", value: "AED 28,400", sub: "+12% vs last month", color: "#FCD34D", icon: "💰", onClick: () => setActive("earnings") },
+                  { label: "Today's Appointments", value: "8", sub: "3 remaining", color: "#14BDBD", icon: "📋", onClick: () => navigateToView("today") },
+                  { label: "Pending Messages", value: "3", sub: "2 urgent", color: "#F87171", icon: "💬", onClick: () => navigateToView("messages") },
+                  { label: "Lab Results In", value: "2", sub: "New today", color: "#34D399", icon: "🔬", onClick: () => navigateToView("referrals") },
+                  { label: "Earnings This Month", value: "AED 28,400", sub: "+12% vs last month", color: "#FCD34D", icon: "💰", onClick: () => navigateToView("earnings") },
                 ].map((s, i) => (
                   <div key={i} className="stat-card" onClick={s.onClick} style={{ cursor: "pointer" }}>
                     <div style={{ fontSize: 20, marginBottom: 10 }}>{s.icon}</div>
@@ -944,7 +967,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                         <div style={{ fontSize: 12.5, color: "#64748B" }}>Age {selectedPatient.age} · {selectedPatient.condition} · {selectedPatient.insurance}</div>
                       </div>
                       <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-                        <button className="btn-outline" onClick={() => setActive("prescriptions")}>Write Rx</button>
+                        <button className="btn-outline" onClick={() => navigateToView("prescriptions")}>Write Rx</button>
                         <button className="btn-primary" onClick={() => setConsultOpen(true)}>Start Consultation</button>
                       </div>
                     </div>
