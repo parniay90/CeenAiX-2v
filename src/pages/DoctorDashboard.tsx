@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Home, Calendar, Users, FileText, TestTube, MessageCircle, DollarSign, Settings, Bell, User, CheckCircle } from 'lucide-react';
+import { Home, Calendar, Users, FileText, TestTube, MessageCircle, DollarSign, Settings, Bell, User, CheckCircle, Brain } from 'lucide-react';
 import { Sidebar } from '../components/Sidebar';
 import { StatCard } from '../components/StatCard';
 import { useLanguage } from '../contexts/LanguageContext';
 import { NotificationDropdown } from '../components/NotificationDropdown';
+import { DoctorAIAssistant } from '../components/DoctorAIAssistant';
 
-type Section = 'home' | 'today' | 'schedule' | 'patients' | 'prescriptions' | 'labs' | 'messages' | 'earnings' | 'profile' | 'settings';
+type Section = 'home' | 'today' | 'schedule' | 'patients' | 'prescriptions' | 'labs' | 'messages' | 'earnings' | 'profile' | 'settings' | 'ai-assistant';
 
 export function DoctorDashboard() {
   const { language } = useLanguage();
@@ -14,6 +15,7 @@ export function DoctorDashboard() {
 
   const sidebarItems = [
     { id: 'home', label: language === 'en' ? 'Dashboard' : 'لوحة التحكم', icon: Home },
+    { id: 'ai-assistant', label: language === 'en' ? 'AI Assistant' : 'مساعد الذكاء الاصطناعي', icon: Brain },
     { id: 'today', label: language === 'en' ? "Today's Appointments" : 'مواعيد اليوم', icon: Calendar },
     { id: 'schedule', label: language === 'en' ? 'Upcoming Schedule' : 'الجدول القادم', icon: Calendar },
     { id: 'patients', label: language === 'en' ? 'Patient Records' : 'سجلات المرضى', icon: Users },
@@ -51,6 +53,12 @@ export function DoctorDashboard() {
         </div>
 
         <div className="p-8">
+          {activeSection === 'ai-assistant' && (
+            <DoctorAIAssistant
+              patientId="00000000-0000-0000-0000-000000000001"
+            />
+          )}
+
           {activeSection === 'home' && (
             <div>
               <div className="mb-8">
