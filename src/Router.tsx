@@ -4,6 +4,9 @@ import CeenAiX from './pages/CeenAiX_Full_Platform';
 import PatientPortal from './pages/PatientPortal';
 import DoctorPortal from './pages/DoctorPortal';
 import AdminPortal from './pages/AdminPortal';
+import SuperAdminPortal from './pages/SuperAdminPortal';
+import PharmacyAdminPortal from './pages/PharmacyAdminPortal';
+import LaboratoryAdminPortal from './pages/LaboratoryAdminPortal';
 import LandingPage from './pages/LandingPage';
 import PaymentSettings from './pages/PaymentSettings';
 import ChangePassword from './pages/ChangePassword';
@@ -20,7 +23,7 @@ import DoctorSettings from './pages/DoctorSettings';
 import NotificationsPage from './pages/NotificationsPage';
 import HelpSupportPage from './pages/HelpSupportPage';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support';
 
 interface NavigationContextType {
   navigateToHome: () => void;
@@ -29,6 +32,9 @@ interface NavigationContextType {
   navigateToPatientPortal: () => void;
   navigateToDoctorPortal: () => void;
   navigateToAdminPortal: () => void;
+  navigateToSuperAdminPortal: () => void;
+  navigateToPharmacyAdminPortal: () => void;
+  navigateToLabAdminPortal: () => void;
   navigateToPaymentSettings: () => void;
   navigateToChangePassword: () => void;
   navigateToSettings: () => void;
@@ -83,6 +89,9 @@ export default function Router() {
     navigateToPatientPortal: () => navigateTo('patient-portal'),
     navigateToDoctorPortal: () => navigateTo('doctor-portal'),
     navigateToAdminPortal: () => navigateTo('admin-portal'),
+    navigateToSuperAdminPortal: () => navigateTo('super-admin-portal'),
+    navigateToPharmacyAdminPortal: () => navigateTo('pharmacy-admin-portal'),
+    navigateToLabAdminPortal: () => navigateTo('lab-admin-portal'),
     navigateToPaymentSettings: () => navigateTo('payment-settings'),
     navigateToChangePassword: () => navigateTo('change-password'),
     navigateToSettings: () => navigateTo('settings'),
@@ -126,6 +135,12 @@ export default function Router() {
         return <DoctorPortal onNavigateHome={() => navigateTo('home')} />;
       case 'admin-portal':
         return <AdminPortal onNavigateHome={() => navigateTo('home')} />;
+      case 'super-admin-portal':
+        return <SuperAdminPortal />;
+      case 'pharmacy-admin-portal':
+        return <PharmacyAdminPortal />;
+      case 'lab-admin-portal':
+        return <LaboratoryAdminPortal />;
       case 'payment-settings':
         return <PaymentSettings />;
       case 'change-password':

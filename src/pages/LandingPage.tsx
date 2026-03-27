@@ -28,9 +28,10 @@ export default function LandingPage({
   onNavigateToPatientPortal,
   onNavigateToDoctorPortal
 }: LandingPageProps) {
-  const { navigateToAdminPortal } = useNavigation();
+  const { navigateToAdminPortal, navigateToSuperAdminPortal, navigateToPharmacyAdminPortal, navigateToLabAdminPortal } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showWaitlist, setShowWaitlist] = useState(false);
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
 
   const features = [
     { icon: Calendar, title: 'Smart Scheduling', description: 'Book appointments instantly with real-time availability', color: '#3B82F6' },
@@ -67,14 +68,39 @@ export default function LandingPage({
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</a>
             <a href="#how-it-works" className="text-slate-600 hover:text-slate-900 transition-colors">How It Works</a>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={navigateToAdminPortal}
-              className="px-4 py-2 text-purple-600 hover:text-purple-700 font-medium"
-            >
-              Admin
-            </motion.button>
+            <div className="relative">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowAdminMenu(!showAdminMenu)}
+                className="px-4 py-2 text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+              >
+                Admin
+                <span className="text-xs">▼</span>
+              </motion.button>
+              {showAdminMenu && (
+                <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 py-2 min-w-[200px] z-50">
+                  <button
+                    onClick={() => { navigateToSuperAdminPortal(); setShowAdminMenu(false); }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    Super Admin
+                  </button>
+                  <button
+                    onClick={() => { navigateToPharmacyAdminPortal(); setShowAdminMenu(false); }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    Pharmacy Admin
+                  </button>
+                  <button
+                    onClick={() => { navigateToLabAdminPortal(); setShowAdminMenu(false); }}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    Laboratory Admin
+                  </button>
+                </div>
+              )}
+            </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
