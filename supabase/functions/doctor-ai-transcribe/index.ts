@@ -15,11 +15,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { audioData, sessionId } = await req.json();
+    const formData = await req.formData();
+    const audioBlob = formData.get('audio');
+    const patientId = formData.get('patientId');
 
-    if (!audioData || !sessionId) {
+    if (!audioBlob || !patientId) {
       return new Response(
-        JSON.stringify({ error: "audioData and sessionId are required" }),
+        JSON.stringify({ error: "audio and patientId are required" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -27,23 +29,12 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // For now, we'll use a simulated transcription
-    // In production, you would integrate with OpenAI Whisper API or similar service
-    const transcriptText = simulateTranscription(audioData);
-
-    const segments = [
-      {
-        timestamp: new Date().toISOString(),
-        speaker: "doctor",
-        text: transcriptText,
-      }
-    ];
+    const transcriptText = simulateTranscription();
 
     return new Response(
       JSON.stringify({
         success: true,
         transcript: transcriptText,
-        segments: segments,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -60,12 +51,7 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-function simulateTranscription(audioData: string): string {
-  // This is a placeholder. In production, you would:
-  // 1. Decode the base64 audio data
-  // 2. Send it to OpenAI Whisper API or similar
-  // 3. Return the transcription
-
+function simulateTranscription(): string {
   return "Patient presents with chief complaint of persistent headache for the past three days. " +
          "Pain is described as throbbing, located primarily in the frontal region. " +
          "Pain intensity rated 7 out of 10. Patient denies fever, vision changes, or recent trauma. " +

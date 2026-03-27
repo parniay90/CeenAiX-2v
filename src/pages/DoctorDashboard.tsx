@@ -5,6 +5,7 @@ import { StatCard } from '../components/StatCard';
 import { useLanguage } from '../contexts/LanguageContext';
 import { NotificationDropdown } from '../components/NotificationDropdown';
 import { DoctorAIAssistant } from '../components/DoctorAIAssistant';
+import { ConsultationModal } from '../components/ConsultationModal';
 
 type Section = 'home' | 'today' | 'schedule' | 'patients' | 'prescriptions' | 'labs' | 'messages' | 'earnings' | 'profile' | 'settings' | 'ai-assistant';
 
@@ -13,6 +14,11 @@ export function DoctorDashboard() {
   const userName = 'Ahmed Al Mansoori';
   const [activeSection, setActiveSection] = useState<Section>('home');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [consultationModal, setConsultationModal] = useState<{ isOpen: boolean; patientName: string; patientId: string }>({
+    isOpen: false,
+    patientName: '',
+    patientId: '',
+  });
 
   const sidebarItems = [
     { id: 'home', label: language === 'en' ? 'Dashboard' : 'لوحة التحكم', icon: Home },
@@ -29,11 +35,11 @@ export function DoctorDashboard() {
   ];
 
   const todayAppointments = [
-    { time: '9:00 AM', patient: 'Ahmed Hassan', type: 'In-clinic', status: 'Completed' },
-    { time: '10:00 AM', patient: 'Sara Mohammed', type: 'In-clinic', status: 'Completed' },
-    { time: '11:30 AM', patient: 'Omar Al Zaabi', type: 'Teleconsultation', status: 'In Progress' },
-    { time: '2:00 PM', patient: 'Fatima Al Amiri', type: 'In-clinic', status: 'Scheduled' },
-    { time: '3:30 PM', patient: 'Mohammed Ali', type: 'In-clinic', status: 'Scheduled' },
+    { time: '9:00 AM', patient: 'Ahmed Hassan', patientId: '00000000-0000-0000-0000-000000000001', type: 'In-clinic', status: 'Completed' },
+    { time: '10:00 AM', patient: 'Sara Mohammed', patientId: '00000000-0000-0000-0000-000000000002', type: 'In-clinic', status: 'Completed' },
+    { time: '11:30 AM', patient: 'Omar Al Zaabi', patientId: '00000000-0000-0000-0000-000000000003', type: 'Teleconsultation', status: 'In Progress' },
+    { time: '2:00 PM', patient: 'Fatima Al Amiri', patientId: '00000000-0000-0000-0000-000000000004', type: 'In-clinic', status: 'Scheduled' },
+    { time: '3:30 PM', patient: 'Mohammed Ali', patientId: '00000000-0000-0000-0000-000000000005', type: 'In-clinic', status: 'Scheduled' },
   ];
 
   return (
@@ -183,7 +189,14 @@ export function DoctorDashboard() {
                       </span>
                     </div>
                     {apt.status === 'Scheduled' && (
-                      <button className="w-full px-4 py-3 bg-[#0D7377] text-white rounded-lg font-medium hover:bg-[#0a5c5f] transition-colors">
+                      <button
+                        onClick={() => setConsultationModal({
+                          isOpen: true,
+                          patientName: apt.patient,
+                          patientId: apt.patientId,
+                        })}
+                        className="w-full px-4 py-3 bg-[#0D7377] text-white rounded-lg font-medium hover:bg-[#0a5c5f] transition-colors"
+                      >
                         {language === 'en' ? 'Start Consultation' : 'بدء الاستشارة'}
                       </button>
                     )}
@@ -479,6 +492,13 @@ export function DoctorDashboard() {
           )}
         </div>
       </div>
+
+      <ConsultationModal
+        isOpen={consultationModal.isOpen}
+        onClose={() => setConsultationModal({ isOpen: false, patientName: '', patientId: '' })}
+        patientName={consultationModal.patientName}
+        patientId={consultationModal.patientId}
+      />
     </div>
   );
 }
