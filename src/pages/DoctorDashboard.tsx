@@ -12,6 +12,7 @@ export function DoctorDashboard() {
   const { language } = useLanguage();
   const userName = 'Ahmed Al Mansoori';
   const [activeSection, setActiveSection] = useState<Section>('home');
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
   const sidebarItems = [
     { id: 'home', label: language === 'en' ? 'Dashboard' : 'لوحة التحكم', icon: Home },
@@ -192,7 +193,7 @@ export function DoctorDashboard() {
             </div>
           )}
 
-          {activeSection === 'patients' && (
+          {activeSection === 'patients' && !selectedPatientId && (
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-8">
                 {language === 'en' ? 'Patient Records' : 'سجلات المرضى'}
@@ -207,25 +208,103 @@ export function DoctorDashboard() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {['Ahmed Hassan', 'Sara Mohammed', 'Omar Al Zaabi', 'Fatima Al Amiri'].map((patient, idx) => (
+                {[
+                  { name: 'Ahmed Hassan', id: '00000000-0000-0000-0000-000000000001' },
+                  { name: 'Sara Mohammed', id: '00000000-0000-0000-0000-000000000002' },
+                  { name: 'Omar Al Zaabi', id: '00000000-0000-0000-0000-000000000003' },
+                  { name: 'Fatima Al Amiri', id: '00000000-0000-0000-0000-000000000004' }
+                ].map((patient, idx) => (
                   <div key={idx} className="bg-white border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-14 h-14 bg-[#14BDBD] rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                        {patient.charAt(0)}
+                        {patient.name.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{patient}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">{patient.name}</h3>
                         <p className="text-sm text-gray-600">
                           {language === 'en' ? 'Last visit:' : 'آخر زيارة:'} Mar {idx + 1}, 2026
                         </p>
                       </div>
                     </div>
-                    <button className="w-full px-4 py-2 border border-[#0D7377] text-[#0D7377] rounded-lg font-medium hover:bg-[#0D7377] hover:text-white transition-all">
+                    <button
+                      onClick={() => setSelectedPatientId(patient.id)}
+                      className="w-full px-4 py-2 border border-[#0D7377] text-[#0D7377] rounded-lg font-medium hover:bg-[#0D7377] hover:text-white transition-all"
+                    >
                       {language === 'en' ? 'View Full Record' : 'عرض السجل الكامل'}
                     </button>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {activeSection === 'patients' && selectedPatientId && (
+            <div>
+              <div className="flex items-center gap-4 mb-8">
+                <button
+                  onClick={() => setSelectedPatientId(null)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {language === 'en' ? 'Patient Record' : 'سجل المريض'}
+                </h1>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <button
+                  className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-[#0D7377] hover:bg-[#0D7377] hover:text-white transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-[#0D7377] group-hover:text-white" />
+                    <div className="text-left">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-white">
+                        {language === 'en' ? 'Medical History' : 'التاريخ الطبي'}
+                      </h3>
+                      <p className="text-sm text-gray-600 group-hover:text-white">
+                        {language === 'en' ? 'View full history' : 'عرض التاريخ الكامل'}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-[#0D7377] hover:bg-[#0D7377] hover:text-white transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <TestTube className="w-8 h-8 text-[#0D7377] group-hover:text-white" />
+                    <div className="text-left">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-white">
+                        {language === 'en' ? 'Lab Results' : 'نتائج المختبر'}
+                      </h3>
+                      <p className="text-sm text-gray-600 group-hover:text-white">
+                        {language === 'en' ? 'View all results' : 'عرض جميع النتائج'}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  className="bg-[#0D7377] text-white border-2 border-[#0D7377] rounded-xl p-6 hover:bg-[#0a5c5f] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <Brain className="w-8 h-8" />
+                    <div className="text-left">
+                      <h3 className="font-semibold">
+                        {language === 'en' ? 'AI Assistant' : 'مساعد الذكاء الاصطناعي'}
+                      </h3>
+                      <p className="text-sm opacity-90">
+                        {language === 'en' ? 'Record consultation' : 'تسجيل الاستشارة'}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <DoctorAIAssistant patientId={selectedPatientId} />
             </div>
           )}
 
