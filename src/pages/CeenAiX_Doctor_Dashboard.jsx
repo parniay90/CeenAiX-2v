@@ -79,6 +79,12 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [consultOpen, setConsultOpen] = useState(false);
   const [consultNotes, setConsultNotes] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [analysis, setAnalysis] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
   const [rxForm, setRxForm] = useState({ drug: "", dosage: "", freq: "", duration: "", notes: "", sendTo: "both" });
   const [rxSubmitted, setRxSubmitted] = useState(false);
   const [refForm, setRefForm] = useState({ lab: "", tests: "", notes: "", urgency: "Routine" });
@@ -93,6 +99,94 @@ export default function DoctorDashboard({ onNavigateHome }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [editMode, setEditMode] = useState(null);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => chunks.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setAnalysis(null);
+      setTranscript('');
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Unable to access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const processRecording = async () => {
+    if (!audioBlob) return;
+
+    setIsProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'consultation.webm');
+      formData.append('patientId', CONSULTATION_PATIENT.id || 'demo-patient');
+
+      const transcriptResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/doctor-ai-transcribe`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!transcriptResponse.ok) throw new Error('Transcription failed');
+
+      const { transcript: transcriptText } = await transcriptResponse.json();
+      setTranscript(transcriptText);
+
+      const analysisResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/doctor-ai-analyze`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transcript: transcriptText,
+            patientId: CONSULTATION_PATIENT.id || 'demo-patient',
+          }),
+        }
+      );
+
+      if (!analysisResponse.ok) throw new Error('Analysis failed');
+
+      const analysisData = await analysisResponse.json();
+      setAnalysis(analysisData);
+
+      if (analysisData.summary) {
+        setConsultNotes(analysisData.summary);
+      }
+    } catch (error) {
+      console.error('Error processing recording:', error);
+      alert('Error processing recording. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const [profileForm, setProfileForm] = useState({
     full_name: "Dr. Layla Al Mansoori",
     specialty: "Cardiology",
@@ -255,6 +349,133 @@ export default function DoctorDashboard({ onNavigateHome }) {
                 {CONSULTATION_PATIENT.meds.map((m, i) => <span key={i} className="badge badge-blue">{m}</span>)}
               </div>
             </div>
+
+            {/* Voice Recording Section */}
+            <div style={{ marginBottom: 20, background: "linear-gradient(135deg, #0D7377 0%, #14FFEC 100%)", borderRadius: 12, padding: 20 }}>
+              <div style={{ fontSize: 13, color: "white", fontWeight: 600, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                🎙️ Voice Recording Assistant
+              </div>
+
+              <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                {!isRecording && !audioBlob && (
+                  <button
+                    className="btn-primary"
+                    onClick={startRecording}
+                    style={{ background: "white", color: "#0D7377", flex: 1 }}
+                  >
+                    🎙️ Start Recording
+                  </button>
+                )}
+
+                {isRecording && (
+                  <button
+                    className="btn-primary"
+                    onClick={stopRecording}
+                    style={{ background: "#EF4444", color: "white", flex: 1, animation: "pulse 2s infinite" }}
+                  >
+                    ⏹️ Stop Recording
+                  </button>
+                )}
+
+                {audioBlob && !isRecording && (
+                  <>
+                    <button
+                      className="btn-outline"
+                      onClick={() => { setAudioBlob(null); setAnalysis(null); setTranscript(''); }}
+                      style={{ background: "white", borderColor: "white", color: "#0D7377" }}
+                    >
+                      🔄 Re-record
+                    </button>
+                    <button
+                      className="btn-primary"
+                      onClick={processRecording}
+                      disabled={isProcessing}
+                      style={{ background: "white", color: "#0D7377", flex: 1 }}
+                    >
+                      {isProcessing ? "⏳ Processing..." : "🧠 Analyze with AI"}
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {isRecording && (
+                <div style={{ color: "white", fontSize: 12, textAlign: "center", opacity: 0.9 }}>
+                  🔴 Recording in progress... Speak naturally about the consultation
+                </div>
+              )}
+            </div>
+
+            {/* AI Analysis Results */}
+            {analysis && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: "#0D7377", fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                  🧠 AI Analysis Results
+                </div>
+
+                <div style={{ display: "grid", gap: 12 }}>
+                  {analysis.chiefComplaint && (
+                    <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 11, color: "#1E40AF", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Chief Complaint</div>
+                      <div style={{ fontSize: 13, color: "#1E293B", lineHeight: 1.5 }}>{analysis.chiefComplaint}</div>
+                    </div>
+                  )}
+
+                  {analysis.symptoms && analysis.symptoms.length > 0 && (
+                    <div style={{ background: "#FEF3C7", border: "1px solid #FDE68A", borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 11, color: "#92400E", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Symptoms</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {analysis.symptoms.map((symptom, idx) => (
+                          <span key={idx} style={{ background: "white", border: "1px solid #FCD34D", color: "#92400E", fontSize: 12, padding: "4px 10px", borderRadius: 6, fontWeight: 500 }}>
+                            {symptom}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {analysis.possibleDiagnoses && analysis.possibleDiagnoses.length > 0 && (
+                    <div style={{ background: "#F3E8FF", border: "1px solid #DDD6FE", borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 11, color: "#6B21A8", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Possible Diagnoses</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {analysis.possibleDiagnoses.map((diagnosis, idx) => (
+                          <div key={idx} style={{ fontSize: 13, color: "#1E293B", display: "flex", gap: 6 }}>
+                            <span>•</span>
+                            <span>{diagnosis}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {analysis.recommendedTests && analysis.recommendedTests.length > 0 && (
+                    <div style={{ background: "#DCFCE7", border: "1px solid #BBF7D0", borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 11, color: "#166534", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Recommended Tests</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {analysis.recommendedTests.map((test, idx) => (
+                          <span key={idx} style={{ background: "white", border: "1px solid #86EFAC", color: "#166534", fontSize: 12, padding: "4px 10px", borderRadius: 6, fontWeight: 500 }}>
+                            🔬 {test}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {analysis.suggestedTreatment && analysis.suggestedTreatment.length > 0 && (
+                    <div style={{ background: "#CFFAFE", border: "1px solid #A5F3FC", borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 11, color: "#0E7490", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Suggested Treatment</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {analysis.suggestedTreatment.map((treatment, idx) => (
+                          <div key={idx} style={{ fontSize: 13, color: "#1E293B", display: "flex", gap: 6 }}>
+                            <span>•</span>
+                            <span>{treatment}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Notes */}
             <div style={{ marginBottom: 16 }}>
