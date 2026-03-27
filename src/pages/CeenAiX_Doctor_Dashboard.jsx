@@ -589,7 +589,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                   { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setUserMenuOpen(false); } },
                   { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setUserMenuOpen(false); } },
                   { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setUserMenuOpen(false); } },
-                  { icon: "❓", label: "Help & Support", action: () => setUserMenuOpen(false) },
+                  { icon: "❓", label: "Help & Support", action: () => { navigation.navigateToHelpSupport(); setUserMenuOpen(false); } },
                   { icon: "📄", label: "Terms & Conditions", action: () => { navigation.navigateToTerms(); setUserMenuOpen(false); } },
                   { icon: "🔒", label: "Privacy Policy", action: () => { navigation.navigateToPrivacy(); setUserMenuOpen(false); } },
                   { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }
@@ -708,7 +708,7 @@ export default function DoctorDashboard({ onNavigateHome }) {
                     { icon: "👤", label: "View Profile", action: () => { setActive("profile"); setHeaderMenuOpen(false); } },
                     { icon: "⚙️", label: "Settings", action: () => { navigation.navigateToDoctorSettings(); setHeaderMenuOpen(false); } },
                     { icon: "🔔", label: "Notifications", action: () => { navigation.navigateToNotifications(); setHeaderMenuOpen(false); } },
-                    { icon: "❓", label: "Help & Support", action: () => setHeaderMenuOpen(false) },
+                    { icon: "❓", label: "Help & Support", action: () => { navigation.navigateToHelpSupport(); setHeaderMenuOpen(false); } },
                     { icon: "📄", label: "Terms & Conditions", action: () => { navigation.navigateToTerms(); setHeaderMenuOpen(false); } },
                     { icon: "🔒", label: "Privacy Policy", action: () => { navigation.navigateToPrivacy(); setHeaderMenuOpen(false); } },
                     { icon: "🚪", label: "Sign Out", action: handleSignOut, isDanger: true }

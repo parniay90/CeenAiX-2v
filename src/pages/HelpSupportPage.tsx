@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Search, Book, MessageCircle, Phone, Mail, FileText, ChevronDown, Send, Clock, CheckCircle, HelpCircle, Video, AlertCircle, ExternalLink, Users, Shield } from 'lucide-react';
-import { PatientLayout } from '../components/PatientLayout';
+import { Search, Book, MessageCircle, Phone, Mail, FileText, ChevronDown, Send, Clock, CheckCircle, HelpCircle, Video, AlertCircle, ExternalLink, Users, Shield, ArrowLeft } from 'lucide-react';
+import { useNavigation } from '../Router';
 
 interface FAQItem {
   id: string;
@@ -94,6 +94,7 @@ const quickLinks = [
 ];
 
 export default function HelpSupportPage() {
+  const { navigateBack, canGoBack } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
@@ -118,8 +119,21 @@ export default function HelpSupportPage() {
   };
 
   return (
-    <PatientLayout activeNav="help">
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+      {canGoBack && (
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <button
+              onClick={navigateBack}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 shadow-sm hover:shadow"
+            >
+              <ArrowLeft size={18} />
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
           <div className="mb-10 text-center">
@@ -348,6 +362,6 @@ export default function HelpSupportPage() {
           </div>
         </div>
       </div>
-    </PatientLayout>
+    </div>
   );
 }
