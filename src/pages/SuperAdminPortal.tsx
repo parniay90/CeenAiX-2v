@@ -3,6 +3,7 @@ import { Users, Building2, Stethoscope, FlaskConical, Pill, Activity, Shield, Se
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import AdminProfileDropdown from '../components/AdminProfileDropdown';
+import SuperAdminSettings from './SuperAdminSettings';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1356,7 +1357,7 @@ export default function SuperAdminPortal() {
           {activePage === 'insurance' && <InsuranceManagementView />}
           {activePage === 'prescriptions' && <PrescriptionsManagementView />}
           {activePage === 'lab-orders' && <LabOrdersManagementView />}
-          {activePage === 'settings' && <SettingsView />}
+          {activePage === 'settings' && <SuperAdminSettings onBack={() => setActivePage('dashboard')} />}
           {activePage === 'audit' && <AuditLogsView />}
         </main>
       </div>
@@ -1364,14 +1365,15 @@ export default function SuperAdminPortal() {
       <AdminProfileDropdown
         isOpen={showProfileDropdown}
         onClose={() => setShowProfileDropdown(false)}
-        adminName="Super Admin"
-        adminEmail="admin@ceenaix.com"
+        adminName="Parnia Yazdkhasti"
+        adminEmail="parnia@aryaix.com"
         adminRole="Super Administrator"
         entityName="CeenAiX Team"
-        avatarInitials="SA"
+        avatarInitials="PY"
         themeColor="blue"
         triggerRect={profileButtonRect}
         onNavigate={(page) => setActivePage(page)}
+        isSuperAdmin={true}
       />
     </div>
   );

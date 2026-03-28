@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   User, Settings, Shield, Activity, Bell, FileText,
-  HelpCircle, LogOut, ChevronDown, Key, X
+  HelpCircle, LogOut, ChevronDown, Key, X, BarChart3, Globe
 } from 'lucide-react';
 
 interface AdminProfileDropdownProps {
@@ -17,6 +17,7 @@ interface AdminProfileDropdownProps {
   themeColor: 'blue' | 'purple' | 'emerald' | 'teal';
   onNavigate?: (page: string) => void;
   triggerRect?: DOMRect;
+  isSuperAdmin?: boolean;
 }
 
 interface MenuItem {
@@ -27,6 +28,17 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
+  { id: 'profile', label: 'My Profile', icon: User, action: 'profile' },
+  { id: 'settings', label: 'Settings', icon: Settings, action: 'settings' },
+  { id: 'security', label: 'Security & Access', icon: Shield, action: 'security' },
+  { id: 'audit', label: 'Audit Logs', icon: BarChart3, action: 'audit' },
+  { id: 'notifications', label: 'Notification Preferences', icon: Bell, action: 'notifications' },
+  { id: 'platform-status', label: 'Platform Status', icon: Globe, action: 'platform-status' },
+  { id: 'terms', label: 'Terms & Conditions', icon: FileText, action: 'terms' },
+  { id: 'help', label: 'Help & Documentation', icon: HelpCircle, action: 'help' },
+];
+
+const regularMenuItems: MenuItem[] = [
   { id: 'profile', label: 'My Profile', icon: User, action: 'profile' },
   { id: 'settings', label: 'Account Settings', icon: Settings, action: 'settings' },
   { id: 'security', label: 'Security & Privacy', icon: Shield, action: 'security' },
@@ -80,10 +92,12 @@ export default function AdminProfileDropdown({
   themeColor,
   onNavigate,
   triggerRect,
+  isSuperAdmin = false,
 }: AdminProfileDropdownProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const theme = themeColors[themeColor];
+  const items = isSuperAdmin ? menuItems : regularMenuItems;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -173,7 +187,7 @@ export default function AdminProfileDropdown({
         </div>
 
         <div className="py-2">
-          {menuItems.map((item) => (
+          {items.map((item) => (
             <button
               key={item.id}
               onClick={() => handleMenuClick(item.action)}
