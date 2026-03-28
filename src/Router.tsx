@@ -6,7 +6,7 @@ import DoctorPortal from './pages/DoctorPortal';
 import AdminPortal from './pages/AdminPortal';
 import SuperAdminPortal from './pages/SuperAdminPortal';
 import PharmacyAdminDashboard from './pages/PharmacyAdminDashboard';
-import LaboratoryAdminPortal from './pages/LaboratoryAdminPortal';
+import LaboratoryAdminDashboard from './pages/LaboratoryAdminDashboard';
 import LandingPage from './pages/LandingPage';
 import PaymentSettings from './pages/PaymentSettings';
 import ChangePassword from './pages/ChangePassword';
@@ -140,7 +140,7 @@ export default function Router() {
       case 'pharmacy-admin-portal':
         return <PharmacyAdminDashboard />;
       case 'lab-admin-portal':
-        return <LaboratoryAdminPortal />;
+        return <LaboratoryAdminDashboard />;
       case 'payment-settings':
         return <PaymentSettings />;
       case 'change-password':
