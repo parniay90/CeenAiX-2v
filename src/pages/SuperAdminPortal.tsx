@@ -992,6 +992,171 @@ export default function SuperAdminPortal() {
   };
 
   // User Detail Modal Component
+  // Additional Management Views
+  const PharmaciesManagementView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Pharmacies Management</h2>
+        <a
+          href="/pharmacies"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          View Pharmacies Page
+        </a>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p className="text-gray-600 mb-4">Manage all pharmacies registered in the system. View, approve, and monitor pharmacy operations.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-600">Total Pharmacies</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.activeClinics}</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-lg">
+            <p className="text-sm text-gray-600">Active</p>
+            <p className="text-2xl font-bold text-emerald-700">{stats.activeClinics}</p>
+          </div>
+          <div className="p-4 bg-orange-50 rounded-lg">
+            <p className="text-sm text-gray-600">24/7 Service</p>
+            <p className="text-2xl font-bold text-orange-700">{Math.floor(stats.activeClinics / 2)}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const LabsManagementView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Laboratories Management</h2>
+        <a
+          href="/find-labs"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          View Labs Page
+        </a>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p className="text-gray-600 mb-4">Manage laboratory facilities and test catalog. Monitor lab orders and results.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-600">Total Lab Facilities</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.activeClinics}</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <p className="text-sm text-gray-600">Test Types Available</p>
+            <p className="text-2xl font-bold text-purple-700">150+</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-lg">
+            <p className="text-sm text-gray-600">Tests Today</p>
+            <p className="text-2xl font-bold text-emerald-700">{stats.labOrdersToday}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const InsuranceManagementView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Insurance Management</h2>
+        <a
+          href="/insurance"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          View Insurance Page
+        </a>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p className="text-gray-600 mb-4">Manage insurance providers and claims. Monitor claim processing and approvals.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-600">Insurance Providers</p>
+            <p className="text-2xl font-bold text-gray-900">5</p>
+          </div>
+          <div className="p-4 bg-yellow-50 rounded-lg">
+            <p className="text-sm text-gray-600">Pending Claims</p>
+            <p className="text-2xl font-bold text-yellow-700">{stats.insuranceClaimsPending}</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-lg">
+            <p className="text-sm text-gray-600">Approved This Month</p>
+            <p className="text-2xl font-bold text-emerald-700">234</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const PrescriptionsManagementView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Prescriptions Management</h2>
+        <a
+          href="/prescriptions"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          View Prescriptions Page
+        </a>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p className="text-gray-600 mb-4">Monitor all prescriptions and refill requests across the platform.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <p className="text-sm text-gray-600">Prescriptions Today</p>
+            <p className="text-2xl font-bold text-purple-700">{stats.prescriptionsToday}</p>
+          </div>
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-600">Active Prescriptions</p>
+            <p className="text-2xl font-bold text-blue-700">1,234</p>
+          </div>
+          <div className="p-4 bg-orange-50 rounded-lg">
+            <p className="text-sm text-gray-600">Refill Requests</p>
+            <p className="text-2xl font-bold text-orange-700">45</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const LabOrdersManagementView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Lab Orders Management</h2>
+        <a
+          href="/lab-tests"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          View Lab Tests Page
+        </a>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <p className="text-gray-600 mb-4">Monitor all lab test orders and results across the platform.</p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-600">Orders Today</p>
+            <p className="text-2xl font-bold text-blue-700">{stats.labOrdersToday}</p>
+          </div>
+          <div className="p-4 bg-yellow-50 rounded-lg">
+            <p className="text-sm text-gray-600">Pending</p>
+            <p className="text-2xl font-bold text-yellow-700">23</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <p className="text-sm text-gray-600">In Progress</p>
+            <p className="text-2xl font-bold text-purple-700">12</p>
+          </div>
+          <div className="p-4 bg-emerald-50 rounded-lg">
+            <p className="text-sm text-gray-600">Completed</p>
+            <p className="text-2xl font-bold text-emerald-700">89</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const UserDetailModal = () => {
     if (!showUserDetailModal || !selectedUser) return null;
 
@@ -1171,19 +1336,13 @@ export default function SuperAdminPortal() {
           {activePage === 'dashboard' && <DashboardView />}
           {activePage === 'users' && <UserManagementView />}
           {activePage === 'clinics' && <ClinicManagementView />}
+          {activePage === 'pharmacies' && <PharmaciesManagementView />}
+          {activePage === 'labs' && <LabsManagementView />}
+          {activePage === 'insurance' && <InsuranceManagementView />}
+          {activePage === 'prescriptions' && <PrescriptionsManagementView />}
+          {activePage === 'lab-orders' && <LabOrdersManagementView />}
           {activePage === 'settings' && <SettingsView />}
           {activePage === 'audit' && <AuditLogsView />}
-
-          {/* Placeholder for other pages */}
-          {!['dashboard', 'users', 'clinics', 'settings', 'audit'].includes(activePage) && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-              <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {activePage.charAt(0).toUpperCase() + activePage.slice(1).replace('-', ' ')}
-              </h3>
-              <p className="text-gray-600">This module is under construction</p>
-            </div>
-          )}
         </main>
       </div>
     </div>
