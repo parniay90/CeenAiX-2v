@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Microscope, Home, Building2, FileText, Bell, Users, Beaker, BarChart3, Settings, Menu, X, Clock, CheckCircle, AlertTriangle, Search, Filter, Eye, CreditCard as Edit, Trash2, Plus, Download, Calendar, Phone, Mail, MapPin, Shield, Activity, Upload, Flag, ClipboardList, FlaskConical, Package, AlertCircle, TrendingUp, PlayCircle, CheckSquare, XCircle, FileCheck, BookOpen, User } from 'lucide-react';
+import { Microscope, Home, Building2, FileText, Bell, Users, Beaker, BarChart3, Settings, Menu, X, Clock, CheckCircle, AlertTriangle, Search, Filter, Eye, CreditCard as Edit, Trash2, Plus, Download, Calendar, Phone, Mail, MapPin, Shield, Activity, Upload, Flag, ClipboardList, FlaskConical, Package, AlertCircle, TrendingUp, PlayCircle, CheckSquare, XCircle, FileCheck, BookOpen, User, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -977,7 +977,7 @@ export default function LaboratoryAdminDashboard() {
         sidebarOpen ? 'w-64' : 'w-20'
       }`}>
         <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-4">
             {sidebarOpen ? (
               <div className="flex items-center gap-2">
                 <Microscope className="w-8 h-8 text-teal-400" />
@@ -996,6 +996,16 @@ export default function LaboratoryAdminDashboard() {
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
+
+          {sidebarOpen && (
+            <a
+              href="/"
+              className="flex items-center gap-2 px-4 py-2 mb-4 text-teal-400 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Back to Home</span>
+            </a>
+          )}
 
           <nav className="space-y-2">
             {[
