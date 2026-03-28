@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Users, Calendar, Building2, Stethoscope, Activity, TrendingUp, DollarSign, FileText, Settings, Bell, Search, Filter, Download, Plus, MoreVertical, ChevronRight, ArrowUp, ArrowDown, Eye, CreditCard as Edit, Trash2, CheckCircle, XCircle, Clock, BarChart3, PieChart, UserPlus, Guitar as Hospital, Pill, FlaskConical, Shield, Crown, Zap, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Users, Calendar, Building2, Stethoscope, Activity, TrendingUp, DollarSign, FileText, Settings, Bell, Search, Filter, Download, Plus, MoreVertical, ChevronRight, ArrowUp, ArrowDown, Eye, CreditCard as Edit, Trash2, CheckCircle, XCircle, Clock, BarChart3, PieChart, UserPlus, Guitar as Hospital, Pill, FlaskConical, Shield, Crown, Zap, ArrowLeft, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import AdminProfileDropdown from '../components/AdminProfileDropdown';
 
 interface Stats {
   totalPatients: number;
@@ -25,6 +26,10 @@ export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () =>
   });
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const [profileButtonRect, setProfileButtonRect] = useState<DOMRect | undefined>();
 
   useEffect(() => {
     fetchAdminData();
@@ -357,15 +362,25 @@ export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () =>
                 <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
               </button>
 
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+              <button
+                ref={profileButtonRef}
+                onClick={() => {
+                  if (profileButtonRef.current) {
+                    setProfileButtonRect(profileButtonRef.current.getBoundingClientRect());
+                  }
+                  setShowProfileDropdown(!showProfileDropdown);
+                }}
+                className="flex items-center gap-3 pl-4 border-l border-gray-200 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
+              >
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900">Admin User</p>
-                  <p className="text-xs text-gray-600">Super Admin</p>
+                  <p className="text-xs text-gray-600">Clinic Admin</p>
                 </div>
                 <div className="w-11 h-11 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
                   A
                 </div>
-              </div>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
+              </button>
             </div>
           </div>
         </div>
@@ -410,6 +425,19 @@ export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () =>
           </div>
         )}
       </main>
+
+      <AdminProfileDropdown
+        isOpen={showProfileDropdown}
+        onClose={() => setShowProfileDropdown(false)}
+        adminName="Admin User"
+        adminEmail="admin@clinic.com"
+        adminRole="Clinic Administrator"
+        entityName="Dubai Medical Center"
+        avatarInitials="A"
+        themeColor="purple"
+        triggerRect={profileButtonRect}
+        onNavigate={(page) => setActiveTab(page)}
+      />
     </div>
   );
 }

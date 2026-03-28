@@ -142,4 +142,23 @@
   .delay-1100 {
     animation-delay: 1100ms;
   }
+
+  @keyframes scale-in {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .animate-scaleIn {
+    animation: scale-in 0.2s ease-out;
+  }
 }

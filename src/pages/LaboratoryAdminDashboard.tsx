@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Microscope, Home, Building2, FileText, Bell, Users, Beaker, BarChart3, Settings, Menu, X, Clock, CheckCircle, AlertTriangle, Search, Filter, Eye, CreditCard as Edit, Trash2, Plus, Download, Calendar, Phone, Mail, MapPin, Shield, Activity, Upload, Flag, ClipboardList, FlaskConical, Package, AlertCircle, TrendingUp, PlayCircle, CheckSquare, XCircle, FileCheck, BookOpen, User, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Microscope, Home, Building2, FileText, Bell, Users, Beaker, BarChart3, Settings, Menu, X, Clock, CheckCircle, AlertTriangle, Search, Filter, Eye, CreditCard as Edit, Trash2, Plus, Download, Calendar, Phone, Mail, MapPin, Shield, Activity, Upload, Flag, ClipboardList, FlaskConical, Package, AlertCircle, TrendingUp, PlayCircle, CheckSquare, XCircle, FileCheck, BookOpen, User, ArrowLeft, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import AdminProfileDropdown from '../components/AdminProfileDropdown';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -91,6 +92,10 @@ export default function LaboratoryAdminDashboard() {
   const [activePage, setActivePage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const [profileButtonRect, setProfileButtonRect] = useState<DOMRect | undefined>();
 
   const [laboratory, setLaboratory] = useState<LaboratoryProfile>({
     id: '1',
@@ -1054,15 +1059,25 @@ export default function LaboratoryAdminDashboard() {
                 <Bell className="w-6 h-6 text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+              <button
+                ref={profileButtonRef}
+                onClick={() => {
+                  if (profileButtonRef.current) {
+                    setProfileButtonRect(profileButtonRef.current.getBoundingClientRect());
+                  }
+                  setShowProfileDropdown(!showProfileDropdown);
+                }}
+                className="flex items-center gap-3 pl-4 border-l border-gray-200 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
+              >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
                   {labTechName.charAt(0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-left">
                   <p className="font-semibold text-gray-900">{labTechName}</p>
                   <p className="text-gray-500">{laboratory.name}</p>
                 </div>
-              </div>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
+              </button>
             </div>
           </div>
         </header>
@@ -1079,6 +1094,19 @@ export default function LaboratoryAdminDashboard() {
           {activePage === 'settings' && renderSettings()}
         </main>
       </div>
+
+      <AdminProfileDropdown
+        isOpen={showProfileDropdown}
+        onClose={() => setShowProfileDropdown(false)}
+        adminName={labTechName}
+        adminEmail={laboratory.email}
+        adminRole="Laboratory Administrator"
+        entityName={laboratory.name}
+        avatarInitials={labTechName.charAt(0)}
+        themeColor="teal"
+        triggerRect={profileButtonRect}
+        onNavigate={(page) => setActivePage(page)}
+      />
     </div>
   );
 }

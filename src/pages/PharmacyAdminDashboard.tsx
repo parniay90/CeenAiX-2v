@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Pill, Home, Building2, FileText, Bell, Users, CreditCard, Package, BarChart3, Settings, Menu, X, ChevronDown, Clock, CheckCircle, AlertCircle, TrendingUp, Search, Filter, Eye, CreditCard as Edit, Trash2, Plus, Download, Calendar, Phone, Mail, MapPin, Shield, Award, Activity, XCircle, RefreshCw, Send, Pause, Play, FileCheck, ClipboardList, DollarSign, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import AdminProfileDropdown from '../components/AdminProfileDropdown';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -84,6 +85,10 @@ export default function PharmacyAdminDashboard() {
   const [activePage, setActivePage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const [profileButtonRect, setProfileButtonRect] = useState<DOMRect | undefined>();
 
   // Pharmacy data
   const [pharmacy, setPharmacy] = useState<PharmacyProfile>({
@@ -1009,15 +1014,25 @@ export default function PharmacyAdminDashboard() {
                 <Bell className="w-6 h-6 text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+              <button
+                ref={profileButtonRef}
+                onClick={() => {
+                  if (profileButtonRef.current) {
+                    setProfileButtonRect(profileButtonRef.current.getBoundingClientRect());
+                  }
+                  setShowProfileDropdown(!showProfileDropdown);
+                }}
+                className="flex items-center gap-3 pl-4 border-l border-gray-200 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
+              >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
                   {pharmacistName.charAt(0)}
                 </div>
-                <div className="text-sm">
+                <div className="text-sm text-left">
                   <p className="font-semibold text-gray-900">{pharmacistName}</p>
                   <p className="text-gray-500">{pharmacy.name}</p>
                 </div>
-              </div>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
+              </button>
             </div>
           </div>
         </header>
@@ -1034,6 +1049,19 @@ export default function PharmacyAdminDashboard() {
           {activePage === 'settings' && renderSettings()}
         </main>
       </div>
+
+      <AdminProfileDropdown
+        isOpen={showProfileDropdown}
+        onClose={() => setShowProfileDropdown(false)}
+        adminName={pharmacistName}
+        adminEmail={pharmacy.email}
+        adminRole="Pharmacy Administrator"
+        entityName={pharmacy.name}
+        avatarInitials={pharmacistName.charAt(0)}
+        themeColor="emerald"
+        triggerRect={profileButtonRect}
+        onNavigate={(page) => setActivePage(page)}
+      />
     </div>
   );
 }
