@@ -4,6 +4,7 @@ import {
   User, Settings, Shield, Activity, Bell, FileText,
   HelpCircle, LogOut, ChevronDown, Key, X, BarChart3, Globe
 } from 'lucide-react';
+import { useNavigate } from '../Router';
 
 interface AdminProfileDropdownProps {
   isOpen: boolean;
@@ -96,6 +97,7 @@ export default function AdminProfileDropdown({
 }: AdminProfileDropdownProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const theme = themeColors[themeColor];
   const items = isSuperAdmin ? menuItems : regularMenuItems;
 
@@ -125,9 +127,9 @@ export default function AdminProfileDropdown({
 
   const handleMenuClick = (action: string) => {
     if (action === 'help') {
-      window.open('/help-support', '_blank');
+      navigate('/help-support');
     } else if (action === 'terms') {
-      window.open('/terms', '_blank');
+      navigate('/terms');
     } else if (onNavigate) {
       onNavigate(action);
     }

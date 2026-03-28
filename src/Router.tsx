@@ -26,6 +26,7 @@ import HelpSupportPage from './pages/HelpSupportPage';
 type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support';
 
 interface NavigationContextType {
+  navigate: (path: string) => void;
   navigateToHome: () => void;
   navigateToFindCare: () => void;
   navigateToPlatform: () => void;
@@ -63,6 +64,14 @@ export const useNavigation = () => {
   return context;
 };
 
+export const useNavigate = () => {
+  const context = useContext(NavigationContext);
+  if (!context) {
+    throw new Error('useNavigate must be used within Router');
+  }
+  return context.navigate;
+};
+
 export default function Router() {
   const [currentView, setCurrentView] = useState<View>('home');
   const [history, setHistory] = useState<View[]>(['home']);
@@ -82,7 +91,40 @@ export default function Router() {
     }
   };
 
+  const navigate = (path: string) => {
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const viewMap: Record<string, View> = {
+      '': 'home',
+      'home': 'home',
+      'find-care': 'find-care',
+      'platform': 'platform',
+      'patient-portal': 'patient-portal',
+      'doctor-portal': 'doctor-portal',
+      'admin-portal': 'admin-portal',
+      'super-admin-portal': 'super-admin-portal',
+      'pharmacy-admin-portal': 'pharmacy-admin-portal',
+      'lab-admin-portal': 'lab-admin-portal',
+      'payment-settings': 'payment-settings',
+      'change-password': 'change-password',
+      'settings': 'settings',
+      'terms': 'terms',
+      'privacy': 'privacy',
+      'prescriptions': 'prescriptions',
+      'doctor-refills': 'doctor-refills',
+      'lab-tests': 'lab-tests',
+      'find-labs': 'find-labs',
+      'radiology': 'radiology',
+      'messages': 'messages',
+      'doctor-settings': 'doctor-settings',
+      'notifications': 'notifications',
+      'help-support': 'help-support',
+    };
+    const view = viewMap[cleanPath] || 'home';
+    navigateTo(view);
+  };
+
   const navigationValue: NavigationContextType = {
+    navigate,
     navigateToHome: () => navigateTo('home'),
     navigateToFindCare: () => navigateTo('find-care'),
     navigateToPlatform: () => navigateTo('platform'),
