@@ -13,7 +13,7 @@ interface Stats {
 }
 
 export default function AdminPortal({ onNavigateHome }: { onNavigateHome?: () => void }) {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState<Stats>({
     totalPatients: 0,

@@ -55,7 +55,7 @@ const categoryIcons: { [key: string]: any } = {
 };
 
 export default function FindLabsPage() {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const { isDarkMode } = useTheme();
   const { t } = useLanguage();
 

@@ -81,7 +81,7 @@ END:VCALENDAR`;
     document.body.removeChild(link);
   };
 
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const [showCalendarOptions, setShowCalendarOptions] = useState<string | null>(null);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [refillRequests, setRefillRequests] = useState<RefillRequest[]>([]);
@@ -114,12 +114,12 @@ END:VCALENDAR`;
 
   const fetchPrescriptions = async () => {
     try {
-      if (!user) return;
+      if (!userId) return;
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
       if (!patientData) {
@@ -149,7 +149,7 @@ END:VCALENDAR`;
       if (error) throw error;
 
       if (!prescriptionsData || prescriptionsData.length === 0) {
-        await supabase.rpc('create_sample_prescription_data', { target_user_id: user.id });
+        await supabase.rpc('create_sample_prescription_data', { target_user_id: userId });
 
         const { data: retryData } = await supabase
           .from('prescriptions')
@@ -224,12 +224,12 @@ END:VCALENDAR`;
 
   const fetchRefillRequests = async () => {
     try {
-      if (!user) return;
+      if (!userId) return;
 
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
       if (!patientData) return;
@@ -263,12 +263,12 @@ END:VCALENDAR`;
 
   const fetchPreferredPharmacy = async () => {
     try {
-      if (!user) return;
+      if (!userId) return;
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('is_preferred', true)
         .maybeSingle();
 
@@ -288,12 +288,12 @@ END:VCALENDAR`;
 
   const fetchAvailablePharmacies = async () => {
     try {
-      if (!user) return;
+      if (!userId) return;
 
       const { data, error } = await supabase
         .from('user_pharmacies')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('is_preferred', { ascending: false });
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -306,12 +306,12 @@ END:VCALENDAR`;
 
   const handleSelectPharmacy = async (pharmacy: any) => {
     try {
-      if (!user) return;
+      if (!userId) return;
 
       await supabase
         .from('user_pharmacies')
         .update({ is_preferred: false })
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       await supabase
         .from('user_pharmacies')
@@ -334,11 +334,11 @@ END:VCALENDAR`;
 
   const handleAddPharmacy = async (name: string, address: string, phone: string) => {
     try {
-      if (!user) return;
+      if (!userId) return;
       const { error } = await supabase
         .from('user_pharmacies')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           pharmacy_name: name,
           pharmacy_address: address,
           pharmacy_phone: phone,
@@ -376,11 +376,11 @@ END:VCALENDAR`;
     if (!selectedPrescription) return;
 
     try {
-      if (!user) return;
+      if (!userId) return;
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
       if (!patientData) return;
@@ -432,11 +432,11 @@ END:VCALENDAR`;
     if (!selectedPrescription) return;
 
     try {
-      if (!user) return;
+      if (!userId) return;
       const { data: patientData } = await supabase
         .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
       if (!patientData) return;

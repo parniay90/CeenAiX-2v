@@ -79,7 +79,7 @@ interface RadiologyResult {
 }
 
 export default function RadiologyPage() {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const { isDarkMode } = useTheme();
   const { t } = useLanguage();
 
@@ -96,10 +96,8 @@ export default function RadiologyPage() {
   const [selectedCenter, setSelectedCenter] = useState<RadiologyCenter | null>(null);
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {

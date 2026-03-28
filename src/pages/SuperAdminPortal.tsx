@@ -32,7 +32,7 @@ interface VerificationRequest {
 }
 
 export default function SuperAdminPortal() {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -49,10 +49,8 @@ export default function SuperAdminPortal() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchDashboardData();
-    }
-  }, [user]);
+    fetchDashboardData();
+  }, []);
 
   const fetchDashboardData = async () => {
     setLoading(true);
