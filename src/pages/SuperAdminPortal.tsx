@@ -1,12 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Users, Building2, Stethoscope, FlaskConical, Pill, Activity, Shield, Settings,
-  BarChart3, AlertCircle, CheckCircle, Clock, TrendingUp, UserCheck, FileText,
-  Database, Search, Bell, Menu, X, Home, CreditCard, DollarSign, Filter,
-  Download, Plus, MoreVertical, Eye, Edit2, Trash2, XCircle, ChevronDown,
-  Calendar, MapPin, Phone, Mail, Globe, Award, Zap, Server, CloudOff,
-  RefreshCw, SlidersHorizontal, BookOpen, ClipboardList, Briefcase
-} from 'lucide-react';
+import { Users, Building2, Stethoscope, FlaskConical, Pill, Activity, Shield, Settings, BarChart3, AlertCircle, CheckCircle, Clock, TrendingUp, UserCheck, FileText, Database, Search, Bell, Menu, X, Home, CreditCard, DollarSign, Filter, Download, Plus, MoreVertical, Eye, CreditCard as Edit2, Trash2, XCircle, ChevronDown, Calendar, MapPin, Phone, Mail, Globe, Award, Zap, Server, CloudOff, RefreshCw, SlidersHorizontal, BookOpen, ClipboardList, Briefcase } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -65,6 +58,12 @@ export default function SuperAdminPortal() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUserTab, setSelectedUserTab] = useState('all');
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  // Modal states
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [showAddClinicModal, setShowAddClinicModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showUserDetailModal, setShowUserDetailModal] = useState(false);
 
   // Dashboard Stats
   const [stats, setStats] = useState<DashboardStats>({
@@ -187,6 +186,44 @@ export default function SuperAdminPortal() {
     return matchesSearch && matchesTab;
   });
 
+  const handleExportData = () => {
+    const csvContent = `Name,Email,Role,Status,Created At\n${users.map(u =>
+      `${u.full_name},${u.email},${u.role},${u.status},${new Date(u.created_at).toLocaleDateString()}`
+    ).join('\n')}`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ceenaix-users-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    setShowUserDetailModal(true);
+  };
+
+  const handleSuspendUser = async (userId: string) => {
+    if (confirm('Are you sure you want to suspend this user?')) {
+      console.log('Suspending user:', userId);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        await supabase.from('profiles').delete().eq('id', userId);
+        fetchUsers();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
+  };
+
   // Dashboard Component
   const DashboardView = () => (
     <div className="space-y-6">
@@ -198,6 +235,7 @@ export default function SuperAdminPortal() {
           value={stats.activeClinics}
           color="from-blue-500 to-blue-600"
           trend="+3 this month"
+          onClick={() => setActivePage('clinics')}
         />
         <KPICard
           icon={Users}
@@ -205,6 +243,10 @@ export default function SuperAdminPortal() {
           value={stats.totalPatients}
           color="from-emerald-500 to-emerald-600"
           trend="+12% growth"
+          onClick={() => {
+            setActivePage('users');
+            setSelectedUserTab('patient');
+          }}
         />
         <KPICard
           icon={Stethoscope}
@@ -212,6 +254,10 @@ export default function SuperAdminPortal() {
           value={stats.activeDoctors}
           color="from-teal-500 to-teal-600"
           trend="+5 new"
+          onClick={() => {
+            setActivePage('users');
+            setSelectedUserTab('doctor');
+          }}
         />
         <KPICard
           icon={Pill}
@@ -219,6 +265,7 @@ export default function SuperAdminPortal() {
           value={stats.prescriptionsToday}
           color="from-purple-500 to-purple-600"
           trend="12:00 PM"
+          onClick={() => setActivePage('prescriptions')}
         />
         <KPICard
           icon={FlaskConical}
@@ -226,6 +273,7 @@ export default function SuperAdminPortal() {
           value={stats.labOrdersToday}
           color="from-orange-500 to-orange-600"
           trend="Updated now"
+          onClick={() => setActivePage('lab-orders')}
         />
         <KPICard
           icon={CreditCard}
@@ -233,6 +281,7 @@ export default function SuperAdminPortal() {
           value={stats.insuranceClaimsPending}
           color="from-red-500 to-red-600"
           trend="Requires attention"
+          onClick={() => setActivePage('insurance')}
         />
       </div>
 
@@ -310,19 +359,31 @@ export default function SuperAdminPortal() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center gap-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+            <button
+              onClick={() => setShowAddClinicModal(true)}
+              className="w-full flex items-center gap-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
               <Plus className="w-5 h-5 text-blue-600" />
               <span className="font-medium text-blue-900">Add Clinic</span>
             </button>
-            <button className="w-full flex items-center gap-3 p-3 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors">
+            <button
+              onClick={() => setShowCreateUserModal(true)}
+              className="w-full flex items-center gap-3 p-3 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+            >
               <UserCheck className="w-5 h-5 text-emerald-600" />
               <span className="font-medium text-emerald-900">Invite User</span>
             </button>
-            <button className="w-full flex items-center gap-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+            <button
+              onClick={() => setActivePage('audit')}
+              className="w-full flex items-center gap-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
               <FileText className="w-5 h-5 text-purple-600" />
               <span className="font-medium text-purple-900">View Reports</span>
             </button>
-            <button className="w-full flex items-center gap-3 p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+            <button
+              onClick={() => handleExportData()}
+              className="w-full flex items-center gap-3 p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+            >
               <Download className="w-5 h-5 text-orange-600" />
               <span className="font-medium text-orange-900">Export Data</span>
             </button>
@@ -342,11 +403,17 @@ export default function SuperAdminPortal() {
           <p className="text-gray-600 mt-1">Manage all platform users</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+          <button
+            onClick={() => setShowCreateUserModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+          >
             <Plus className="w-5 h-5" />
             Create User
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
+          <button
+            onClick={handleExportData}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+          >
             <Download className="w-5 h-5" />
             Export
           </button>
@@ -450,15 +517,39 @@ export default function SuperAdminPortal() {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="View">
+                      <button
+                        onClick={() => handleViewUser(user)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="View"
+                      >
                         <Eye className="w-4 h-4 text-gray-600" />
                       </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
+                      <button
+                        onClick={() => handleViewUser(user)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Edit"
+                      >
                         <Edit2 className="w-4 h-4 text-gray-600" />
                       </button>
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="More">
-                        <MoreVertical className="w-4 h-4 text-gray-600" />
-                      </button>
+                      <div className="relative group">
+                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="More">
+                          <MoreVertical className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <div className="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                          <button
+                            onClick={() => handleSuspendUser(user.id)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-gray-700"
+                          >
+                            Suspend User
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm text-red-600"
+                          >
+                            Delete User
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -478,7 +569,10 @@ export default function SuperAdminPortal() {
           <h2 className="text-2xl font-bold text-gray-900">Clinic Management</h2>
           <p className="text-gray-600 mt-1">Manage registered clinics and DHA verification</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+        <button
+          onClick={() => setShowAddClinicModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+        >
           <Plus className="w-5 h-5" />
           Add Clinic
         </button>
@@ -706,8 +800,284 @@ export default function SuperAdminPortal() {
     );
   }
 
+  // Create User Modal Component
+  const CreateUserModal = () => {
+    const [formData, setFormData] = useState({
+      email: '',
+      full_name: '',
+      role: 'patient',
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      console.log('Creating user:', formData);
+      setShowCreateUserModal(false);
+      setFormData({ email: '', full_name: '', role: 'patient' });
+    };
+
+    if (!showCreateUserModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">Create New User</h3>
+            <button
+              onClick={() => setShowCreateUserModal(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <input
+                type="text"
+                value={formData.full_name}
+                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="pharmacy_admin">Pharmacy Admin</option>
+                <option value="lab_admin">Lab Admin</option>
+                <option value="clinic_admin">Clinic Admin</option>
+              </select>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowCreateUserModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Create User
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Add Clinic Modal Component
+  const AddClinicModal = () => {
+    const [formData, setFormData] = useState({
+      name: '',
+      dha_license: '',
+      contact: '',
+      location: '',
+      subscription_tier: 'Basic',
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      console.log('Adding clinic:', formData);
+      setShowAddClinicModal(false);
+      setFormData({ name: '', dha_license: '', contact: '', location: '', subscription_tier: 'Basic' });
+    };
+
+    if (!showAddClinicModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">Add New Clinic</h3>
+            <button
+              onClick={() => setShowAddClinicModal(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Clinic Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">DHA License Number</label>
+              <input
+                type="text"
+                value={formData.dha_license}
+                onChange={(e) => setFormData({ ...formData, dha_license: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contact</label>
+              <input
+                type="text"
+                value={formData.contact}
+                onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Dubai, UAE"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Subscription Plan</label>
+              <select
+                value={formData.subscription_tier}
+                onChange={(e) => setFormData({ ...formData, subscription_tier: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Basic">Basic</option>
+                <option value="Pro">Pro</option>
+                <option value="Enterprise">Enterprise</option>
+              </select>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowAddClinicModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Add Clinic
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // User Detail Modal Component
+  const UserDetailModal = () => {
+    if (!showUserDetailModal || !selectedUser) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">User Details</h3>
+            <button
+              onClick={() => setShowUserDetailModal(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-semibold">
+                {selectedUser.full_name?.charAt(0) || 'U'}
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-gray-900">{selectedUser.full_name || 'Unknown'}</h4>
+                <p className="text-gray-600">{selectedUser.email}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <p className="text-gray-900 font-semibold capitalize">{selectedUser.role?.replace('_', ' ')}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                  {selectedUser.status}
+                </span>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Login</label>
+                <p className="text-gray-900">{new Date(selectedUser.last_login).toLocaleString()}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Joined</label>
+                <p className="text-gray-900">{new Date(selectedUser.created_at).toLocaleDateString()}</p>
+              </div>
+              {selectedUser.entity_name && (
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Entity</label>
+                  <p className="text-gray-900">{selectedUser.entity_name}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowUserDetailModal(false);
+                  handleSuspendUser(selectedUser.id);
+                }}
+                className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium"
+              >
+                Suspend User
+              </button>
+              <button
+                onClick={() => {
+                  setShowUserDetailModal(false);
+                  handleDeleteUser(selectedUser.id);
+                }}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+              >
+                Delete User
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Modals */}
+      <CreateUserModal />
+      <AddClinicModal />
+      <UserDetailModal />
+
       {/* Sidebar */}
       <aside className={`fixed top-0 left-0 h-full bg-gradient-to-b from-[#0A1628] to-[#1a2942] text-white transition-all duration-300 z-50 ${
         sidebarOpen ? 'w-64' : 'w-20'
@@ -821,8 +1191,11 @@ export default function SuperAdminPortal() {
 }
 
 // Helper Components
-const KPICard = ({ icon: Icon, label, value, color, trend }: any) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+const KPICard = ({ icon: Icon, label, value, color, trend, onClick }: any) => (
+  <button
+    onClick={onClick}
+    className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all hover:scale-105 text-left w-full"
+  >
     <div className="flex items-start justify-between mb-4">
       <div className={`p-3 rounded-xl bg-gradient-to-br ${color}`}>
         <Icon className="w-6 h-6 text-white" />
@@ -831,7 +1204,7 @@ const KPICard = ({ icon: Icon, label, value, color, trend }: any) => (
     <p className="text-sm text-gray-600 mb-1">{label}</p>
     <p className="text-3xl font-bold text-gray-900 mb-2">{value.toLocaleString()}</p>
     <p className="text-sm text-gray-500">{trend}</p>
-  </div>
+  </button>
 );
 
 const ToggleSetting = ({ label, description, enabled }: any) => (
