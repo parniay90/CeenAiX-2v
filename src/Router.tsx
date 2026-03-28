@@ -16,7 +16,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import PrescriptionsPage from './pages/PrescriptionsPage';
 import DoctorRefillApproval from './pages/DoctorRefillApproval';
 import LabTestsPage from './pages/LabTestsPage';
-import FindLabsPage from './pages/FindLabsPage';
+import { FindLabsPage } from './pages/FindLabsPage';
 import EnhancedRadiologyPage from './pages/EnhancedRadiologyPage';
 import MessagesPage from './pages/MessagesPage';
 import DoctorSettings from './pages/DoctorSettings';

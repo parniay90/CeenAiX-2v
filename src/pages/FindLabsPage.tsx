@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PatientLayout } from '../components/PatientLayout';
 import {
@@ -14,11 +12,9 @@ import {
   CheckCircle,
   Filter,
   Beaker,
-  Activity,
-  Heart,
-  Brain,
-  Eye,
-  Stethoscope
+  Calendar,
+  FileText,
+  Navigation
 } from 'lucide-react';
 
 interface LabFacility {
@@ -33,449 +29,265 @@ interface LabFacility {
   test_types: string[];
   accepts_insurance: boolean;
   hours: string;
-  image_url: string;
+  image_url: string | null;
+  created_at: string;
 }
 
-interface TestType {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  preparation_instructions: string;
-  typical_turnaround: string;
-}
-
-const categoryIcons: { [key: string]: any } = {
-  blood: Activity,
-  imaging: Eye,
-  cardiology: Heart,
-  neurology: Brain,
-  diagnostic: Stethoscope,
-  other: Beaker
-};
-
-export default function FindLabsPage() {
-  const { userId } = useAuth();
-  const { isDarkMode } = useTheme();
-  const { t } = useLanguage();
-
-  const [labs, setLabs] = useState<LabFacility[]>([]);
-  const [testTypes, setTestTypes] = useState<TestType[]>([]);
-  const [filteredLabs, setFilteredLabs] = useState<LabFacility[]>([]);
-  const [loading, setLoading] = useState(true);
+export function FindLabsPage() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTestType, setSelectedTestType] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedLab, setSelectedLab] = useState<LabFacility | null>(null);
-  const [bookingTest, setBookingTest] = useState<TestType | null>(null);
+  const [selectedCity, setSelectedCity] = useState('all');
+  const [insuranceOnly, setInsuranceOnly] = useState(false);
+  const [labFacilities, setLabFacilities] = useState<LabFacility[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
+    fetchLabFacilities();
   }, []);
 
-  useEffect(() => {
-    filterLabs();
-  }, [searchQuery, selectedCategory, selectedTestType, labs]);
-
-  const fetchData = async () => {
+  const fetchLabFacilities = async () => {
     try {
       setLoading(true);
+      const { data, error } = await supabase
+        .from('lab_facilities')
+        .select('*')
+        .order('rating', { ascending: false });
 
-      const [labsResult, testTypesResult] = await Promise.all([
-        supabase.from('lab_facilities').select('*').order('rating', { ascending: false }),
-        supabase.from('test_types').select('*').order('category', { ascending: true })
-      ]);
-
-      if (labsResult.error) throw labsResult.error;
-      if (testTypesResult.error) throw testTypesResult.error;
-
-      setLabs(labsResult.data || []);
-      setTestTypes(testTypesResult.data || []);
+      if (error) throw error;
+      setLabFacilities(data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching lab facilities:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filterLabs = () => {
-    let filtered = [...labs];
+  const filteredLabs = labFacilities.filter((lab) => {
+    const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         lab.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         lab.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         lab.test_types.some(test => test.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCity = selectedCity === 'all' || lab.city === selectedCity;
+    const matchesInsurance = !insuranceOnly || lab.accepts_insurance;
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        lab =>
-          lab.name.toLowerCase().includes(query) ||
-          lab.city.toLowerCase().includes(query) ||
-          lab.state.toLowerCase().includes(query)
-      );
-    }
+    return matchesSearch && matchesCity && matchesInsurance;
+  });
 
-    if (selectedTestType) {
-      filtered = filtered.filter(lab => lab.test_types.includes(selectedTestType));
-    }
-
-    if (selectedCategory && selectedCategory !== 'all') {
-      const categoryTests = testTypes
-        .filter(t => t.category === selectedCategory)
-        .map(t => t.name);
-      filtered = filtered.filter(lab =>
-        lab.test_types.some(testType => categoryTests.includes(testType))
-      );
-    }
-
-    setFilteredLabs(filtered);
-  };
-
-  const categories = [
-    { key: 'all', label: 'All Categories', icon: Beaker },
-    { key: 'blood', label: 'Blood Tests', icon: Activity },
-    { key: 'imaging', label: 'Imaging', icon: Eye },
-    { key: 'cardiology', label: 'Cardiology', icon: Heart },
-    { key: 'neurology', label: 'Neurology', icon: Brain },
-    { key: 'diagnostic', label: 'Diagnostic', icon: Stethoscope }
-  ];
-
-  const bookTest = async (lab: LabFacility, test: TestType) => {
-    try {
-      const { error } = await supabase.from('lab_test_orders').insert({
-        patient_id: user?.id,
-        test_type_id: test.id,
-        lab_facility_id: lab.id,
-        status: 'ordered',
-        priority: 'routine'
-      });
-
-      if (error) throw error;
-
-      alert(`Test ordered successfully at ${lab.name}! You can track it in the Lab Tests page.`);
-      setSelectedLab(null);
-      setBookingTest(null);
-      window.location.href = '/lab-tests';
-    } catch (error) {
-      console.error('Error booking test:', error);
-      alert('Failed to book test. Please try again.');
-    }
-  };
+  const cities = ['all', ...Array.from(new Set(labFacilities.map(l => l.city)))];
 
   return (
     <PatientLayout>
-      <div className="min-h-screen" style={{ background: isDarkMode ? '#0F172A' : '#F8FAFC' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Beaker className="w-8 h-8 text-teal-600" />
-              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Find Lab Facilities
-              </h1>
-            </div>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              Search for labs and book tests by category
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="text-4xl font-bold mb-4">
+              {language === 'en' ? 'Laboratory & Diagnostic Centers' : 'مراكز المختبرات والتشخيص'}
+            </h1>
+            <p className="text-lg opacity-90 mb-8">
+              {language === 'en'
+                ? 'Find accredited labs for blood tests, imaging, and diagnostics'
+                : 'ابحث عن مختبرات معتمدة لفحوصات الدم والتصوير والتشخيص'}
             </p>
-          </div>
 
-          {/* Search and Filters */}
-          <div className="mb-6 space-y-4">
-            <div className="flex gap-4 flex-wrap">
-              <div className="flex-1 min-w-[300px]">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="bg-white rounded-xl p-4 shadow-lg">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
+                    placeholder={language === 'en' ? 'Search by lab name, location, or test type...' : 'ابحث بالاسم أو الموقع أو نوع الفحص...'}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by lab name or location..."
-                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 focus:outline-none focus:border-teal-600 transition-all ${
-                      isDarkMode
-                        ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
-                        : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400'
-                    }`}
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900"
                   />
                 </div>
-              </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all ${
-                  showFilters
-                    ? 'bg-teal-600 text-white'
-                    : isDarkMode
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
-                }`}
-              >
-                <Filter className="w-5 h-5" />
-                Filters
-              </button>
-            </div>
-
-            {/* Category Pills */}
-            <div className="flex gap-2 flex-wrap">
-              {categories.map(cat => {
-                const Icon = cat.icon;
-                return (
-                  <button
-                    key={cat.key}
-                    onClick={() => setSelectedCategory(cat.key)}
-                    className={`px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all ${
-                      selectedCategory === cat.key
-                        ? 'bg-teal-600 text-white'
-                        : isDarkMode
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {cat.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Test Type Filter */}
-            {showFilters && (
-              <div className="p-6 rounded-xl" style={{ background: isDarkMode ? '#1E293B' : 'white' }}>
-                <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Filter by Test Type
-                </h3>
-                <div className="grid md:grid-cols-3 gap-2">
-                  <button
-                    onClick={() => setSelectedTestType('')}
-                    className={`px-4 py-2 rounded-lg text-left text-sm transition-all ${
-                      selectedTestType === ''
-                        ? 'bg-teal-600 text-white'
-                        : isDarkMode
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    All Tests
-                  </button>
-                  {testTypes.map(test => (
-                    <button
-                      key={test.id}
-                      onClick={() => setSelectedTestType(test.name)}
-                      className={`px-4 py-2 rounded-lg text-left text-sm transition-all ${
-                        selectedTestType === test.name
-                          ? 'bg-teal-600 text-white'
-                          : isDarkMode
-                          ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="font-semibold">{test.name}</div>
-                      <div className="text-xs opacity-75">{test.category}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Results */}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-              <p className={`mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading labs...</p>
-            </div>
-          ) : filteredLabs.length === 0 ? (
-            <div className="text-center py-12 rounded-xl" style={{ background: isDarkMode ? '#1E293B' : 'white' }}>
-              <Beaker className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                No labs found
-              </h3>
-              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                Try adjusting your search or filters
-              </p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredLabs.map(lab => (
-                <div
-                  key={lab.id}
-                  className="rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-lg"
-                  style={{ background: isDarkMode ? '#1E293B' : 'white' }}
-                >
-                  {/* Lab Image */}
-                  {lab.image_url && (
-                    <div className="h-48 bg-gradient-to-br from-teal-400 to-blue-500"></div>
-                  )}
-
-                  <div className="p-6">
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < Math.floor(lab.rating)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className={`text-sm font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        {lab.rating.toFixed(1)}
-                      </span>
-                    </div>
-
-                    {/* Lab Name */}
-                    <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      {lab.name}
-                    </h3>
-
-                    {/* Location */}
-                    <div className={`flex items-start gap-2 mb-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <span>{lab.address}, {lab.city}, {lab.state}</span>
-                    </div>
-
-                    {/* Contact Info */}
-                    <div className="space-y-2 mb-4">
-                      {lab.phone && (
-                        <div className={`flex items-center gap-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          <Phone className="w-4 h-4" />
-                          <span>{lab.phone}</span>
-                        </div>
-                      )}
-                      {lab.hours && (
-                        <div className={`flex items-center gap-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          <Clock className="w-4 h-4" />
-                          <span>{lab.hours}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Insurance Badge */}
-                    {lab.accepts_insurance && (
-                      <div className="mb-4">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                          <CheckCircle className="w-3 h-3" />
-                          Accepts Insurance
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Test Types */}
-                    <div className="mb-4">
-                      <p className={`text-xs font-semibold mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Available Tests:
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {lab.test_types.slice(0, 3).map((type, index) => (
-                          <span
-                            key={index}
-                            className={`px-2 py-1 rounded text-xs ${
-                              isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
-                            }`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                        {lab.test_types.length > 3 && (
-                          <span className={`px-2 py-1 text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            +{lab.test_types.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Book Button */}
-                    <button
-                      onClick={() => setSelectedLab(lab)}
-                      className="w-full py-3 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-all"
-                    >
-                      Book Test
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Booking Modal */}
-        {selectedLab && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div
-              className="max-w-2xl w-full rounded-xl shadow-xl max-h-[90vh] overflow-y-auto"
-              style={{ background: isDarkMode ? '#1E293B' : 'white' }}
-            >
-              <div className="p-6 border-b" style={{ borderColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
-                <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Book Test at {selectedLab.name}
-                </h2>
-                <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Select a test to book
-                </p>
-              </div>
-
-              <div className="p-6">
-                <div className="space-y-3">
-                  {testTypes
-                    .filter(test => selectedLab.test_types.includes(test.name))
-                    .map(test => {
-                      const Icon = categoryIcons[test.category] || Beaker;
-                      return (
-                        <div
-                          key={test.id}
-                          className={`p-4 rounded-lg border-2 transition-all ${
-                            isDarkMode
-                              ? 'bg-gray-800 border-gray-700 hover:border-teal-600'
-                              : 'bg-gray-50 border-gray-200 hover:border-teal-600'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Icon className="w-5 h-5 text-teal-600" />
-                                <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                  {test.name}
-                                </h3>
-                              </div>
-                              <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                {test.description}
-                              </p>
-                              {test.preparation_instructions && (
-                                <p className={`text-xs mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                  <strong>Preparation:</strong> {test.preparation_instructions}
-                                </p>
-                              )}
-                              <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                                <strong>Turnaround:</strong> {test.typical_turnaround}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => bookTest(selectedLab, test)}
-                              className="px-4 py-2 rounded-lg font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-all whitespace-nowrap"
-                            >
-                              Book Now
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-
-              <div className="p-6 border-t" style={{ borderColor: isDarkMode ? '#334155' : '#E2E8F0' }}>
                 <button
-                  onClick={() => setSelectedLab(null)}
-                  className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                    isDarkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  onClick={fetchLabFacilities}
+                  className="px-8 py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-800 transition-colors"
                 >
-                  Cancel
+                  {language === 'en' ? 'Search' : 'بحث'}
                 </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <aside className="lg:w-64 flex-shrink-0">
+              <div className="bg-white rounded-xl p-6 shadow-sm sticky top-4">
+                <div className="flex items-center gap-2 mb-6">
+                  <Filter className="w-5 h-5 text-gray-700" />
+                  <h3 className="font-semibold text-gray-900">
+                    {language === 'en' ? 'Filters' : 'الفلاتر'}
+                  </h3>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {language === 'en' ? 'City' : 'المدينة'}
+                    </label>
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    >
+                      {cities.map(city => (
+                        <option key={city} value={city}>
+                          {city === 'all' ? 'All Cities' : city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={insuranceOnly}
+                        onChange={(e) => setInsuranceOnly(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">
+                        {language === 'en' ? 'Accepts Insurance' : 'يقبل التأمين'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCity('all');
+                      setInsuranceOnly(false);
+                    }}
+                    className="w-full mt-4 px-4 py-2 text-sm text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    {language === 'en' ? 'Clear Filters' : 'مسح الفلاتر'}
+                  </button>
+                </div>
+              </div>
+            </aside>
+
+            <div className="flex-1">
+              <div className="mb-6 flex justify-between items-center">
+                <p className="text-gray-600">
+                  {language === 'en'
+                    ? `${filteredLabs.length} ${filteredLabs.length === 1 ? 'lab' : 'labs'} found`
+                    : `تم العثور على ${filteredLabs.length} مختبر`}
+                </p>
+              </div>
+
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : filteredLabs.length === 0 ? (
+                <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+                  <Beaker className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {language === 'en' ? 'No labs found' : 'لم يتم العثور على مختبرات'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {language === 'en'
+                      ? 'Try adjusting your search or filters'
+                      : 'حاول تعديل البحث أو الفلاتر'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {filteredLabs.map((lab) => (
+                    <div
+                      key={lab.id}
+                      className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+                    >
+                      <div className="flex flex-col lg:flex-row gap-6">
+                        <div className="flex-shrink-0">
+                          <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg flex items-center justify-center text-white text-2xl font-bold">
+                            {lab.name.substring(0, 2).toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900 mb-1">{lab.name}</h3>
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                  <span className="text-sm font-semibold text-gray-700">{lab.rating}</span>
+                                </div>
+                                {lab.accepts_insurance && (
+                                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                                    <CheckCircle className="w-3 h-3" />
+                                    Insurance
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <MapPin className="w-4 h-4 text-blue-600" />
+                              <span>{lab.address}, {lab.city}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <Phone className="w-4 h-4 text-blue-600" />
+                              <span>{lab.phone}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <Mail className="w-4 h-4 text-blue-600" />
+                              <span>{lab.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <Clock className="w-4 h-4 text-blue-600" />
+                              <span>{lab.hours}</span>
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                              <Beaker className="w-4 h-4" />
+                              Available Tests:
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {lab.test_types.slice(0, 6).map((test, idx) => (
+                                <span key={idx} className="px-3 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                  {test}
+                                </span>
+                              ))}
+                              {lab.test_types.length > 6 && (
+                                <span className="px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                                  +{lab.test_types.length - 6} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-100">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              {language === 'en' ? 'Book Test' : 'احجز فحص'}
+                            </button>
+                            <button className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
+                              <FileText className="w-4 h-4" />
+                              {language === 'en' ? 'View Tests' : 'عرض الفحوصات'}
+                            </button>
+                            <button className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
+                              <Navigation className="w-4 h-4" />
+                              {language === 'en' ? 'Directions' : 'الاتجاهات'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </PatientLayout>
   );
