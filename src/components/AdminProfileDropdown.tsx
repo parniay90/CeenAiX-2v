@@ -222,6 +222,7 @@ export default function AdminProfileDropdown({
             });
           }}
           onCancel={() => setShowSignOutDialog(false)}
+          message={isSuperAdmin ? "You are signing out of the Super Admin panel. This action will end your session." : undefined}
         />
       )}
     </>
@@ -242,9 +243,10 @@ export default function AdminProfileDropdown({
 interface SignOutConfirmationDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
+  message?: string;
 }
 
-function SignOutConfirmationDialog({ onConfirm, onCancel }: SignOutConfirmationDialogProps) {
+function SignOutConfirmationDialog({ onConfirm, onCancel, message }: SignOutConfirmationDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -287,7 +289,7 @@ function SignOutConfirmationDialog({ onConfirm, onCancel }: SignOutConfirmationD
         </h3>
 
         <p id="signout-description" className="text-gray-600 text-center mb-6">
-          Are you sure you want to sign out? Your current session will end.
+          {message || "Are you sure you want to sign out? Your current session will end."}
         </p>
 
         <div className="flex gap-3">

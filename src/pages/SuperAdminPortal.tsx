@@ -4,6 +4,10 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import AdminProfileDropdown from '../components/AdminProfileDropdown';
 import SuperAdminSettings from './SuperAdminSettings';
+import SuperAdminMyProfile from './SuperAdminMyProfile';
+import SuperAdminSecurity from './SuperAdminSecurity';
+import SuperAdminNotifications from './SuperAdminNotifications';
+import SuperAdminPlatformStatus from './SuperAdminPlatformStatus';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1348,7 +1352,7 @@ export default function SuperAdminPortal() {
         </header>
 
         {/* Page Content */}
-        <main className="p-8">
+        <main className={activePage === 'dashboard' || activePage === 'users' || activePage === 'clinics' || activePage === 'pharmacies' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
           {activePage === 'dashboard' && <DashboardView />}
           {activePage === 'users' && <UserManagementView />}
           {activePage === 'clinics' && <ClinicManagementView />}
@@ -1357,8 +1361,12 @@ export default function SuperAdminPortal() {
           {activePage === 'insurance' && <InsuranceManagementView />}
           {activePage === 'prescriptions' && <PrescriptionsManagementView />}
           {activePage === 'lab-orders' && <LabOrdersManagementView />}
-          {activePage === 'settings' && <SuperAdminSettings onBack={() => setActivePage('dashboard')} />}
           {activePage === 'audit' && <AuditLogsView />}
+          {activePage === 'settings' && <SuperAdminSettings onBack={() => setActivePage('dashboard')} />}
+          {activePage === 'profile' && <SuperAdminMyProfile onBack={() => setActivePage('dashboard')} />}
+          {activePage === 'security' && <SuperAdminSecurity onBack={() => setActivePage('dashboard')} />}
+          {activePage === 'notifications' && <SuperAdminNotifications onBack={() => setActivePage('dashboard')} />}
+          {activePage === 'platform-status' && <SuperAdminPlatformStatus onBack={() => setActivePage('dashboard')} />}
         </main>
       </div>
 
