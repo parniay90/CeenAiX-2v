@@ -20,6 +20,7 @@ import {
   PieChart,
   X,
   ChevronRight,
+  Building2,
 } from 'lucide-react';
 import {
   LineChart,
