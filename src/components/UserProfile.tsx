@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import {
-  ChevronLeft, CreditCard as Edit, Ban, CheckCircle, MoreVertical, User as UserIcon,
+  ChevronLeft, CreditCard as Edit, Ban, CheckCircle, MoreVertical, User,
   FileText, Shield, Bell, Activity, Lock, Settings, Phone, Mail, MapPin, Calendar,
   Heart, Eye, EyeOff, Download, AlertCircle, Trash2, Search, Filter, TrendingUp
 } from 'lucide-react';
-import { User, PatientUser, DoctorUser } from '../types/user';
+import { User as UserType, PatientUser, DoctorUser } from '../types/user';
 import {
   mockLoginSessions, mockActivityLog, mockAuditLog, mockNotificationPreferences,
   mockNotificationHistory, mockPrescriptions, mockLabResults, mockInsuranceClaims
 } from '../data/mockUsers';
 
 interface UserProfileProps {
-  user: User;
+  user: UserType;
   onBack: () => void;
 }
 
@@ -23,7 +23,7 @@ export default function UserProfile({ user, onBack }: UserProfileProps) {
   const [showImpersonateConfirm, setShowImpersonateConfirm] = useState(false);
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: 'overview', label: 'Overview', icon: UserIcon },
+    { id: 'overview', label: 'Overview', icon: User },
     { id: 'medical', label: 'Medical Info', icon: Heart },
     { id: 'activity', label: 'Activity', icon: Activity },
     { id: 'security', label: 'Security', icon: Lock },
@@ -215,7 +215,7 @@ export default function UserProfile({ user, onBack }: UserProfileProps) {
   );
 }
 
-function OverviewTab({ user, emiratesIdRevealed, onRevealEmiratesId }: { user: User; emiratesIdRevealed: boolean; onRevealEmiratesId: () => void }) {
+function OverviewTab({ user, emiratesIdRevealed, onRevealEmiratesId }: { user: UserType; emiratesIdRevealed: boolean; onRevealEmiratesId: () => void }) {
   const patientUser = user as PatientUser;
   const doctorUser = user as DoctorUser;
 

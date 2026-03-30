@@ -2,9 +2,9 @@ import { useState } from 'react';
 import {
   Plus, Search, Filter, Download, ChevronLeft, Eye, CreditCard as Edit, MoreVertical,
   Users as UsersIcon, CheckCircle, Clock, XCircle, AlertCircle, Lock, UserCheck,
-  Stethoscope, Building2, Pill, FlaskConical, Shield, User as UserIcon
+  Stethoscope, Building2, Pill, FlaskConical, Shield, User
 } from 'lucide-react';
-import type { User, UserRole, UserStatus } from '../types/user';
+import { User as UserType, UserRole, UserStatus } from '../types/user';
 import { allMockUsers } from '../data/mockUsers';
 import UserProfile from '../components/UserProfile';
 import InviteUserModal from '../components/InviteUserModal';
@@ -14,8 +14,8 @@ type UserTab = 'all' | 'patients' | 'doctors' | 'clinic-staff' | 'pharmacists' |
 
 export default function SuperAdminUsers() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [users] = useState<User[]>(allMockUsers);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [users] = useState<UserType[]>(allMockUsers);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
@@ -42,7 +42,7 @@ export default function SuperAdminUsers() {
   const pharmacyLab = users.filter(u => u.role === 'Pharmacist' || u.role === 'Lab Technician').length;
   const pendingUsers = users.filter(u => u.status === 'Pending').length;
 
-  const handleViewUser = (user: User) => {
+  const handleViewUser = (user: UserType) => {
     setSelectedUser(user);
     setViewMode('profile');
   };
@@ -159,7 +159,7 @@ export default function SuperAdminUsers() {
 
   const tabs: { id: UserTab; label: string; icon: any; count: number }[] = [
     { id: 'all', label: 'All Users', icon: UsersIcon, count: users.length },
-    { id: 'patients', label: 'Patients', icon: UserIcon, count: patients },
+    { id: 'patients', label: 'Patients', icon: User, count: patients },
     { id: 'doctors', label: 'Doctors', icon: Stethoscope, count: doctors },
     { id: 'clinic-staff', label: 'Clinic Staff', icon: Building2, count: users.filter(u => u.role === 'Clinic Admin').length },
     { id: 'pharmacists', label: 'Pharmacists', icon: Pill, count: users.filter(u => u.role === 'Pharmacist').length },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ChevronRight, CheckCircle, User as UserIcon, Stethoscope, Building2, Pill, FlaskConical, Shield, UserCheck } from 'lucide-react';
+import { X, ChevronRight, CheckCircle, User, Stethoscope, Building2, Pill, FlaskConical, Shield, UserCheck } from 'lucide-react';
 import { UserRole } from '../types/user';
 
 interface InviteUserModalProps {
@@ -32,7 +32,7 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const roles = [
-    { id: 'Patient', label: 'Patient', icon: UserIcon, color: 'blue' },
+    { id: 'Patient', label: 'Patient', icon: User, color: 'blue' },
     { id: 'Doctor', label: 'Doctor', icon: Stethoscope, color: 'purple' },
     { id: 'Clinic Admin', label: 'Clinic Staff', icon: Building2, color: 'indigo' },
     { id: 'Pharmacist', label: 'Pharmacist', icon: Pill, color: 'emerald' },
