@@ -9,6 +9,7 @@ import SuperAdminSecurity from './SuperAdminSecurity';
 import SuperAdminNotifications from './SuperAdminNotifications';
 import SuperAdminPlatformStatus from './SuperAdminPlatformStatus';
 import SuperAdminPharmacies from './SuperAdminPharmacies';
+import SuperAdminUsers from './SuperAdminUsers';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1322,9 +1323,9 @@ export default function SuperAdminPortal() {
         </header>
 
         {/* Page Content */}
-        <main className={activePage === 'dashboard' || activePage === 'users' || activePage === 'clinics' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
+        <main className={activePage === 'dashboard' || activePage === 'clinics' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
           {activePage === 'dashboard' && <DashboardView />}
-          {activePage === 'users' && <UserManagementView />}
+          {activePage === 'users' && <SuperAdminUsers />}
           {activePage === 'clinics' && <ClinicManagementView />}
           {activePage === 'pharmacies' && <SuperAdminPharmacies />}
           {activePage === 'labs' && <LabsManagementView />}
