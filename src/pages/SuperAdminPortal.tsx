@@ -8,6 +8,7 @@ import SuperAdminMyProfile from './SuperAdminMyProfile';
 import SuperAdminSecurity from './SuperAdminSecurity';
 import SuperAdminNotifications from './SuperAdminNotifications';
 import SuperAdminPlatformStatus from './SuperAdminPlatformStatus';
+import SuperAdminPharmacies from './SuperAdminPharmacies';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1003,37 +1004,6 @@ export default function SuperAdminPortal() {
 
   // User Detail Modal Component
   // Additional Management Views
-  const PharmaciesManagementView = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Pharmacies Management</h2>
-        <a
-          href="/pharmacies"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium inline-flex items-center gap-2"
-        >
-          <Eye className="w-4 h-4" />
-          View Pharmacies Page
-        </a>
-      </div>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <p className="text-gray-600 mb-4">Manage all pharmacies registered in the system. View, approve, and monitor pharmacy operations.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-gray-600">Total Pharmacies</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.activeClinics}</p>
-          </div>
-          <div className="p-4 bg-emerald-50 rounded-lg">
-            <p className="text-sm text-gray-600">Active</p>
-            <p className="text-2xl font-bold text-emerald-700">{stats.activeClinics}</p>
-          </div>
-          <div className="p-4 bg-orange-50 rounded-lg">
-            <p className="text-sm text-gray-600">24/7 Service</p>
-            <p className="text-2xl font-bold text-orange-700">{Math.floor(stats.activeClinics / 2)}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const LabsManagementView = () => (
     <div className="space-y-6">
@@ -1352,11 +1322,11 @@ export default function SuperAdminPortal() {
         </header>
 
         {/* Page Content */}
-        <main className={activePage === 'dashboard' || activePage === 'users' || activePage === 'clinics' || activePage === 'pharmacies' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
+        <main className={activePage === 'dashboard' || activePage === 'users' || activePage === 'clinics' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
           {activePage === 'dashboard' && <DashboardView />}
           {activePage === 'users' && <UserManagementView />}
           {activePage === 'clinics' && <ClinicManagementView />}
-          {activePage === 'pharmacies' && <PharmaciesManagementView />}
+          {activePage === 'pharmacies' && <SuperAdminPharmacies />}
           {activePage === 'labs' && <LabsManagementView />}
           {activePage === 'insurance' && <InsuranceManagementView />}
           {activePage === 'prescriptions' && <PrescriptionsManagementView />}

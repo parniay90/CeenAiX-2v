@@ -1,0 +1,351 @@
+import { Pharmacy, PharmacyStaff, Prescription, InsuranceClaim, Reminder, AuditLogEntry, InsuranceNetwork } from '../types/pharmacy';
+
+export const mockPharmacies: Pharmacy[] = [
+  {
+    id: 'PHR001',
+    name: 'Life Pharmacy Downtown',
+    logo: 'https://images.pexels.com/photos/48604/pexels-photo-48604.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'Community',
+    dhaLicenseNumber: 'DHA-PH-2024-001234',
+    dhaLicenseStatus: 'Verified',
+    dhaLicenseExpiry: '2027-12-31',
+    tradeLicenseNumber: 'CN-1234567',
+    emirate: 'Dubai',
+    address: 'Sheikh Zayed Road, Downtown Dubai',
+    coordinates: '25.1972, 55.2744',
+    operatingHours: {
+      monday: { open: '08:00', close: '22:00', isOpen: true },
+      tuesday: { open: '08:00', close: '22:00', isOpen: true },
+      wednesday: { open: '08:00', close: '22:00', isOpen: true },
+      thursday: { open: '08:00', close: '22:00', isOpen: true },
+      friday: { open: '09:00', close: '23:00', isOpen: true },
+      saturday: { open: '08:00', close: '22:00', isOpen: true },
+      sunday: { open: '08:00', close: '22:00', isOpen: true },
+    },
+    primaryContactName: 'Ahmed Al Maktoum',
+    primaryContactEmail: 'ahmed@lifepharmacy.ae',
+    primaryContactPhone: '+971 4 555 0001',
+    headPharmacistName: 'Dr. Sarah Williams',
+    headPharmacistLicense: 'DHA-PH-2020-5678',
+    subscriptionPlan: 'Enterprise',
+    subscriptionRenewal: '2026-12-31',
+    insuranceNetworks: ['Daman', 'ADNIC', 'AXA', 'MetLife'],
+    status: 'Active',
+    registeredOn: '2024-01-15',
+    lastActive: '2026-03-30T10:30:00Z',
+    staffCount: 12,
+    prescriptionsThisMonth: 1247,
+    internalNotes: 'Premium partner, excellent service record'
+  },
+  {
+    id: 'PHR002',
+    name: 'Aster Pharmacy Marina',
+    logo: 'https://images.pexels.com/photos/48603/pexels-photo-48603.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'Hospital-Attached',
+    dhaLicenseNumber: 'DHA-PH-2024-002345',
+    dhaLicenseStatus: 'Verified',
+    dhaLicenseExpiry: '2027-06-30',
+    tradeLicenseNumber: 'CN-2345678',
+    emirate: 'Dubai',
+    address: 'Dubai Marina, Marina Walk',
+    operatingHours: {
+      monday: { open: '24/7', close: '24/7', isOpen: true },
+      tuesday: { open: '24/7', close: '24/7', isOpen: true },
+      wednesday: { open: '24/7', close: '24/7', isOpen: true },
+      thursday: { open: '24/7', close: '24/7', isOpen: true },
+      friday: { open: '24/7', close: '24/7', isOpen: true },
+      saturday: { open: '24/7', close: '24/7', isOpen: true },
+      sunday: { open: '24/7', close: '24/7', isOpen: true },
+    },
+    primaryContactName: 'Mohammed Hassan',
+    primaryContactEmail: 'mohammed@aster.ae',
+    primaryContactPhone: '+971 4 555 0002',
+    headPharmacistName: 'Dr. Priya Sharma',
+    headPharmacistLicense: 'DHA-PH-2021-6789',
+    subscriptionPlan: 'Enterprise',
+    subscriptionRenewal: '2026-06-30',
+    insuranceNetworks: ['Daman', 'ADNIC', 'Oman Insurance', 'Neuron'],
+    status: 'Active',
+    registeredOn: '2024-02-20',
+    lastActive: '2026-03-30T09:15:00Z',
+    staffCount: 18,
+    prescriptionsThisMonth: 2156,
+  },
+  {
+    id: 'PHR003',
+    name: 'Medcare Pharmacy JLT',
+    logo: 'https://images.pexels.com/photos/208512/pexels-photo-208512.jpeg?auto=compress&cs=tinysrgb&w=100',
+    type: 'Clinic-Attached',
+    dhaLicenseNumber: 'DHA-PH-2025-003456',
+    dhaLicenseStatus: 'Verified',
+    dhaLicenseExpiry: '2028-03-31',
+    emirate: 'Dubai',
+    address: 'Jumeirah Lakes Towers, Cluster A',
+    operatingHours: {
+      monday: { open: '07:00', close: '21:00', isOpen: true },
+      tuesday: { open: '07:00', close: '21:00', isOpen: true },
+      wednesday: { open: '07:00', close: '21:00', isOpen: true },
+      thursday: { open: '07:00', close: '21:00', isOpen: true },
+      friday: { open: '09:00', close: '18:00', isOpen: true },
+      saturday: { open: '07:00', close: '21:00', isOpen: true },
+      sunday: { open: '07:00', close: '21:00', isOpen: true },
+    },
+    primaryContactName: 'Fatima Al Zaabi',
+    primaryContactEmail: 'fatima@medcare.ae',
+    primaryContactPhone: '+971 4 555 0003',
+    headPharmacistName: 'Dr. John Peterson',
+    headPharmacistLicense: 'DHA-PH-2022-7890',
+    subscriptionPlan: 'Pro',
+    subscriptionRenewal: '2026-09-30',
+    insuranceNetworks: ['AXA', 'MetLife', 'ADNIC'],
+    status: 'Active',
+    registeredOn: '2025-03-10',
+    lastActive: '2026-03-30T08:45:00Z',
+    staffCount: 8,
+    prescriptionsThisMonth: 892,
+  },
+  {
+    id: 'PHR004',
+    name: 'QuickHealth Online Pharmacy',
+    type: 'Online',
+    dhaLicenseNumber: 'DHA-PH-2025-004567',
+    dhaLicenseStatus: 'Pending',
+    emirate: 'Dubai',
+    address: 'Business Bay, Bay Square',
+    operatingHours: {
+      monday: { open: '24/7', close: '24/7', isOpen: true },
+      tuesday: { open: '24/7', close: '24/7', isOpen: true },
+      wednesday: { open: '24/7', close: '24/7', isOpen: true },
+      thursday: { open: '24/7', close: '24/7', isOpen: true },
+      friday: { open: '24/7', close: '24/7', isOpen: true },
+      saturday: { open: '24/7', close: '24/7', isOpen: true },
+      sunday: { open: '24/7', close: '24/7', isOpen: true },
+    },
+    primaryContactName: 'Ravi Kumar',
+    primaryContactEmail: 'ravi@quickhealth.ae',
+    primaryContactPhone: '+971 4 555 0004',
+    headPharmacistName: 'Dr. Lisa Chen',
+    headPharmacistLicense: 'DHA-PH-2023-8901',
+    subscriptionPlan: 'Pro',
+    subscriptionRenewal: '2026-11-30',
+    insuranceNetworks: ['Daman', 'ADNIC'],
+    status: 'Pending',
+    registeredOn: '2025-11-01',
+    lastActive: '2026-03-29T16:20:00Z',
+    staffCount: 5,
+    prescriptionsThisMonth: 234,
+    internalNotes: 'Waiting for DHA license verification'
+  },
+  {
+    id: 'PHR005',
+    name: 'NMC Pharmacy Al Nahda',
+    type: 'Community',
+    dhaLicenseNumber: 'DHA-PH-2023-005678',
+    dhaLicenseStatus: 'Expired',
+    dhaLicenseExpiry: '2026-02-28',
+    emirate: 'Dubai',
+    address: 'Al Nahda, Near Pond Park',
+    operatingHours: {
+      monday: { open: '08:00', close: '22:00', isOpen: true },
+      tuesday: { open: '08:00', close: '22:00', isOpen: true },
+      wednesday: { open: '08:00', close: '22:00', isOpen: true },
+      thursday: { open: '08:00', close: '22:00', isOpen: true },
+      friday: { open: '10:00', close: '20:00', isOpen: true },
+      saturday: { open: '08:00', close: '22:00', isOpen: true },
+      sunday: { open: '08:00', close: '22:00', isOpen: true },
+    },
+    primaryContactName: 'Khalid Abdullah',
+    primaryContactEmail: 'khalid@nmc.ae',
+    primaryContactPhone: '+971 4 555 0005',
+    headPharmacistName: 'Dr. Anna Kowalski',
+    headPharmacistLicense: 'DHA-PH-2019-9012',
+    subscriptionPlan: 'Basic',
+    subscriptionRenewal: '2026-04-30',
+    insuranceNetworks: ['Oman Insurance'],
+    status: 'Suspended',
+    registeredOn: '2023-04-22',
+    lastActive: '2026-03-15T11:30:00Z',
+    staffCount: 4,
+    prescriptionsThisMonth: 0,
+    internalNotes: 'Suspended due to expired DHA license - renewal in progress'
+  },
+];
+
+export const mockPharmacyStaff: PharmacyStaff[] = [
+  {
+    id: 'STF001',
+    pharmacyId: 'PHR001',
+    name: 'Dr. Sarah Williams',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100',
+    role: 'Head Pharmacist',
+    email: 'sarah.williams@lifepharmacy.ae',
+    phone: '+971 50 123 4567',
+    dhaLicenseNumber: 'DHA-PH-2020-5678',
+    dhaLicenseExpiry: '2027-06-30',
+    status: 'Active',
+    lastLogin: '2026-03-30T10:25:00Z'
+  },
+  {
+    id: 'STF002',
+    pharmacyId: 'PHR001',
+    name: 'Mohammed Ali',
+    role: 'Pharmacist',
+    email: 'mohammed.ali@lifepharmacy.ae',
+    phone: '+971 50 234 5678',
+    dhaLicenseNumber: 'DHA-PH-2021-6789',
+    dhaLicenseExpiry: '2027-12-31',
+    status: 'Active',
+    lastLogin: '2026-03-30T09:15:00Z'
+  },
+  {
+    id: 'STF003',
+    pharmacyId: 'PHR001',
+    name: 'Aisha Rahman',
+    role: 'Pharmacy Technician',
+    email: 'aisha.rahman@lifepharmacy.ae',
+    phone: '+971 50 345 6789',
+    status: 'Active',
+    lastLogin: '2026-03-30T08:30:00Z'
+  },
+];
+
+export const mockPrescriptions: Prescription[] = [
+  {
+    id: 'RX001234',
+    pharmacyId: 'PHR001',
+    patientName: 'John Smith',
+    doctorName: 'Dr. Ahmed Hassan',
+    clinic: 'Dubai Healthcare City Clinic',
+    medications: [
+      { name: 'Amoxicillin 500mg', dosage: '500mg', quantity: 21, instructions: 'Take 1 capsule 3 times daily for 7 days' },
+      { name: 'Ibuprofen 400mg', dosage: '400mg', quantity: 20, instructions: 'Take 1 tablet as needed for pain, max 4 times daily' }
+    ],
+    dateReceived: '2026-03-28T09:30:00Z',
+    dateDispensed: '2026-03-28T10:15:00Z',
+    status: 'Dispensed',
+    insurance: 'Daman',
+    dispensedBy: 'Mohammed Ali',
+    totalAmount: 145.50
+  },
+  {
+    id: 'RX001235',
+    pharmacyId: 'PHR001',
+    patientName: 'Maria Garcia',
+    doctorName: 'Dr. Fatima Al Zaabi',
+    clinic: 'Marina Medical Center',
+    medications: [
+      { name: 'Metformin 850mg', dosage: '850mg', quantity: 60, instructions: 'Take 1 tablet twice daily with meals' }
+    ],
+    dateReceived: '2026-03-30T08:15:00Z',
+    status: 'Acknowledged',
+    insurance: 'AXA',
+    totalAmount: 89.00
+  },
+];
+
+export const mockInsuranceClaims: InsuranceClaim[] = [
+  {
+    id: 'CLM001',
+    pharmacyId: 'PHR001',
+    patientName: 'John Smith',
+    prescriptionId: 'RX001234',
+    provider: 'Daman',
+    medications: [
+      { name: 'Amoxicillin 500mg', unitCost: 3.50, quantity: 21, total: 73.50 },
+      { name: 'Ibuprofen 400mg', unitCost: 3.60, quantity: 20, total: 72.00 }
+    ],
+    totalAmount: 145.50,
+    submittedDate: '2026-03-28T10:30:00Z',
+    status: 'Approved',
+    responseNote: 'Claim approved within coverage limits'
+  },
+];
+
+export const mockReminders: Reminder[] = [
+  {
+    id: 'REM001',
+    pharmacyId: 'PHR001',
+    patientName: 'Maria Garcia',
+    medication: 'Metformin 850mg',
+    schedule: 'Daily at 8:00 AM and 8:00 PM',
+    channel: 'SMS',
+    createdBy: 'Dr. Sarah Williams',
+    status: 'Active',
+    lastSent: '2026-03-30T08:00:00Z'
+  },
+];
+
+export const mockAuditLog: AuditLogEntry[] = [
+  {
+    id: 'AUD001',
+    pharmacyId: 'PHR001',
+    timestamp: '2026-03-30T10:25:00Z',
+    action: 'Login',
+    performedBy: 'Dr. Sarah Williams',
+    role: 'Head Pharmacist',
+    ipAddress: '192.168.1.100',
+    details: 'Successful login from web portal',
+    isAdminAction: false
+  },
+  {
+    id: 'AUD002',
+    pharmacyId: 'PHR001',
+    timestamp: '2026-03-28T10:15:00Z',
+    action: 'Prescription Dispensed',
+    performedBy: 'Mohammed Ali',
+    role: 'Pharmacist',
+    ipAddress: '192.168.1.105',
+    details: 'Prescription RX001234 dispensed to John Smith',
+    isAdminAction: false
+  },
+  {
+    id: 'AUD003',
+    pharmacyId: 'PHR001',
+    timestamp: '2026-03-28T10:30:00Z',
+    action: 'Insurance Claim Submitted',
+    performedBy: 'Mohammed Ali',
+    role: 'Pharmacist',
+    ipAddress: '192.168.1.105',
+    details: 'Claim CLM001 submitted to Daman for AED 145.50',
+    isAdminAction: false
+  },
+];
+
+export const mockInsuranceNetworks: InsuranceNetwork[] = [
+  {
+    id: 'INS001',
+    name: 'Daman',
+    logo: '🏥',
+    status: 'Active',
+    connectedSince: '2024-01-15',
+    claimsThisMonth: { submitted: 156, approved: 142, rejected: 14 },
+    approvalRate: 91
+  },
+  {
+    id: 'INS002',
+    name: 'ADNIC',
+    logo: '🏥',
+    status: 'Active',
+    connectedSince: '2024-01-15',
+    claimsThisMonth: { submitted: 89, approved: 76, rejected: 13 },
+    approvalRate: 85
+  },
+  {
+    id: 'INS003',
+    name: 'AXA',
+    logo: '🏥',
+    status: 'Active',
+    connectedSince: '2024-02-20',
+    claimsThisMonth: { submitted: 67, approved: 59, rejected: 8 },
+    approvalRate: 88
+  },
+  {
+    id: 'INS004',
+    name: 'MetLife',
+    logo: '🏥',
+    status: 'Active',
+    connectedSince: '2024-03-10',
+    claimsThisMonth: { submitted: 45, approved: 32, rejected: 13 },
+    approvalRate: 71
+  },
+];
