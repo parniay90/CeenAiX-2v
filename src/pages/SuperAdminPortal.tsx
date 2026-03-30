@@ -12,6 +12,7 @@ import SuperAdminPharmacies from './SuperAdminPharmacies';
 import SuperAdminUsers from './SuperAdminUsers';
 import SuperAdminClinics from './SuperAdminClinics';
 import SuperAdminLaboratories from './SuperAdminLaboratories';
+import SuperAdminInsurance from './SuperAdminInsurance';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1331,7 +1332,7 @@ export default function SuperAdminPortal() {
           {activePage === 'clinics' && <SuperAdminClinics />}
           {activePage === 'pharmacies' && <SuperAdminPharmacies />}
           {activePage === 'labs' && <SuperAdminLaboratories />}
-          {activePage === 'insurance' && <InsuranceManagementView />}
+          {activePage === 'insurance' && <SuperAdminInsurance />}
           {activePage === 'prescriptions' && <PrescriptionsManagementView />}
           {activePage === 'lab-orders' && <LabOrdersManagementView />}
           {activePage === 'audit' && <AuditLogsView />}
