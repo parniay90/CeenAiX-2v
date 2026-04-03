@@ -13,6 +13,7 @@ import SuperAdminUsers from './SuperAdminUsers';
 import SuperAdminClinics from './SuperAdminClinics';
 import SuperAdminLaboratories from './SuperAdminLaboratories';
 import SuperAdminInsurance from './SuperAdminInsurance';
+import SuperAdminPrescriptions from './SuperAdminPrescriptions';
 import {
   LineChart, Line, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -1326,14 +1327,14 @@ export default function SuperAdminPortal() {
         </header>
 
         {/* Page Content */}
-        <main className={activePage === 'dashboard' || activePage === 'clinics' || activePage === 'labs' || activePage === 'insurance' || activePage === 'prescriptions' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
+        <main className={activePage === 'dashboard' || activePage === 'clinics' || activePage === 'labs' || activePage === 'insurance' || activePage === 'lab-orders' || activePage === 'audit' ? 'p-8' : ''}>
           {activePage === 'dashboard' && <DashboardView />}
           {activePage === 'users' && <SuperAdminUsers />}
           {activePage === 'clinics' && <SuperAdminClinics />}
           {activePage === 'pharmacies' && <SuperAdminPharmacies />}
           {activePage === 'labs' && <SuperAdminLaboratories />}
           {activePage === 'insurance' && <SuperAdminInsurance />}
-          {activePage === 'prescriptions' && <PrescriptionsManagementView />}
+          {activePage === 'prescriptions' && <SuperAdminPrescriptions />}
           {activePage === 'lab-orders' && <LabOrdersManagementView />}
           {activePage === 'audit' && <AuditLogsView />}
           {activePage === 'settings' && <SuperAdminSettings onBack={() => setActivePage('dashboard')} />}

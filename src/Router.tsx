@@ -22,8 +22,9 @@ import MessagesPage from './pages/MessagesPage';
 import DoctorSettings from './pages/DoctorSettings';
 import NotificationsPage from './pages/NotificationsPage';
 import HelpSupportPage from './pages/HelpSupportPage';
+import SuperAdminPrescriptions from './pages/SuperAdminPrescriptions';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support' | 'super-admin-prescriptions';
 
 interface NavigationContextType {
   navigate: (path: string) => void;
@@ -50,6 +51,7 @@ interface NavigationContextType {
   navigateToDoctorSettings: () => void;
   navigateToNotifications: () => void;
   navigateToHelpSupport: () => void;
+  navigateToSuperAdminPrescriptions: () => void;
   navigateBack: () => void;
   canGoBack: boolean;
 }
@@ -118,6 +120,7 @@ export default function Router() {
       'doctor-settings': 'doctor-settings',
       'notifications': 'notifications',
       'help-support': 'help-support',
+      'super-admin-prescriptions': 'super-admin-prescriptions',
     };
     const view = viewMap[cleanPath] || 'home';
     navigateTo(view);
@@ -148,6 +151,7 @@ export default function Router() {
     navigateToDoctorSettings: () => navigateTo('doctor-settings'),
     navigateToNotifications: () => navigateTo('notifications'),
     navigateToHelpSupport: () => navigateTo('help-support'),
+    navigateToSuperAdminPrescriptions: () => navigateTo('super-admin-prescriptions'),
     navigateBack,
     canGoBack: history.length > 1,
   };
@@ -211,6 +215,8 @@ export default function Router() {
         return <NotificationsPage />;
       case 'help-support':
         return <HelpSupportPage />;
+      case 'super-admin-prescriptions':
+        return <SuperAdminPrescriptions />;
       default:
         return (
           <LandingPage
