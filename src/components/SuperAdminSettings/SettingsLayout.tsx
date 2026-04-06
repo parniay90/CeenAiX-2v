@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 import {
   User, Lock, Shield, BarChart3, Bell, Activity, FileText, HelpCircle,
   Settings as SettingsIcon, Globe, Flag, Users, Link, DollarSign,
-  Database, FileCheck, BookOpen, Info
+  Database, FileCheck, BookOpen, Info, Monitor, Mail, MessageSquare,
+  Smartphone, Webhook
 } from 'lucide-react';
 
 interface SettingsLayoutProps {
@@ -25,6 +26,8 @@ const settingsCategories: { section: string; items: SettingsCategory[] }[] = [
       { id: 'my-profile', label: 'My Profile', icon: User, section: 'my-account' },
       { id: 'change-password', label: 'Change Password', icon: Lock, section: 'my-account' },
       { id: 'security-2fa', label: 'Security & 2FA', icon: Shield, section: 'my-account' },
+      { id: 'active-sessions', label: 'Active Sessions', icon: Monitor, section: 'my-account' },
+      { id: 'notification-preferences', label: 'Notification Preferences', icon: Bell, section: 'my-account' },
     ],
   },
   {
@@ -52,6 +55,10 @@ const settingsCategories: { section: string; items: SettingsCategory[] }[] = [
       { id: 'insurance', label: 'Insurance Provider Integrations', icon: FileText, section: 'integrations' },
       { id: 'ai-services', label: 'AI & Third-Party Services', icon: Activity, section: 'integrations' },
       { id: 'fhir', label: 'FHIR R4 API Access', icon: Database, section: 'integrations' },
+      { id: 'sms-gateway', label: 'SMS Gateway', icon: MessageSquare, section: 'integrations' },
+      { id: 'email-service', label: 'Email Service', icon: Mail, section: 'integrations' },
+      { id: 'push-notifications', label: 'Push Notifications', icon: Smartphone, section: 'integrations' },
+      { id: 'webhooks', label: 'Webhooks', icon: Webhook, section: 'integrations' },
     ],
   },
   {
@@ -59,7 +66,7 @@ const settingsCategories: { section: string; items: SettingsCategory[] }[] = [
     items: [
       { id: 'billing', label: 'Billing & Revenue Overview', icon: BarChart3, section: 'business' },
       { id: 'invoice-settings', label: 'Invoice & Payment Settings', icon: FileText, section: 'business' },
-      { id: 'notifications', label: 'Notification Templates', icon: Bell, section: 'business' },
+      { id: 'notification-templates', label: 'Notification Templates', icon: Bell, section: 'business' },
     ],
   },
   {

@@ -3,6 +3,24 @@ import SettingsLayout from '../components/SuperAdminSettings/SettingsLayout';
 import MyProfileSection from '../components/SuperAdminSettings/MyProfileSection';
 import ChangePasswordSection from '../components/SuperAdminSettings/ChangePasswordSection';
 import SecuritySection from '../components/SuperAdminSettings/SecuritySection';
+import ActiveSessionsSection from '../components/SuperAdminSettings/ActiveSessionsSection';
+import NotificationPreferencesSection from '../components/SuperAdminSettings/NotificationPreferencesSection';
+import {
+  NabidhIntegrationSection,
+  DHAIntegrationSection,
+  InsuranceIntegrationSection,
+  AIServicesSection,
+  FHIRAPISection,
+  SMSIntegrationSection,
+  EmailIntegrationSection,
+  PushNotificationSection,
+  WebhooksSection
+} from '../components/SuperAdminSettings/IntegrationsSection';
+import {
+  BillingOverviewSection,
+  InvoiceSettingsSection,
+  NotificationTemplatesSection
+} from '../components/SuperAdminSettings/BusinessSections';
 import { ArrowLeft } from 'lucide-react';
 
 export default function SuperAdminSettings({ onBack }: { onBack?: () => void }) {
@@ -16,6 +34,10 @@ export default function SuperAdminSettings({ onBack }: { onBack?: () => void }) 
         return <ChangePasswordSection />;
       case 'security-2fa':
         return <SecuritySection />;
+      case 'active-sessions':
+        return <ActiveSessionsSection />;
+      case 'notification-preferences':
+        return <NotificationPreferencesSection />;
       case 'general-platform':
         return <GeneralPlatformSettings />;
       case 'feature-flags':
@@ -40,11 +62,19 @@ export default function SuperAdminSettings({ onBack }: { onBack?: () => void }) 
         return <AIServicesSection />;
       case 'fhir':
         return <FHIRAPISection />;
+      case 'sms-gateway':
+        return <SMSIntegrationSection />;
+      case 'email-service':
+        return <EmailIntegrationSection />;
+      case 'push-notifications':
+        return <PushNotificationSection />;
+      case 'webhooks':
+        return <WebhooksSection />;
       case 'billing':
         return <BillingOverviewSection />;
       case 'invoice-settings':
         return <InvoiceSettingsSection />;
-      case 'notifications':
+      case 'notification-templates':
         return <NotificationTemplatesSection />;
       case 'audit-logs':
         return <AuditLogsSettingsSection />;
@@ -413,19 +443,7 @@ function FHIRAPISection() {
   return <PlaceholderSection icon={DatabaseIcon} title="FHIR R4 API Access" description="Manage FHIR API keys and access control" />;
 }
 
-function BillingOverviewSection() {
-  return <PlaceholderSection icon={DollarSign} title="Billing & Revenue Overview" description="View monthly recurring revenue and payment analytics" />;
-}
-
-function InvoiceSettingsSection() {
-  return <PlaceholderSection icon={SettingsIcon} title="Invoice & Payment Settings" description="Configure invoice templates and payment terms" />;
-}
-
-import { Bell as BellIcon, FileCheck as FileCheckIcon, BookOpen as BookOpenIcon } from 'lucide-react';
-
-function NotificationTemplatesSection() {
-  return <PlaceholderSection icon={BellIcon} title="Notification Templates" description="Edit system email and SMS templates" />;
-}
+import { FileCheck as FileCheckIcon, BookOpen as BookOpenIcon } from 'lucide-react';
 
 function AuditLogsSettingsSection() {
   return <PlaceholderSection icon={FileCheckIcon} title="Audit Logs Settings" description="Configure audit log retention and event tracking" />;
