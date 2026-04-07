@@ -24,8 +24,9 @@ import NotificationsPage from './pages/NotificationsPage';
 import HelpSupportPage from './pages/HelpSupportPage';
 import SuperAdminPrescriptions from './pages/SuperAdminPrescriptions';
 import PharmacyEmailService from './pages/PharmacyEmailService';
+import PharmacyTermsConditions from './pages/PharmacyTermsConditions';
 
-type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support' | 'super-admin-prescriptions' | 'pharmacy-email-service';
+type View = 'home' | 'find-care' | 'platform' | 'patient-portal' | 'doctor-portal' | 'admin-portal' | 'super-admin-portal' | 'pharmacy-admin-portal' | 'lab-admin-portal' | 'payment-settings' | 'change-password' | 'settings' | 'terms' | 'privacy' | 'prescriptions' | 'doctor-refills' | 'lab-tests' | 'find-labs' | 'radiology' | 'messages' | 'doctor-settings' | 'notifications' | 'help-support' | 'super-admin-prescriptions' | 'pharmacy-email-service' | 'pharmacy-terms';
 
 interface NavigationContextType {
   navigate: (path: string) => void;
@@ -54,6 +55,7 @@ interface NavigationContextType {
   navigateToHelpSupport: () => void;
   navigateToSuperAdminPrescriptions: () => void;
   navigateToPharmacyEmailService: () => void;
+  navigateToPharmacyTerms: () => void;
   navigateBack: () => void;
   canGoBack: boolean;
 }
@@ -125,6 +127,8 @@ export default function Router() {
       'super-admin-prescriptions': 'super-admin-prescriptions',
       'pharmacy-email-service': 'pharmacy-email-service',
       'settings/email-service': 'pharmacy-email-service',
+      'pharmacy-terms': 'pharmacy-terms',
+      'settings/terms': 'pharmacy-terms',
     };
     const view = viewMap[cleanPath] || 'home';
     navigateTo(view);
@@ -157,6 +161,7 @@ export default function Router() {
     navigateToHelpSupport: () => navigateTo('help-support'),
     navigateToSuperAdminPrescriptions: () => navigateTo('super-admin-prescriptions'),
     navigateToPharmacyEmailService: () => navigateTo('pharmacy-email-service'),
+    navigateToPharmacyTerms: () => navigateTo('pharmacy-terms'),
     navigateBack,
     canGoBack: history.length > 1,
   };
@@ -224,6 +229,8 @@ export default function Router() {
         return <SuperAdminPrescriptions />;
       case 'pharmacy-email-service':
         return <PharmacyEmailService />;
+      case 'pharmacy-terms':
+        return <PharmacyTermsConditions />;
       default:
         return (
           <LandingPage
