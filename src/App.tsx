@@ -1,4 +1,4 @@
-import Router from './Router';
+import PharmacyRouter from './PharmacyRouter';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { UserProfileProvider } from './contexts/UserProfileContext';
@@ -10,7 +10,7 @@ function App() {
       <LanguageProvider>
         <ThemeProvider>
           <UserProfileProvider>
-            <Router />
+            <PharmacyRouter />
           </UserProfileProvider>
         </ThemeProvider>
       </LanguageProvider>

@@ -42,7 +42,11 @@ interface RefillRequest {
   };
 }
 
-export default function PrescriptionsPage() {
+interface PrescriptionsPageProps {
+  tab?: 'new' | 'dispensing' | 'dispensed' | 'cancelled';
+}
+
+export default function PrescriptionsPage({ tab }: PrescriptionsPageProps = {}) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);

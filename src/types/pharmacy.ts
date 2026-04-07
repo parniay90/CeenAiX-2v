@@ -4,9 +4,10 @@ export type DHALicenseStatus = 'Verified' | 'Pending' | 'Expired' | 'Not Submitt
 export type SubscriptionPlan = 'Basic' | 'Pro' | 'Enterprise' | 'Custom';
 export type StaffRole = 'Head Pharmacist' | 'Pharmacist' | 'Pharmacy Technician' | 'Admin';
 export type StaffStatus = 'Active' | 'Inactive' | 'Pending Invite';
-export type PrescriptionStatus = 'New' | 'Acknowledged' | 'Dispensing' | 'Dispensed' | 'Cancelled';
-export type ClaimStatus = 'Pending' | 'Approved' | 'Rejected' | 'Resubmitted' | 'Under Review';
-export type ReminderStatus = 'Active' | 'Paused' | 'Completed';
+export type PrescriptionStatus = 'New' | 'Acknowledged' | 'Dispensing' | 'Dispensed' | 'Partially Dispensed' | 'Cancelled' | 'Expired';
+export type ClaimStatus = 'Pending' | 'Approved' | 'Rejected' | 'Resubmitted' | 'Under Review' | 'On Hold';
+export type ReminderStatus = 'Active' | 'Paused' | 'Completed' | 'Failed' | 'Cancelled';
+export type InsuranceProvider = 'Daman' | 'ADNIC' | 'AXA Gulf' | 'Oman Insurance' | 'MetLife' | 'Other';
 export type ReminderChannel = 'SMS' | 'App';
 
 export interface Pharmacy {
@@ -127,4 +128,14 @@ export interface InsuranceNetwork {
     rejected: number;
   };
   approvalRate: number;
+}
+
+export interface PharmacyProfile {
+  id: string;
+  name: string;
+  dha_license: string;
+  address: string;
+  phone: string;
+  email: string;
+  operating_hours: string;
 }

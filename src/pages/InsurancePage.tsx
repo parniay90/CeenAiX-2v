@@ -29,14 +29,18 @@ interface InsuranceClaim {
   notes: string | null;
 }
 
-export function InsurancePage() {
+interface InsurancePageProps {
+  tab?: 'claims' | 'pre-auth' | 'coverage';
+}
+
+export function InsurancePage({ tab }: InsurancePageProps = {}) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [providers, setProviders] = useState<InsuranceProvider[]>([]);
   const [claims, setClaims] = useState<InsuranceClaim[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'providers' | 'claims'>('providers');
+  const [activeTab, setActiveTab] = useState<'providers' | 'claims' | 'pre-auth' | 'coverage'>(tab || 'claims');
   const [showNewClaimModal, setShowNewClaimModal] = useState(false);
 
   useEffect(() => {
@@ -329,3 +333,5 @@ export function InsurancePage() {
     </PatientLayout>
   );
 }
+
+export default InsurancePage;
