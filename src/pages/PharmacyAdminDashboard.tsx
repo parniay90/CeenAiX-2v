@@ -94,14 +94,14 @@ export default function PharmacyAdminDashboard() {
   const [pharmacy, setPharmacy] = useState<PharmacyProfile>({
     id: '1',
     name: 'Al Shifa Pharmacy',
-    dha_license: 'DHA-PH-2024-0156',
-    address: 'Sheikh Zayed Road, Dubai Marina, Dubai, UAE',
-    phone: '+971 4 123 4567',
+    dha_license: 'DHA-PH-2021-04821',
+    address: 'Al Barsha, Dubai, UAE',
+    phone: '+971 4 XXX XXXX',
     email: 'contact@alshifapharmacy.ae',
     operating_hours: '8:00 AM - 10:00 PM (Daily)'
   });
 
-  const [pharmacistName] = useState('Dr. Ahmed Al-Mansouri');
+  const [pharmacistName] = useState('Sara Al Mansoori');
 
   // Dashboard stats
   const [stats, setStats] = useState({
@@ -129,49 +129,17 @@ export default function PharmacyAdminDashboard() {
   }, []);
 
   const loadMockData = () => {
-    // Mock prescriptions
+    // Mock prescriptions with UAE Arabic names
     setPrescriptions([
       {
         id: 'RX001',
-        patient_name: 'Fatima Al-Zarooni',
+        patient_name: 'Omar Al Fahad',
         patient_dob: '1985-03-15',
         patient_emirates_id: '784-****-****-01',
-        doctor_name: 'Dr. Sarah Al-Hashimi',
-        clinic_name: 'Dubai Healthcare Clinic',
-        created_at: '2026-03-28T09:30:00',
+        doctor_name: 'Dr. Ahmed Al Rashidi',
+        clinic_name: 'Al Noor Medical Center',
+        created_at: '2026-04-07T09:30:00',
         status: 'new',
-        medications: [
-          {
-            name: 'Amoxicillin 500mg',
-            dosage: '500mg',
-            frequency: 'Three times daily',
-            duration: '7 days',
-            quantity: 21,
-            instructions: 'Take with food',
-            insurance_covered: true,
-            copay_amount: 15
-          },
-          {
-            name: 'Paracetamol 500mg',
-            dosage: '500mg',
-            frequency: 'As needed',
-            duration: '5 days',
-            quantity: 10,
-            instructions: 'For fever or pain',
-            insurance_covered: true,
-            copay_amount: 5
-          }
-        ]
-      },
-      {
-        id: 'RX002',
-        patient_name: 'Mohammed Al-Mansoori',
-        patient_dob: '1978-07-22',
-        patient_emirates_id: '784-****-****-02',
-        doctor_name: 'Dr. Ahmed Khan',
-        clinic_name: 'Marina Medical Center',
-        created_at: '2026-03-28T08:15:00',
-        status: 'acknowledged',
         medications: [
           {
             name: 'Metformin 850mg',
@@ -182,27 +150,82 @@ export default function PharmacyAdminDashboard() {
             instructions: 'Take with meals',
             insurance_covered: true,
             copay_amount: 20
+          },
+          {
+            name: 'Atorvastatin 20mg',
+            dosage: '20mg',
+            frequency: 'Once daily',
+            duration: '30 days',
+            quantity: 30,
+            instructions: 'Take at bedtime',
+            insurance_covered: true,
+            copay_amount: 25
+          }
+        ]
+      },
+      {
+        id: 'RX002',
+        patient_name: 'Sara Khalid',
+        patient_dob: '1990-07-22',
+        patient_emirates_id: '784-****-****-02',
+        doctor_name: 'Dr. Fatima Al Mansoori',
+        clinic_name: 'Dubai Specialist Clinic',
+        created_at: '2026-04-07T08:15:00',
+        status: 'acknowledged',
+        medications: [
+          {
+            name: 'Amoxicillin 500mg',
+            dosage: '500mg',
+            frequency: 'Three times daily',
+            duration: '7 days',
+            quantity: 21,
+            instructions: 'Take with food. OUT OF STOCK',
+            insurance_covered: true,
+            copay_amount: 15
           }
         ]
       },
       {
         id: 'RX003',
-        patient_name: 'Aisha Abdullah',
+        patient_name: 'Abdullah Hassan',
         patient_dob: '1992-11-08',
         patient_emirates_id: '784-****-****-03',
-        doctor_name: 'Dr. Sarah Al-Hashimi',
-        clinic_name: 'Dubai Healthcare Clinic',
-        created_at: '2026-03-28T07:45:00',
+        doctor_name: 'Dr. Tooraj Helmi',
+        clinic_name: 'Gulf Medical Center',
+        created_at: '2026-04-07T07:45:00',
         status: 'dispensing',
         medications: [
           {
-            name: 'Lisinopril 10mg',
-            dosage: '10mg',
+            name: 'Tramadol 50mg',
+            dosage: '50mg',
+            frequency: 'As needed for pain',
+            duration: '5 days',
+            quantity: 10,
+            instructions: 'CONTROLLED SUBSTANCE - Schedule IV. Not more than 4x daily',
+            insurance_covered: true,
+            copay_amount: 30
+          }
+        ]
+      },
+      {
+        id: 'RX004',
+        patient_name: 'Noura Al Ali',
+        patient_dob: '1988-05-12',
+        patient_emirates_id: '784-****-****-04',
+        doctor_name: 'Dr. Macy Al Katry',
+        clinic_name: 'Al Barsha Health Center',
+        created_at: '2026-04-06T16:20:00',
+        status: 'dispensed',
+        medications: [
+          {
+            name: 'Insulin Glargine',
+            dosage: '100 units/mL',
             frequency: 'Once daily',
             duration: '30 days',
-            quantity: 30,
-            instructions: 'Take in the morning',
-            insurance_covered: false
+            quantity: 1,
+            instructions: 'Refrigerate. Expires in 14 days',
+            insurance_covered: true,
+            copay_amount: 45
           }
         ]
       }
@@ -212,25 +235,36 @@ export default function PharmacyAdminDashboard() {
     setReminders([
       {
         id: 'R001',
-        patient_name: 'Fatima Al-Zarooni',
+        patient_name: 'Omar Al Fahad',
         medication: 'Metformin 850mg',
         times: ['08:00', '20:00'],
         frequency: 'Twice daily',
-        start_date: '2026-03-01',
-        end_date: '2026-03-31',
+        start_date: '2026-04-01',
+        end_date: '2026-04-30',
         status: 'active',
         channel: 'sms'
       },
       {
         id: 'R002',
-        patient_name: 'Mohammed Al-Mansoori',
-        medication: 'Lisinopril 10mg',
-        times: ['09:00'],
+        patient_name: 'Reem Al Mansouri',
+        medication: 'Atorvastatin 20mg',
+        times: ['21:00'],
         frequency: 'Daily',
-        start_date: '2026-03-15',
-        end_date: '2026-04-15',
+        start_date: '2026-04-01',
+        end_date: '2026-05-01',
         status: 'active',
         channel: 'app'
+      },
+      {
+        id: 'R003',
+        patient_name: 'Mohammed Al Qasim',
+        medication: 'Insulin Glargine',
+        times: ['22:00'],
+        frequency: 'Daily',
+        start_date: '2026-03-20',
+        end_date: '2026-04-20',
+        status: 'paused',
+        channel: 'sms'
       }
     ]);
 
@@ -239,40 +273,73 @@ export default function PharmacyAdminDashboard() {
       {
         id: 'CLM001',
         prescription_id: 'RX001',
-        patient_name: 'Fatima Al-Zarooni',
-        provider: 'Dubai Insurance',
-        amount: 150,
-        status: 'pending',
-        submitted_date: '2026-03-28'
+        patient_name: 'Omar Al Fahad',
+        provider: 'Daman',
+        amount: 180,
+        status: 'approved',
+        submitted_date: '2026-04-07'
       },
       {
         id: 'CLM002',
         prescription_id: 'RX002',
-        patient_name: 'Mohammed Al-Mansoori',
-        provider: 'AMAN Insurance',
-        amount: 85,
-        status: 'approved',
-        submitted_date: '2026-03-27'
+        patient_name: 'Sara Khalid',
+        provider: 'ADNIC',
+        amount: 95,
+        status: 'pending',
+        submitted_date: '2026-04-07'
       },
       {
         id: 'CLM003',
+        prescription_id: 'RX004',
+        patient_name: 'Noura Al Ali',
+        provider: 'AXA Gulf',
+        amount: 240,
+        status: 'approved',
+        submitted_date: '2026-04-06'
+      },
+      {
+        id: 'CLM004',
         prescription_id: 'RX003',
-        patient_name: 'Aisha Abdullah',
-        provider: 'HealthGuard',
+        patient_name: 'Abdullah Hassan',
+        provider: 'Oman Insurance',
         amount: 120,
         status: 'rejected',
-        rejection_reason: 'Medication not covered under plan',
-        submitted_date: '2026-03-26'
+        rejection_reason: 'Prior authorization required for controlled substances',
+        submitted_date: '2026-04-05'
+      },
+      {
+        id: 'CLM005',
+        prescription_id: 'RX005',
+        patient_name: 'Fatima Al Nasser',
+        provider: 'MetLife',
+        amount: 75,
+        status: 'pending',
+        submitted_date: '2026-04-04'
       }
     ]);
 
-    // Mock inventory
+    // Mock inventory (20 medications)
     setInventory([
-      { id: '1', name: 'Amoxicillin 500mg', category: 'Antibiotics', stock_qty: 250, unit: 'Capsules', reorder_level: 100, status: 'in_stock' },
-      { id: '2', name: 'Paracetamol 500mg', category: 'Analgesics', stock_qty: 500, unit: 'Tablets', reorder_level: 200, status: 'in_stock' },
-      { id: '3', name: 'Metformin 850mg', category: 'Diabetes', stock_qty: 75, unit: 'Tablets', reorder_level: 100, status: 'low' },
-      { id: '4', name: 'Lisinopril 10mg', category: 'Cardiovascular', stock_qty: 0, unit: 'Tablets', reorder_level: 50, status: 'out_of_stock' },
-      { id: '5', name: 'Atorvastatin 20mg', category: 'Cardiovascular', stock_qty: 180, unit: 'Tablets', reorder_level: 100, status: 'in_stock' }
+      { id: '1', name: 'Metformin 850mg', category: 'Diabetes', stock_qty: 420, unit: 'Tablets', reorder_level: 100, status: 'in_stock' },
+      { id: '2', name: 'Amoxicillin 500mg', category: 'Antibiotics', stock_qty: 0, unit: 'Capsules', reorder_level: 100, status: 'out_of_stock' },
+      { id: '3', name: 'Atorvastatin 20mg', category: 'Cardiovascular', stock_qty: 280, unit: 'Tablets', reorder_level: 100, status: 'in_stock' },
+      { id: '4', name: 'Tramadol 50mg', category: 'Controlled Substance', stock_qty: 45, unit: 'Tablets', reorder_level: 50, status: 'low' },
+      { id: '5', name: 'Alprazolam 0.5mg', category: 'Controlled Substance', stock_qty: 32, unit: 'Tablets', reorder_level: 30, status: 'in_stock' },
+      { id: '6', name: 'Insulin Glargine', category: 'Diabetes', stock_qty: 8, unit: 'Vials', reorder_level: 10, status: 'low' },
+      { id: '7', name: 'Lisinopril 10mg', category: 'Cardiovascular', stock_qty: 195, unit: 'Tablets', reorder_level: 80, status: 'in_stock' },
+      { id: '8', name: 'Omeprazole 20mg', category: 'Gastro', stock_qty: 340, unit: 'Capsules', reorder_level: 100, status: 'in_stock' },
+      { id: '9', name: 'Amlodipine 5mg', category: 'Cardiovascular', stock_qty: 220, unit: 'Tablets', reorder_level: 100, status: 'in_stock' },
+      { id: '10', name: 'Levothyroxine 100mcg', category: 'Endocrine', stock_qty: 165, unit: 'Tablets', reorder_level: 80, status: 'in_stock' },
+      { id: '11', name: 'Simvastatin 40mg', category: 'Cardiovascular', stock_qty: 142, unit: 'Tablets', reorder_level: 100, status: 'in_stock' },
+      { id: '12', name: 'Aspirin 81mg', category: 'Cardiovascular', stock_qty: 520, unit: 'Tablets', reorder_level: 200, status: 'in_stock' },
+      { id: '13', name: 'Salbutamol Inhaler', category: 'Respiratory', stock_qty: 65, unit: 'Inhalers', reorder_level: 40, status: 'in_stock' },
+      { id: '14', name: 'Paracetamol 500mg', category: 'Analgesics', stock_qty: 875, unit: 'Tablets', reorder_level: 300, status: 'in_stock' },
+      { id: '15', name: 'Ibuprofen 400mg', category: 'Analgesics', stock_qty: 410, unit: 'Tablets', reorder_level: 200, status: 'in_stock' },
+      { id: '16', name: 'Losartan 50mg', category: 'Cardiovascular', stock_qty: 158, unit: 'Tablets', reorder_level: 100, status: 'in_stock' },
+      { id: '17', name: 'Metoprolol 25mg', category: 'Cardiovascular', stock_qty: 98, unit: 'Tablets', reorder_level: 80, status: 'in_stock' },
+      { id: '18', name: 'Gabapentin 300mg', category: 'Neurological', stock_qty: 72, unit: 'Capsules', reorder_level: 60, status: 'in_stock' },
+      { id: '19', name: 'Azithromycin 250mg', category: 'Antibiotics', stock_qty: 115, unit: 'Tablets', reorder_level: 80, status: 'in_stock' },
+      { id: '20', name: 'Furosemide 40mg', category: 'Diuretics', stock_qty: 186, unit: 'Tablets', reorder_level: 100, status: 'in_stock' }
     ]);
 
     setLoading(false);
@@ -506,9 +573,13 @@ export default function PharmacyAdminDashboard() {
           </button>
         </div>
         <div className="space-y-3">
-          <StaffCard name="Dr. Ahmed Al-Mansouri" role="Head Pharmacist" license="DHA-PH-12345" />
-          <StaffCard name="Fatima Hassan" role="Pharmacist" license="DHA-PH-12346" />
-          <StaffCard name="Mohammed Ali" role="Pharmacy Technician" license="DHA-PT-12347" />
+          <StaffCard name="Sara Al Mansoori" role="Head Pharmacist" license="EMP-001" />
+          <StaffCard name="Ahmed Khalid" role="Pharmacist" license="DHA-PH-18456" />
+          <StaffCard name="Fatima Al Rashidi" role="Pharmacy Technician" license="DHA-PT-22891" />
+          <StaffCard name="Omar Hassan" role="Pharmacist" license="DHA-PH-17234" warning="DHA expires in 7 days" />
+          <StaffCard name="Layla Al Mansouri" role="Admin Staff" license="N/A" />
+          <StaffCard name="Nour Al Zaabi" role="Pharmacy Technician" license="DHA-PT-21567" />
+          <StaffCard name="Rami Al Hassan" role="Pharmacist" license="Pending Invite" warning="Invite sent" />
         </div>
       </div>
 
@@ -516,11 +587,11 @@ export default function PharmacyAdminDashboard() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-6">Connected Insurance Networks</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InsuranceNetworkCard name="Dubai Insurance" status="active" />
-          <InsuranceNetworkCard name="AMAN Insurance" status="active" />
-          <InsuranceNetworkCard name="HealthGuard" status="active" />
-          <InsuranceNetworkCard name="NextCare" status="active" />
-          <InsuranceNetworkCard name="Abu Dhabi National Insurance" status="pending" />
+          <InsuranceNetworkCard name="Daman" status="active" approvalRate="80%" />
+          <InsuranceNetworkCard name="ADNIC" status="active" approvalRate="75%" />
+          <InsuranceNetworkCard name="AXA Gulf" status="active" approvalRate="79%" />
+          <InsuranceNetworkCard name="Oman Insurance" status="active" approvalRate="60%" />
+          <InsuranceNetworkCard name="MetLife" status="active" approvalRate="31% (manual)" />
         </div>
       </div>
     </div>
@@ -883,9 +954,13 @@ export default function PharmacyAdminDashboard() {
           </button>
         </div>
         <div className="space-y-3">
-          <StaffCard name="Dr. Ahmed Al-Mansouri" role="Head Pharmacist" license="DHA-PH-12345" canEdit />
-          <StaffCard name="Fatima Hassan" role="Pharmacist" license="DHA-PH-12346" canEdit />
-          <StaffCard name="Mohammed Ali" role="Pharmacy Technician" license="DHA-PT-12347" canEdit />
+          <StaffCard name="Sara Al Mansoori" role="Head Pharmacist" license="EMP-001" canEdit />
+          <StaffCard name="Ahmed Khalid" role="Pharmacist" license="DHA-PH-18456" canEdit />
+          <StaffCard name="Fatima Al Rashidi" role="Pharmacy Technician" license="DHA-PT-22891" canEdit />
+          <StaffCard name="Omar Hassan" role="Pharmacist" license="DHA-PH-17234" warning="DHA expires in 7 days" canEdit />
+          <StaffCard name="Layla Al Mansouri" role="Admin Staff" license="N/A" canEdit />
+          <StaffCard name="Nour Al Zaabi" role="Pharmacy Technician" license="DHA-PT-21567" canEdit />
+          <StaffCard name="Rami Al Hassan" role="Pharmacist" license="Pending Invite" warning="Invite sent" canEdit />
         </div>
       </div>
 
@@ -899,11 +974,11 @@ export default function PharmacyAdminDashboard() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InsuranceNetworkCard name="Dubai Insurance" status="active" />
-          <InsuranceNetworkCard name="AMAN Insurance" status="active" />
-          <InsuranceNetworkCard name="HealthGuard" status="active" />
-          <InsuranceNetworkCard name="NextCare" status="active" />
-          <InsuranceNetworkCard name="Abu Dhabi National Insurance" status="pending" />
+          <InsuranceNetworkCard name="Daman" status="active" approvalRate="80%" />
+          <InsuranceNetworkCard name="ADNIC" status="active" approvalRate="75%" />
+          <InsuranceNetworkCard name="AXA Gulf" status="active" approvalRate="79%" />
+          <InsuranceNetworkCard name="Oman Insurance" status="active" approvalRate="60%" />
+          <InsuranceNetworkCard name="MetLife" status="active" approvalRate="31% (manual)" />
         </div>
       </div>
     </div>
@@ -1100,14 +1175,21 @@ const InfoField = ({ label, value, icon: Icon }: any) => (
   </div>
 );
 
-const StaffCard = ({ name, role, license, canEdit }: any) => (
+const StaffCard = ({ name, role, license, canEdit, warning }: any) => (
   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
         {name.charAt(0)}
       </div>
-      <div>
-        <p className="font-semibold text-gray-900">{name}</p>
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <p className="font-semibold text-gray-900">{name}</p>
+          {warning && (
+            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+              {warning}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-600">{role} • {license}</p>
       </div>
     </div>
@@ -1124,7 +1206,7 @@ const StaffCard = ({ name, role, license, canEdit }: any) => (
   </div>
 );
 
-const InsuranceNetworkCard = ({ name, status }: any) => (
+const InsuranceNetworkCard = ({ name, status, approvalRate }: any) => (
   <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
@@ -1137,6 +1219,9 @@ const InsuranceNetworkCard = ({ name, status }: any) => (
         {status}
       </span>
     </div>
+    {approvalRate && (
+      <p className="text-xs text-gray-600 mt-1">Approval rate: {approvalRate}</p>
+    )}
   </div>
 );
 

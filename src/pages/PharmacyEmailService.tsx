@@ -506,7 +506,7 @@ export default function PharmacyEmailService() {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">To</label>
                   <input
                     type="email"
-                    defaultValue="sara@alshifapharmacy.ae"
+                    defaultValue="sara.almansoori@alshifapharmacy.ae"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -588,7 +588,7 @@ export default function PharmacyEmailService() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">To:</span>
-                      <span className="ml-2 font-medium text-gray-900">sara@alshifapharmacy.ae</span>
+                      <span className="ml-2 font-medium text-gray-900">sara.almansoori@alshifapharmacy.ae</span>
                     </div>
                     <div>
                       <span className="text-gray-600">From:</span>
@@ -622,7 +622,7 @@ export default function PharmacyEmailService() {
                   </div>
 
                   <div className="mt-4 text-sm text-gray-700">
-                    Check <span className="font-bold">sara@alshifapharmacy.ae</span> for the test email
+                    Check <span className="font-bold">sara.almansoori@alshifapharmacy.ae</span> for the test email
                   </div>
                 </div>
               )}
