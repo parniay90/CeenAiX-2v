@@ -423,26 +423,6 @@ function AccessControlSection() {
   return <PlaceholderSection icon={LockIcon} title="Access Control & Security Policies" description="Manage session timeouts, IP whitelists, and security policies" />;
 }
 
-function NabidhIntegrationSection() {
-  return <PlaceholderSection icon={ActivityIcon} title="Nabidh HIE Integration" description="Configure Nabidh health information exchange integration" />;
-}
-
-function DHAIntegrationSection() {
-  return <PlaceholderSection icon={ShieldIcon} title="DHA API Integration" description="Manage DHA license verification and compliance" />;
-}
-
-function InsuranceIntegrationSection() {
-  return <PlaceholderSection icon={DollarSign} title="Insurance Provider Integrations" description="Connect and manage insurance provider APIs" />;
-}
-
-function AIServicesSection() {
-  return <PlaceholderSection icon={ActivityIcon} title="AI & Third-Party Services" description="Configure ChatGPT, SMS, Email, and Push Notification services" />;
-}
-
-function FHIRAPISection() {
-  return <PlaceholderSection icon={DatabaseIcon} title="FHIR R4 API Access" description="Manage FHIR API keys and access control" />;
-}
-
 import { FileCheck as FileCheckIcon, BookOpen as BookOpenIcon } from 'lucide-react';
 
 function AuditLogsSettingsSection() {
