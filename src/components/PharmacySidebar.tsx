@@ -42,80 +42,80 @@ const navigationItems: NavItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
-    path: '/dashboard',
+    path: '/pharmacy/dashboard',
   },
   {
     id: 'prescriptions',
     label: 'Prescriptions',
     icon: FileText,
-    path: '/prescriptions',
+    path: '/pharmacy/prescriptions',
     children: [
-      { label: 'New & Pending', path: '/prescriptions/new', badge: { count: 3, variant: 'default' } },
-      { label: 'Dispensing', path: '/prescriptions/dispensing' },
-      { label: 'Dispensed History', path: '/prescriptions/dispensed' },
-      { label: 'Cancelled', path: '/prescriptions/cancelled' },
+      { label: 'New & Pending', path: '/pharmacy/prescriptions/new', badge: { count: 3, variant: 'default' } },
+      { label: 'Dispensing', path: '/pharmacy/prescriptions/dispensing' },
+      { label: 'Dispensed History', path: '/pharmacy/prescriptions/dispensed' },
+      { label: 'Cancelled', path: '/pharmacy/prescriptions/cancelled' },
     ],
   },
   {
     id: 'reminders',
     label: 'Patient Reminders',
     icon: Bell,
-    path: '/reminders',
+    path: '/pharmacy/reminders',
   },
   {
     id: 'insurance',
     label: 'Insurance',
     icon: Shield,
-    path: '/insurance',
+    path: '/pharmacy/insurance',
     children: [
-      { label: 'Claims', path: '/insurance/claims' },
-      { label: 'Pre-Authorizations', path: '/insurance/pre-auth' },
-      { label: 'Coverage Check', path: '/insurance/coverage' },
+      { label: 'Claims', path: '/pharmacy/insurance/claims' },
+      { label: 'Pre-Authorizations', path: '/pharmacy/insurance/pre-auth' },
+      { label: 'Coverage Check', path: '/pharmacy/insurance/coverage' },
     ],
   },
   {
     id: 'inventory',
     label: 'Inventory',
     icon: Package,
-    path: '/inventory',
+    path: '/pharmacy/inventory',
     badge: { count: 1, variant: 'red' },
   },
   {
     id: 'patients',
     label: 'Patients',
     icon: Users,
-    path: '/patients',
+    path: '/pharmacy/patients',
   },
   {
     id: 'doctors',
     label: 'Doctors & Clinics',
     icon: Stethoscope,
-    path: '/doctors',
+    path: '/pharmacy/doctors',
   },
   {
     id: 'reports',
     label: 'Reports',
     icon: BarChart2,
-    path: '/reports',
+    path: '/pharmacy/reports',
   },
   {
     id: 'staff',
     label: 'Staff Management',
     icon: UserCog,
-    path: '/staff',
+    path: '/pharmacy/staff',
   },
   {
     id: 'notifications',
     label: 'Notifications',
     icon: BellRing,
-    path: '/notifications',
+    path: '/pharmacy/notifications',
     badge: { count: 5, variant: 'red' },
   },
   {
     id: 'settings',
     label: 'Settings',
     icon: Settings,
-    path: '/settings',
+    path: '/pharmacy/settings',
   },
 ];
 
@@ -146,8 +146,8 @@ export default function PharmacySidebar() {
   }, [location.pathname]);
 
   const isActive = (path: string): boolean => {
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard';
+    if (path === '/pharmacy/dashboard') {
+      return location.pathname === '/pharmacy/dashboard' || location.pathname === '/pharmacy';
     }
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };

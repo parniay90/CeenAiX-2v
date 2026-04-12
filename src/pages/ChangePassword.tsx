@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Lock, Eye, EyeOff, Check, AlertCircle, ArrowLeft } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 
 export default function ChangePassword() {
   const { updatePassword, user } = useAuth();

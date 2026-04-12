@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Book, MessageCircle, Phone, Mail, FileText, ChevronDown, Send, Clock, CheckCircle, HelpCircle, Video, AlertCircle, ExternalLink, Users, Shield, ArrowLeft } from 'lucide-react';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 
 interface FAQItem {
   id: string;

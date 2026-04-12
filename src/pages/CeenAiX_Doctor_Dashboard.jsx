@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { NotificationDropdown } from "../components/NotificationDropdown";
 import { EmergencyButton } from "../components/EmergencyButton";
 import FamilyMedicalHistory from "../components/FamilyMedicalHistory";
-import { useNavigation } from "../Router";
+import { useNavigation } from "../contexts/NavigationContext";
 
 const NAV = [
   { id: "home", label: "Dashboard", icon: "⊞" },

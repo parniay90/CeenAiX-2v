@@ -16,19 +16,10 @@ import {
   Zap,
   Globe
 } from 'lucide-react';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 
-interface LandingPageProps {
-  onNavigateToFindCare: () => void;
-  onNavigateToPatientPortal: () => void;
-  onNavigateToDoctorPortal: () => void;
-}
-
-export default function LandingPage({
-  onNavigateToPatientPortal,
-  onNavigateToDoctorPortal
-}: LandingPageProps) {
-  const { navigateToAdminPortal, navigateToSuperAdminPortal, navigateToPharmacyAdminPortal, navigateToLabAdminPortal } = useNavigation();
+export default function LandingPage() {
+  const { navigateToAdminPortal, navigateToSuperAdminPortal, navigateToPharmacyAdminPortal, navigateToLabAdminPortal, navigateToPatientPortal, navigateToDoctorPortal, navigateToFindCare } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showWaitlist, setShowWaitlist] = useState(false);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
@@ -104,7 +95,7 @@ export default function LandingPage({
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onNavigateToPatientPortal}
+              onClick={navigateToPatientPortal}
               className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-full font-medium"
             >
               Get Started
@@ -171,7 +162,7 @@ export default function LandingPage({
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
                 whileTap={{ scale: 0.95 }}
-                onClick={onNavigateToPatientPortal}
+                onClick={navigateToPatientPortal}
                 className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-xl font-semibold text-lg shadow-lg flex items-center justify-center gap-2"
               >
                 Patient Portal
@@ -180,7 +171,7 @@ export default function LandingPage({
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={onNavigateToDoctorPortal}
+                onClick={navigateToDoctorPortal}
                 className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-900 rounded-xl font-semibold text-lg hover:border-cyan-500 transition-colors"
               >
                 Doctor Portal

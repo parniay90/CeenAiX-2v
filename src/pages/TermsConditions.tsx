@@ -15,7 +15,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 
 const fadeInStyle = `
   @keyframes fadeIn {

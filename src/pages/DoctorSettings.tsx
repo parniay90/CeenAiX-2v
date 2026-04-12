@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 import { supabase } from '../lib/supabase';
 
 export default function DoctorSettings() {

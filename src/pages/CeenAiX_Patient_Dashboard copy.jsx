@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useUserProfile } from "../contexts/UserProfileContext";
 import { UserAvatar } from "../components/UserAvatar";
 import { NotificationDropdown } from "../components/NotificationDropdown";
-import { useNavigation } from "../Router";
+import { useNavigation } from "../contexts/NavigationContext";
 import { EmergencyButton } from "../components/EmergencyButton";
 import FamilyMembersSection from "../components/FamilyMembersSection";
 import { AIChat } from "../components/AIChat";

@@ -22,7 +22,7 @@ import {
   Star,
 } from 'lucide-react';
 import { PatientLayout } from '../components/PatientLayout';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 import { useUserProfile } from '../contexts/UserProfileContext';
 import { useTheme } from '../contexts/ThemeContext';
 

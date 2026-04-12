@@ -83,7 +83,7 @@ export default function PharmacyTopNav() {
                       className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-l-2 ${
                         notification.unread ? 'border-emerald-500 bg-emerald-50' : 'border-transparent'
                       }`}
-                      onClick={() => navigate('/notifications')}
+                      onClick={() => navigate('/pharmacy/notifications')}
                     >
                       <p className={`text-sm ${notification.unread ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
                         {notification.message}
@@ -94,7 +94,7 @@ export default function PharmacyTopNav() {
                 </div>
                 <div className="px-4 py-2 border-t border-gray-200">
                   <button
-                    onClick={() => navigate('/notifications')}
+                    onClick={() => navigate('/pharmacy/notifications')}
                     className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
                   >
                     View all notifications →
@@ -131,14 +131,14 @@ export default function PharmacyTopNav() {
 
                 <div className="py-1">
                   <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/pharmacy/profile')}
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left"
                   >
                     <UserCircle className="w-4 h-4 text-gray-600" />
                     <span className="text-sm text-gray-700">My Profile</span>
                   </button>
                   <button
-                    onClick={() => navigate('/settings')}
+                    onClick={() => navigate('/pharmacy/settings')}
                     className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left"
                   >
                     <Settings className="w-4 h-4 text-gray-600" />

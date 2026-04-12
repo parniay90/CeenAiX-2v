@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, X, CheckCircle, Calendar, FileText, MessageCircle, TestTube } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 
 interface Notification {
   id: string;

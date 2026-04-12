@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, ReactNode } from 'react';
 import { useUserProfile } from '../contexts/UserProfileContext';
 import { UserAvatar } from './UserAvatar';
-import { useNavigation } from '../Router';
+import { useNavigation } from '../contexts/NavigationContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { BackButton } from './BackButton';
