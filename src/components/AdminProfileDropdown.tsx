@@ -4,7 +4,7 @@ import {
   User, Settings, Shield, Activity, Bell, FileText,
   HelpCircle, LogOut, ChevronDown, Key, X, BarChart3, Globe
 } from 'lucide-react';
-import { useNavigate } from '../Router';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminProfileDropdownProps {
   isOpen: boolean;
